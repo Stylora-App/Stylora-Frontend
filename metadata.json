@@ -1,0 +1,7 @@
+{
+  "name": "Stylora",
+  "description": "Your personal AI stylist. Discover your season with Armochromia analysis, manage your digital wardrobe, and visualize outfits with generative AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

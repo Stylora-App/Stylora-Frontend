@@ -1,0 +1,171 @@
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { WardrobeService } from '../../services/wardrobe.service';
+import { GeminiService } from '../../services/gemini.service';
+import { IconComponent } from '../ui/icons.component';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, IconComponent],
+  template: `
+    <div class="space-y-8 animate-fade-in">
+      <!-- Welcome Header -->
+      <div class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6">
+        <div>
+           <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2">
+             Hello, {{wardrobeService.userProfile().name || 'Fashionista'}}
+           </h1>
+           <p class="text-gray-500">
+             @if (wardrobeService.userProfile().season) {
+               Your season is <span class="font-medium text-gray-900">{{wardrobeService.userProfile().season}}</span>.
+             } @else {
+               Discover your style today.
+             }
+           </p>
+        </div>
+        <div class="text-right">
+           <div class="text-3xl font-bold text-gray-900">{{currentDate | date:'EEEE'}}</div>
+           <div class="text-gray-500">{{currentDate | date:'MMMM d, y'}}</div>
+        </div>
+      </div>
+
+      <!-- Today's Suggestion -->
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="glass-panel p-8 rounded-3xl shadow-sm border border-white/50 relative overflow-hidden">
+          <div class="absolute top-0 right-0 p-4 opacity-10">
+            <app-icon name="sparkles" class="w-32 h-32"/>
+          </div>
+          
+          <h2 class="text-2xl font-serif font-bold mb-6 relative z-10">Outfit of the Day</h2>
+          
+          @if (suggestion()) {
+            <div class="space-y-6 relative z-10">
+               <div class="flex gap-4">
+                 @if (getSuggestedItem('top'); as top) {
+                   <div class="w-1/3 aspect-[3/4] rounded-xl overflow-hidden bg-white shadow-md border border-gray-100">
+                     <img [src]="top.image" class="w-full h-full object-cover">
+                   </div>
+                 }
+                 @if (getSuggestedItem('bottom'); as bottom) {
+                   <div class="w-1/3 aspect-[3/4] rounded-xl overflow-hidden bg-white shadow-md border border-gray-100">
+                     <img [src]="bottom.image" class="w-full h-full object-cover">
+                   </div>
+                 }
+                 @if (getSuggestedItem('shoes'); as shoes) {
+                   <div class="w-1/3 aspect-[3/4] rounded-xl overflow-hidden bg-white shadow-md border border-gray-100">
+                     <img [src]="shoes.image" class="w-full h-full object-cover">
+                   </div>
+                 }
+               </div>
+               
+               <div class="bg-white/60 p-4 rounded-xl backdrop-blur-sm">
+                 <p class="text-gray-800 italic">"{{suggestion().reasoning}}"</p>
+                 <div class="mt-2 text-xs font-bold uppercase tracking-wider text-gray-500">Style Tip</div>
+                 <p class="text-sm text-gray-600">{{suggestion().styleTip}}</p>
+               </div>
+
+               <button (click)="wearOutfit()" class="w-full py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition shadow-lg">
+                 Wear This Today
+               </button>
+            </div>
+          } @else if (loadingSuggestion()) {
+            <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+              <span class="animate-spin text-2xl mb-2">⟳</span>
+              <p>Curating your look...</p>
+            </div>
+          } @else {
+             <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+                <p class="mb-4">Add items to your wardrobe to get suggestions.</p>
+                <button (click)="generateSuggestion()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-900 transition">
+                  Refresh Suggestion
+                </button>
+             </div>
+          }
+        </div>
+
+        <!-- Stats / Quick Stats -->
+        <div class="grid grid-rows-2 gap-6">
+           <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col justify-center">
+             <div class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Wardrobe Value</div>
+             <div class="text-4xl font-serif font-bold">{{wardrobeService.items().length}} <span class="text-lg font-sans font-normal text-gray-400">items</span></div>
+           </div>
+           
+           <div class="bg-gray-900 text-white p-6 rounded-3xl shadow-lg relative overflow-hidden">
+             <div class="relative z-10">
+               <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Most Worn</div>
+               @if (mostWornItem(); as item) {
+                 <div class="flex items-center gap-4">
+                   <div class="w-16 h-16 rounded-lg bg-white overflow-hidden">
+                     <img [src]="item.image" class="w-full h-full object-cover">
+                   </div>
+                   <div>
+                     <div class="font-serif text-xl capitalize">{{item.category}}</div>
+                     <div class="text-gray-400">Worn {{item.wearCount}} times</div>
+                   </div>
+                 </div>
+               } @else {
+                 <div class="text-gray-500">No data yet</div>
+               }
+             </div>
+             <!-- Decorative bg circle -->
+             <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-gray-800 rounded-full"></div>
+           </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+export class DashboardComponent implements OnInit {
+  wardrobeService = inject(WardrobeService);
+  geminiService = inject(GeminiService);
+  
+  currentDate = new Date();
+  suggestion = signal<any>(null);
+  loadingSuggestion = signal(false);
+
+  ngOnInit() {
+    if (this.wardrobeService.items().length > 0) {
+      this.generateSuggestion();
+    }
+  }
+
+  getSuggestedItem(type: string) {
+    if (!this.suggestion()) return null;
+    const id = type === 'top' ? this.suggestion().topId : 
+               type === 'bottom' ? this.suggestion().bottomId : 
+               this.suggestion().shoeId;
+    return this.wardrobeService.items().find(i => i.id === id);
+  }
+
+  mostWornItem = computed(() => {
+    const items = this.wardrobeService.items();
+    if (items.length === 0) return null;
+    return [...items].sort((a, b) => b.wearCount - a.wearCount)[0];
+  });
+
+  async generateSuggestion() {
+    if (this.wardrobeService.items().length < 2) return;
+    
+    this.loadingSuggestion.set(true);
+    try {
+      const result = await this.geminiService.suggestOutfit(
+        this.wardrobeService.items(),
+        'office', // Hardcoded for demo, could be dynamic
+        'sunny'
+      );
+      this.suggestion.set(result);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this.loadingSuggestion.set(false);
+    }
+  }
+
+  wearOutfit() {
+    if (!this.suggestion()) return;
+    const ids = [this.suggestion().topId, this.suggestion().bottomId, this.suggestion().shoeId].filter(Boolean);
+    ids.forEach(id => this.wardrobeService.logWear(id));
+    alert('Outfit logged! Great choice.');
+  }
+}
