@@ -166,21 +166,18 @@ export class WardrobeComponent {
     
     this.isAnalyzing.set(true);
     try {
-      // Analyze with Gemini to get description and color
-      const desc = await this.geminiService.describeClothing(this.newItemImage()!.split(',')[1]);
-      
-      this.wardrobeService.addItem({
+      // Add item - description analysis is now handled by the backend
+      await this.wardrobeService.addItem({
         image: this.newItemImage()!,
         category: this.newItemCategory as any,
-        tags: [this.newItemOccasion],
-        description: desc
+        tags: [this.newItemOccasion]
       });
       
       this.isUploading.set(false);
       this.newItemImage.set(null);
     } catch (e) {
       console.error(e);
-      alert('Failed to analyze image. Try again.');
+      alert('Failed to save item. Try again.');
     } finally {
       this.isAnalyzing.set(false);
     }

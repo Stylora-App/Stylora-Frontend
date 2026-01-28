@@ -149,8 +149,20 @@ export class DashboardComponent implements OnInit {
     
     this.loadingSuggestion.set(true);
     try {
+      // Map items to the DTO format expected by the API
+      const itemsDto = this.wardrobeService.items().map(item => ({
+        id: item.id,
+        image: item.image,
+        category: item.category,
+        tags: item.tags,
+        color: item.color,
+        wearCount: item.wearCount,
+        lastWorn: item.lastWorn,
+        description: item.description
+      }));
+      
       const result = await this.geminiService.suggestOutfit(
-        this.wardrobeService.items(),
+        itemsDto,
         'office', // Hardcoded for demo, could be dynamic
         'sunny'
       );

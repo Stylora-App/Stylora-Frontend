@@ -3,10 +3,10 @@
   "version": 1,
   "newProjectRoot": "",
   "projects": {
-    "app": {
+    "stylora": {
       "projectType": "application",
       "root": "",
-      "sourceRoot": "./",
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
@@ -16,8 +16,11 @@
               "base": "./dist",
               "browser": "."
             },
+            "index": "index.html",
             "browser": "index.tsx",
-            "tsConfig": "tsconfig.json"
+            "tsConfig": "tsconfig.json",
+            "styles": [],
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -34,14 +37,14 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "port": 3000
+            "port": 4200
           },
           "configurations": {
             "production": {
-              "buildTarget": "app:build:production"
+              "buildTarget": "stylora:build:production"
             },
             "development": {
-              "buildTarget": "app:build:development"
+              "buildTarget": "stylora:build:development"
             }
           },
           "defaultConfiguration": "development"
