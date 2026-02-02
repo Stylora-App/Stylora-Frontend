@@ -13,10 +13,6 @@
         }
       </p>
     </div>
-    <div class="text-right">
-      <div class="text-3xl font-bold text-gray-900">{{currentDate | date:'EEEE'}}</div>
-      <div class="text-gray-500">{{currentDate | date:'MMMM d, y'}}</div>
-    </div>
   </div>
 
   <!-- Today's Suggestion -->
@@ -49,9 +45,9 @@
           </div>
           
           <div class="bg-white/60 p-4 rounded-xl backdrop-blur-sm">
-            <p class="text-gray-800 italic">"{{suggestion().reasoning}}"</p>
+            <p class="text-gray-800 italic">"{{suggestion()!.reasoning}}"</p>
             <div class="mt-2 text-xs font-bold uppercase tracking-wider text-gray-500">Style Tip</div>
-            <p class="text-sm text-gray-600">{{suggestion().styleTip}}</p>
+            <p class="text-sm text-gray-600">{{suggestion()!.styleTip}}</p>
           </div>
 
           <button (click)="wearOutfit()" class="w-full py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition shadow-lg">
