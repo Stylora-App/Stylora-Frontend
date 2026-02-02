@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { GeminiService } from '../../services/gemini.service';
+import { AuthService } from '../../services/auth.service';
 import { IconComponent } from '../ui/icons.component';
 
 @Component({
@@ -14,7 +15,7 @@ import { IconComponent } from '../ui/icons.component';
       <div class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6">
         <div>
            <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2">
-             Hello, {{wardrobeService.userProfile().name || 'Fashionista'}}
+             Hello, {{authService.getDisplayName()}}
            </h1>
            <p class="text-gray-500">
              @if (wardrobeService.userProfile().season) {
@@ -118,6 +119,7 @@ import { IconComponent } from '../ui/icons.component';
 })
 export class DashboardComponent implements OnInit {
   wardrobeService = inject(WardrobeService);
+  authService = inject(AuthService);
   geminiService = inject(GeminiService);
   
   currentDate = new Date();

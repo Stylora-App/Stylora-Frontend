@@ -1,27 +1,52 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { WardrobeComponent } from './components/wardrobe/wardrobe.component';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import { TryOnComponent } from './components/try-on/try-on.component';
+import { AuthComponent } from './components/auth/auth.component';
 import { IconComponent } from './components/ui/icons.component';
+import { AuthService } from './services/auth.service';
+import { WardrobeService } from './services/wardrobe.service';
 
 type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, IconComponent],
+  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, AuthComponent, IconComponent],
   templateUrl: './app.component.html'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  authService = inject(AuthService);
+  wardrobeService = inject(WardrobeService);
+  
   currentView = signal<View>('dashboard');
   
   // Mobile menu state
   isMenuOpen = signal(false);
 
+  ngOnInit() {
+    // Set up callback to load wardrobe data when auth changes
+    this.authService.setOnAuthChangeCallback(() => {
+      this.wardrobeService.initializeData();
+    });
+  }
+
   navigate(view: View) {
     this.currentView.set(view);
+    this.isMenuOpen.set(false);
+  }
+
+  onAuthenticated() {
+    // Load wardrobe data after login
+    this.wardrobeService.initializeData();
+    this.currentView.set('dashboard');
+  }
+
+  async logout() {
+    await this.authService.logout();
+    this.wardrobeService.clearData();
     this.isMenuOpen.set(false);
   }
 }

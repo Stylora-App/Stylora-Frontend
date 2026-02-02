@@ -1,3 +1,26 @@
+<!-- Loading State -->
+@if (authService.isLoading()) {
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="text-center">
+      <h1 class="font-serif text-5xl font-bold tracking-tight text-gray-900 mb-4">Stylora.</h1>
+      <div class="flex items-center justify-center gap-2 text-gray-500">
+        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Loading...</span>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Auth Page (not authenticated) -->
+@else if (!authService.isAuthenticated()) {
+  <app-auth (authenticated)="onAuthenticated()" />
+}
+
+<!-- Main App (authenticated) -->
+@else {
 <div class="min-h-screen flex bg-[#FAFAFA] text-gray-900 font-sans">
   
   <!-- Sidebar (Desktop) -->
@@ -40,19 +63,42 @@
       </button>
     </nav>
 
+    <!-- User Profile & Logout -->
     <div class="p-4 border-t border-gray-100">
-      <div class="text-xs text-gray-400 text-center">Stylora v1.0 &copy; 2024</div>
+      <div class="flex items-center gap-3 px-4 py-3 mb-2">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-medium">
+          {{ authService.getDisplayName().charAt(0).toUpperCase() }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-medium text-sm truncate">{{ authService.getDisplayName() }}</div>
+          <div class="text-xs text-gray-400 truncate">{{ authService.currentUser()?.email }}</div>
+        </div>
+      </div>
+      <button 
+        (click)="logout()"
+        class="flex items-center gap-2 w-full px-4 py-2 text-left rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        <span>Sign Out</span>
+      </button>
+      <div class="text-xs text-gray-400 text-center mt-3">Stylora v1.0 &copy; 2024</div>
     </div>
   </aside>
 
   <!-- Mobile Header -->
   <div class="md:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur z-30 border-b border-gray-200 p-4 flex justify-between items-center">
     <h1 class="font-serif text-xl font-bold">Stylora.</h1>
-    <button (click)="isMenuOpen.set(!isMenuOpen())" class="p-2">
-       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
+        {{ authService.getDisplayName().charAt(0).toUpperCase() }}
+      </div>
+      <button (click)="isMenuOpen.set(!isMenuOpen())" class="p-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-       </svg>
-    </button>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- Mobile Menu Overlay -->
@@ -63,12 +109,33 @@
         <h2 class="font-serif text-2xl font-bold">Menu</h2>
         <button (click)="isMenuOpen.set(false)" class="text-2xl">&times;</button>
       </div>
-      <nav class="space-y-4">
+      
+      <!-- User Info -->
+      <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-medium">
+          {{ authService.getDisplayName().charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <div class="font-medium">{{ authService.getDisplayName() }}</div>
+          <div class="text-sm text-gray-400">{{ authService.currentUser()?.email }}</div>
+        </div>
+      </div>
+
+      <nav class="space-y-4 flex-1">
         <button (click)="navigate('dashboard')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Dashboard</button>
         <button (click)="navigate('wardrobe')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Wardrobe</button>
         <button (click)="navigate('tryon')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Virtual Studio</button>
         <button (click)="navigate('analysis')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Color Analysis</button>
       </nav>
+
+      <button 
+        (click)="logout()"
+        class="flex items-center gap-2 py-3 text-red-500 hover:text-red-600 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        <span>Sign Out</span>
+      </button>
     </div>
   }
 
@@ -85,3 +152,4 @@
   </main>
 
 </div>
+}
