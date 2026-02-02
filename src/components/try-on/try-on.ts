@@ -19,6 +19,7 @@ export class TryOnComponent {
 
   selectedItem = signal<IWardrobeItem | null>(null);
   userPhoto = signal<string | null>(null);
+  originalPhoto = signal<string | null>(null);
   tempItem = signal<IWardrobeItem | null>(null);
   
   isGenerating = signal(false);
@@ -29,7 +30,9 @@ export class TryOnComponent {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.userPhoto.set(e.target?.result as string);
+        const photoData = e.target?.result as string;
+        this.userPhoto.set(photoData);
+        this.originalPhoto.set(photoData);
         this.generatedImage.set(null);
       };
       reader.readAsDataURL(file);
@@ -58,7 +61,6 @@ export class TryOnComponent {
 
   selectItem(item: IWardrobeItem) {
     this.selectedItem.set(item);
-    this.generatedImage.set(null);
   }
 
   async generate() {
@@ -67,16 +69,24 @@ export class TryOnComponent {
     this.isGenerating.set(true);
     try {
       const item = this.selectedItem()!;
-      const personImage = this.userPhoto()!.split(',')[1];
+      // Use the current displayed image (generated or original)
+      const currentImage = this.generatedImage() || this.userPhoto()!;
+      const personImage = currentImage.split(',')[1];
       const clothingImage = item.image.split(',')[1];
 
       const result = await this.geminiService.generateTryOn(personImage, clothingImage);
       this.generatedImage.set(result);
+      this.userPhoto.set(result); // Update userPhoto to the generated result
     } catch (e) {
       console.error(e);
       alert('Generation failed. Please ensure your API key is valid and try again.');
     } finally {
       this.isGenerating.set(false);
     }
+  }
+
+  revertToOriginal() {
+    this.userPhoto.set(this.originalPhoto());
+    this.generatedImage.set(null);
   }
 }

@@ -15,13 +15,14 @@
         
         <!-- Controls -->
         <div class="absolute top-3 right-3 flex gap-2">
-          <button (click)="generatedImage.set(null)" class="bg-white/90 p-2 rounded-full shadow-md text-gray-900 hover:scale-110 transition" title="Show Original">
-            <app-icon name="check" class="w-4 h-4"/>
+          <button (click)="revertToOriginal()" class="bg-white/90 p-2 rounded-full shadow-md text-gray-900 hover:scale-110 transition" title="Revert to Original">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+            </svg>
           </button>
           <a [href]="generatedImage()" download="stylora-look.jpg" class="bg-stone-900 text-white p-2 rounded-full shadow-md hover:scale-110 transition" title="Download">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M12 12.75l-7.5-7.5 15 0" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75V3" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
           </a>
         </div>
@@ -61,7 +62,7 @@
     <div class="w-40 h-4 bg-black/10 blur-xl rounded-[100%] -mt-2 z-0"></div>
 
     <!-- Generate Button (Floating below mirror) -->
-    @if (userPhoto() && selectedItem() && !isGenerating() && !generatedImage()) {
+    @if (userPhoto() && selectedItem() && !isGenerating()) {
       <div class="absolute bottom-8 z-20 animate-slide-up">
         <button (click)="generate()" class="group bg-stone-900 text-white pl-5 pr-6 py-3 rounded-full shadow-xl hover:bg-black hover:scale-105 transition flex items-center gap-3 ring-4 ring-white">
           <app-icon name="sparkles" class="w-5 h-5 text-amber-200"/>
