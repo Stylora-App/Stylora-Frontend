@@ -1,32 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
-
-export interface SeasonAnalysisResult {
-  season: string;
-  subSeason: string;
-  description: string;
-  recommendedColors: string[];
-  bestMetals: string;
-}
-
-export interface OutfitSuggestion {
-  topId: string;
-  bottomId: string;
-  shoeId: string;
-  reasoning: string;
-  styleTip: string;
-}
-
-export interface WardrobeItemDto {
-  id: string;
-  image: string;
-  category: string;
-  tags: string[];
-  color?: string;
-  wearCount: number;
-  lastWorn?: string;
-  description?: string;
-}
+import { ISeasonAnalysisResult, IOutfitSuggestion, IWardrobeItemDto, ITryOnResponse } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +8,8 @@ export interface WardrobeItemDto {
 export class GeminiService {
   private apiService = inject(ApiService);
 
-  async analyzeSeason(imageBase64: string): Promise<SeasonAnalysisResult> {
-    return this.apiService.post<SeasonAnalysisResult>('/analysis/season', {
+  async analyzeSeason(imageBase64: string): Promise<ISeasonAnalysisResult> {
+    return this.apiService.post<ISeasonAnalysisResult>('/analysis/season', {
       imageBase64
     });
   }
@@ -46,15 +20,15 @@ export class GeminiService {
   }
 
   async generateTryOn(personImageBase64: string, clothingImageBase64: string): Promise<string> {
-    const result = await this.apiService.post<{ generatedImage: string }>('/tryon/generate', {
+    const result = await this.apiService.post<ITryOnResponse>('/tryon/generate', {
       personImageBase64,
       clothingImageBase64
     });
     return result.generatedImage;
   }
 
-  async suggestOutfit(wardrobeItems: WardrobeItemDto[], occasion: string, weather: string): Promise<OutfitSuggestion> {
-    return this.apiService.post<OutfitSuggestion>('/outfit/suggest', {
+  async suggestOutfit(wardrobeItems: IWardrobeItemDto[], occasion: string, weather: string): Promise<IOutfitSuggestion> {
+    return this.apiService.post<IOutfitSuggestion>('/outfit/suggest', {
       items: wardrobeItems,
       occasion,
       weather

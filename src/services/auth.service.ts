@@ -1,35 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { ApiService } from './api.service';
-
-export interface User {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  displayName?: string;
-  season?: string;
-  subSeason?: string;
-  createdAt: string;
-}
-
-export interface AuthResponse {
-  success: boolean;
-  message?: string;
-  user?: User;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-}
+import { IUser, IAuthResponse, ILoginRequest, IRegisterRequest } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +8,7 @@ export interface RegisterRequest {
 export class AuthService {
   private apiService = inject(ApiService);
   
-  readonly currentUser = signal<User | null>(null);
+  readonly currentUser = signal<IUser | null>(null);
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
   readonly isLoading = signal(true);
 
@@ -55,7 +26,7 @@ export class AuthService {
   async checkAuthStatus(): Promise<boolean> {
     this.isLoading.set(true);
     try {
-      const response = await this.apiService.get<AuthResponse>('/auth/me');
+      const response = await this.apiService.get<IAuthResponse>('/auth/me');
       if (response.success && response.user) {
         this.currentUser.set(response.user);
         this.onAuthChangeCallback?.();
@@ -71,9 +42,9 @@ export class AuthService {
     }
   }
 
-  async login(request: LoginRequest): Promise<AuthResponse> {
+  async login(request: ILoginRequest): Promise<IAuthResponse> {
     try {
-      const response = await this.apiService.post<AuthResponse>('/auth/login', request);
+      const response = await this.apiService.post<IAuthResponse>('/auth/login', request);
       if (response.success && response.user) {
         this.currentUser.set(response.user);
         this.onAuthChangeCallback?.();
@@ -87,9 +58,9 @@ export class AuthService {
     }
   }
 
-  async register(request: RegisterRequest): Promise<AuthResponse> {
+  async register(request: IRegisterRequest): Promise<IAuthResponse> {
     try {
-      const response = await this.apiService.post<AuthResponse>('/auth/register', request);
+      const response = await this.apiService.post<IAuthResponse>('/auth/register', request);
       if (response.success && response.user) {
         this.currentUser.set(response.user);
         this.onAuthChangeCallback?.();

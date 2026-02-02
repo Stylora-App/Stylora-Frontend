@@ -1,11 +1,11 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { WardrobeComponent } from './components/wardrobe/wardrobe.component';
-import { AnalysisComponent } from './components/analysis/analysis.component';
-import { TryOnComponent } from './components/try-on/try-on.component';
-import { AuthComponent } from './components/auth/auth.component';
-import { IconComponent } from './components/ui/icons.component';
+import { DashboardComponent } from './components/dashboard/dashboard';
+import { WardrobeComponent } from './components/wardrobe/wardrobe';
+import { AnalysisComponent } from './components/analysis/analysis';
+import { TryOnComponent } from './components/try-on/try-on';
+import { AuthComponent } from './components/auth/auth';
+import { IconComponent } from './components/ui/icons';
 import { AuthService } from './services/auth.service';
 import { WardrobeService } from './services/wardrobe.service';
 
@@ -15,7 +15,8 @@ type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, AuthComponent, IconComponent],
-  templateUrl: './app.component.html'
+  templateUrl: './app.html',
+  styleUrl: './app.css'
 })
 export class AppComponent implements OnInit {
   authService = inject(AuthService);

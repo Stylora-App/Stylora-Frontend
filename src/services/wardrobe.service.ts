@@ -1,23 +1,6 @@
-import { Injectable, signal, computed, effect, inject } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
-
-export interface WardrobeItem {
-  id: string;
-  image: string; // Base64
-  category: 'top' | 'bottom' | 'shoes' | 'accessory' | 'fullbody';
-  tags: string[]; // e.g., 'office', 'sport', 'date'
-  color?: string;
-  wearCount: number;
-  lastWorn?: string;
-  description?: string;
-}
-
-export interface UserProfile {
-  season?: string;
-  subSeason?: string;
-  palette?: string[];
-  name?: string;
-}
+import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -25,8 +8,8 @@ export interface UserProfile {
 export class WardrobeService {
   private apiService = inject(ApiService);
   
-  readonly items = signal<WardrobeItem[]>([]);
-  readonly userProfile = signal<UserProfile>({});
+  readonly items = signal<IWardrobeItem[]>([]);
+  readonly userProfile = signal<IUserProfile>({});
   private isInitialized = false;
 
   constructor() {
@@ -36,8 +19,8 @@ export class WardrobeService {
   async initializeData() {
     try {
       const [items, profile] = await Promise.all([
-        this.apiService.get<WardrobeItem[]>('/wardrobe/items'),
-        this.apiService.get<UserProfile>('/wardrobe/profile')
+        this.apiService.get<IWardrobeItem[]>('/wardrobe/items'),
+        this.apiService.get<IUserProfile>('/wardrobe/profile')
       ]);
       this.items.set(items);
       this.userProfile.set(profile);
@@ -56,8 +39,8 @@ export class WardrobeService {
     this.isInitialized = false;
   }
 
-  async addItem(item: Omit<WardrobeItem, 'id' | 'wearCount'>) {
-    const newItem = await this.apiService.post<WardrobeItem>('/wardrobe/items', {
+  async addItem(item: ICreateWardrobeItemRequest) {
+    const newItem = await this.apiService.post<IWardrobeItem>('/wardrobe/items', {
       image: item.image,
       category: item.category,
       tags: item.tags
@@ -77,8 +60,8 @@ export class WardrobeService {
     );
   }
 
-  async updateProfile(profile: UserProfile) {
-    const updated = await this.apiService.put<UserProfile>('/wardrobe/profile', profile);
+  async updateProfile(profile: IUserProfile) {
+    const updated = await this.apiService.put<IUserProfile>('/wardrobe/profile', profile);
     this.userProfile.set(updated);
   }
 
