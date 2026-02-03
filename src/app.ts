@@ -4,17 +4,18 @@ import { DashboardComponent } from './components/dashboard/dashboard';
 import { WardrobeComponent } from './components/wardrobe/wardrobe';
 import { AnalysisComponent } from './components/analysis/analysis';
 import { TryOnComponent } from './components/try-on/try-on';
+import { ProfileComponent } from './components/profile/profile';
 import { AuthComponent } from './components/auth/auth';
 import { IconComponent } from './components/ui/icons';
 import { AuthService } from './services/auth.service';
 import { WardrobeService } from './services/wardrobe.service';
 
-type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon';
+type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon' | 'profile';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, AuthComponent, IconComponent],
+  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, ProfileComponent, AuthComponent, IconComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

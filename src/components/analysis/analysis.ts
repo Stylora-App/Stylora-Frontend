@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GeminiService } from '../../services/gemini.service';
 import { WardrobeService } from '../../services/wardrobe.service';
@@ -19,6 +19,9 @@ export class AnalysisComponent {
   previewImage = signal<string | null>(null);
   isLoading = signal(false);
   analysisResult = signal<ISeasonAnalysisResult | null>(null);
+  
+  // Event to notify parent to navigate to profile
+  navigateToProfile = output<void>();
 
   onFileSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -43,15 +46,15 @@ export class AnalysisComponent {
     }
   }
 
-  saveProfile() {
+  async saveProfile() {
     const result = this.analysisResult();
     if (result) {
-      this.wardrobeService.updateProfile({
+      await this.wardrobeService.updateProfile({
         season: result.season,
         subSeason: result.subSeason,
         palette: result.recommendedColors
       });
-      alert('Profile updated!');
+      this.navigateToProfile.emit();
     }
   }
 }

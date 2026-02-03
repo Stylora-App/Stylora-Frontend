@@ -10,6 +10,9 @@ export * from './analysis/analysis';
 // Try-On
 export * from './try-on/try-on';
 
+// Profile
+export * from './profile/profile';
+
 // Auth
 export * from './auth/auth';
 

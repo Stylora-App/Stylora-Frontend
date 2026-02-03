@@ -61,6 +61,14 @@
         <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500"></div>
         <span>Color Analysis</span>
       </button>
+
+      <button 
+        (click)="navigate('profile')"
+        [class.bg-gray-100]="currentView() === 'profile'"
+        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
+        <app-icon name="user" class="w-5 h-5"/>
+        <span>Profile</span>
+      </button>
     </nav>
 
     <!-- User Profile & Logout -->
@@ -125,6 +133,7 @@
         <button (click)="navigate('wardrobe')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Wardrobe</button>
         <button (click)="navigate('tryon')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Virtual Try-On</button>
         <button (click)="navigate('analysis')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Color Analysis</button>
+        <button (click)="navigate('profile')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Profile</button>
       </nav>
 
       <button 
@@ -144,7 +153,8 @@
       @switch (currentView()) {
         @case ('dashboard') { <app-dashboard /> }
         @case ('wardrobe') { <app-wardrobe /> }
-        @case ('analysis') { <app-analysis /> }
+        @case ('analysis') { <app-analysis (navigateToProfile)="navigate('profile')" /> }
+        @case ('profile') { <app-profile /> }
         @case ('tryon') { <app-try-on /> }
       }
     </div>
