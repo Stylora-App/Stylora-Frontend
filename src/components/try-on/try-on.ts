@@ -62,7 +62,11 @@ export class TryOnComponent {
   }
 
   selectItem(item: IWardrobeItem) {
-    this.selectedItem.set(item);
+    if (this.selectedItem()?.id === item.id) {
+      this.selectedItem.set(null);
+    } else {
+      this.selectedItem.set(item);
+    }
   }
 
   async generate() {
