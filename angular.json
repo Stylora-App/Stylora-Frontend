@@ -19,7 +19,7 @@
             "index": "index.html",
             "browser": "index.tsx",
             "tsConfig": "tsconfig.json",
-            "styles": [],
+            "styles": ["src/app.css"],
             "scripts": []
           },
           "configurations": {

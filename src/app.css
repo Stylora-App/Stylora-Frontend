@@ -1,15 +1,24 @@
-/* App-level styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Slow spin animation for sidebar avatar aura */
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
+/* Base layer customizations */
+@layer base {
+  body {
+    @apply font-sans bg-background text-foreground;
   }
-  to {
-    transform: rotate(360deg);
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
   }
 }
 
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
+/* Component layer customizations */
+@layer components {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
 }
