@@ -51,9 +51,10 @@ export class AuthService {
       }
       return response;
     } catch (e: any) {
+      const errorMessage = e?.message || 'Login failed. Please try again.';
       return {
         success: false,
-        message: e.message || 'Login failed. Please try again.'
+        message: errorMessage
       };
     }
   }
@@ -67,9 +68,10 @@ export class AuthService {
       }
       return response;
     } catch (e: any) {
+      const errorMessage = e?.message || 'Registration failed. Please try again.';
       return {
         success: false,
-        message: e.message || 'Registration failed. Please try again.'
+        message: errorMessage
       };
     }
   }
