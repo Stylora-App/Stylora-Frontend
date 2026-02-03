@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { GeminiService } from '../../services/gemini.service';
+import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 import { ClothingCategory } from '../../models';
 
@@ -16,6 +17,7 @@ import { ClothingCategory } from '../../models';
 export class WardrobeComponent {
   wardrobeService = inject(WardrobeService);
   geminiService = inject(GeminiService);
+  notificationService = inject(NotificationService);
 
   isUploading = signal(false);
   isAnalyzing = signal(false);
@@ -55,17 +57,20 @@ export class WardrobeComponent {
       
       this.isUploading.set(false);
       this.newItemImage.set(null);
+      this.notificationService.success('Item added to wardrobe!');
     } catch (e) {
       console.error(e);
-      alert('Failed to save item. Try again.');
+      this.notificationService.error('Failed to save item. Please try again.');
     } finally {
       this.isAnalyzing.set(false);
     }
   }
 
-  deleteItem(id: string) {
-    if (confirm('Are you sure you want to remove this item?')) {
+  async deleteItem(id: string) {
+    const confirmed = await this.notificationService.confirm('Are you sure you want to remove this item from your wardrobe?');
+    if (confirmed) {
       this.wardrobeService.deleteItem(id);
+      this.notificationService.success('Item removed from wardrobe');
     }
   }
 }

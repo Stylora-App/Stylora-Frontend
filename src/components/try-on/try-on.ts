@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GeminiService } from '../../services/gemini.service';
 import { WardrobeService } from '../../services/wardrobe.service';
+import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 import { IWardrobeItem } from '../../models';
 
@@ -16,6 +17,7 @@ import { IWardrobeItem } from '../../models';
 export class TryOnComponent {
   wardrobeService = inject(WardrobeService);
   geminiService = inject(GeminiService);
+  notificationService = inject(NotificationService);
 
   selectedItem = signal<IWardrobeItem | null>(null);
   userPhoto = signal<string | null>(null);
@@ -79,7 +81,7 @@ export class TryOnComponent {
       this.userPhoto.set(result); // Update userPhoto to the generated result
     } catch (e) {
       console.error(e);
-      alert('Generation failed. Please ensure your API key is valid and try again.');
+      this.notificationService.error('Generation failed. Please ensure your API key is valid and try again.');
     } finally {
       this.isGenerating.set(false);
     }

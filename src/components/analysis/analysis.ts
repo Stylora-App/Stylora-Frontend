@@ -2,6 +2,7 @@ import { Component, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GeminiService } from '../../services/gemini.service';
 import { WardrobeService } from '../../services/wardrobe.service';
+import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 import { ISeasonAnalysisResult } from '../../models';
 
@@ -15,6 +16,7 @@ import { ISeasonAnalysisResult } from '../../models';
 export class AnalysisComponent {
   geminiService = inject(GeminiService);
   wardrobeService = inject(WardrobeService);
+  notificationService = inject(NotificationService);
 
   previewImage = signal<string | null>(null);
   isLoading = signal(false);
@@ -40,7 +42,7 @@ export class AnalysisComponent {
       this.analysisResult.set(result);
     } catch (e) {
       console.error(e);
-      alert('Analysis failed. Please try a different photo.');
+      this.notificationService.error('Analysis failed. Please try a different photo.');
     } finally {
       this.isLoading.set(false);
     }

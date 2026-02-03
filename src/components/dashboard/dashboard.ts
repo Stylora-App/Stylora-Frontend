@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { GeminiService } from '../../services/gemini.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 import { IOutfitSuggestion, IWardrobeItem } from '../../models';
 
@@ -17,6 +18,7 @@ export class DashboardComponent implements OnInit {
   wardrobeService = inject(WardrobeService);
   authService = inject(AuthService);
   geminiService = inject(GeminiService);
+  notificationService = inject(NotificationService);
   
   currentDate = new Date();
   suggestion = signal<IOutfitSuggestion | null>(null);
@@ -77,6 +79,6 @@ export class DashboardComponent implements OnInit {
     if (!suggestion) return;
     const ids = [suggestion.topId, suggestion.bottomId, suggestion.shoeId].filter(Boolean);
     ids.forEach(id => this.wardrobeService.logWear(id));
-    alert('Outfit logged! Great choice.');
+    this.notificationService.success('Outfit logged! Great choice.');
   }
 }

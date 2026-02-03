@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 
 @Component({
@@ -15,6 +16,7 @@ import { IconComponent } from '../ui/icons';
 export class ProfileComponent {
   wardrobeService = inject(WardrobeService);
   authService = inject(AuthService);
+  notificationService = inject(NotificationService);
 
   isEditing = signal(false);
   displayName = signal('');
@@ -63,10 +65,10 @@ export class ProfileComponent {
         palette: this.userProfile().palette
       });
       this.isEditing.set(false);
-      alert('Profile saved!');
+      this.notificationService.success('Profile saved successfully!');
     } catch (e) {
       console.error(e);
-      alert('Failed to save profile');
+      this.notificationService.error('Failed to save profile. Please try again.');
     }
   }
 }
