@@ -14,13 +14,37 @@
 /* Smooth gradient rotation animation for aura effect */
 @keyframes rotate-gradient {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
   }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(360deg) scale(1);
   }
 }
 
 .rotate-gradient {
   animation: rotate-gradient 10s linear infinite;
+}
+
+/* Profile avatar styles */
+.profile-avatar-container {
+  position: relative;
+}
+
+/* Shimmer effect for the aura */
+@keyframes shimmer-aura {
+  0%, 100% {
+    opacity: 0.5;
+    filter: blur(12px);
+  }
+  50% {
+    opacity: 0.8;
+    filter: blur(16px);
+  }
+}
+
+.shimmer-aura {
+  animation: shimmer-aura 3s ease-in-out infinite;
 }

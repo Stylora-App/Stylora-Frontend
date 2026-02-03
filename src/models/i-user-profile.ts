@@ -4,4 +4,5 @@ export interface IUserProfile {
   palette?: string[];
   displayName?: string;
   preferredStyle?: string;
+  profilePicture?: string;
 }

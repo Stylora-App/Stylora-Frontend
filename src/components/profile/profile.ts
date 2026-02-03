@@ -20,24 +20,31 @@ export class ProfileComponent {
   displayName = signal('');
   preferredStyle = signal('');
 
-  userProfile = computed(() => this.wardrobeService.userProfile());
+  // Direct reference to service signal for reactivity
+  get userProfile() {
+    return this.wardrobeService.userProfile;
+  }
   
-  // Generate CSS gradient from palette colors for the aura effect
-  paletteGradient = computed(() => {
-    const palette = this.userProfile().palette || [];
-    if (palette.length === 0) return '';
+  // Generate CSS gradient from palette colors for the avatar background
+  avatarGradient = computed(() => {
+    const palette = this.wardrobeService.userProfile().palette || [];
     
-    if (palette.length === 1) {
-      return `radial-gradient(circle, ${palette[0]}40 0%, ${palette[0]}20 50%, transparent 100%)`;
+    // Default gradient if no palette
+    if (palette.length === 0) {
+      return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
     
-    // Create a smooth gradient from all palette colors
-    const stops = palette.map((color, index) => {
-      const position = (index / (palette.length - 1)) * 100;
-      return `${color}40 ${position}%`;
+    if (palette.length === 1) {
+      return `linear-gradient(135deg, ${palette[0]} 0%, ${palette[0]} 100%)`;
+    }
+    
+    // Create a diagonal gradient from palette colors (use up to 3 colors)
+    const stops = palette.slice(0, 3).map((color, index, arr) => {
+      const position = (index / (arr.length - 1)) * 100;
+      return `${color} ${position}%`;
     }).join(', ');
     
-    return `conic-gradient(from 0deg, ${stops})`;
+    return `linear-gradient(135deg, ${stops})`;
   });
 
   ngOnInit() {

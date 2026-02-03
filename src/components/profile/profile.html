@@ -1,21 +1,30 @@
 <div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
-  <!-- Profile Header with Color Aura -->
+  <!-- Profile Header -->
   <div class="relative">
     <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-      <!-- Color Aura Background -->
-      @if (userProfile().palette && userProfile().palette.length > 0) {
-        <div class="absolute inset-0 opacity-30 blur-2xl" [style.background]="paletteGradient()"></div>
-      }
       
       <div class="relative z-10 p-8 md:p-12">
         <div class="flex flex-col md:flex-row items-center gap-8">
-          <!-- Avatar with Color Aura Ring -->
-          <div class="relative">
-            <div class="absolute inset-0 rounded-full blur-xl opacity-60 animate-pulse-slow"
-                 [style.background]="paletteGradient()"></div>
-            <div class="relative w-32 h-32 rounded-full bg-gray-900 text-white flex items-center justify-center text-4xl font-serif font-bold shadow-2xl ring-4 ring-white"
-                 [style.box-shadow]="userProfile().palette && userProfile().palette.length > 0 ? '0 0 40px rgba(0,0,0,0.1), 0 0 80px ' + (userProfile().palette[0] || '#000') + '60' : '0 0 40px rgba(0,0,0,0.1)'">
-              {{authService.getDisplayName().charAt(0).toUpperCase()}}
+          <!-- Avatar with gradient background -->
+          <div class="relative group">
+            <!-- Avatar container -->
+            <div class="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-white overflow-hidden text-white"
+                 [style.background]="avatarGradient()">
+              
+              @if (userProfile().profilePicture) {
+                <img [src]="userProfile().profilePicture" alt="Profile" class="w-full h-full object-cover" />
+              } @else {
+                <!-- User initials -->
+                <span class="text-5xl font-serif font-bold">{{ authService.getDisplayName().charAt(0).toUpperCase() }}</span>
+              }
+              
+              <!-- Hover overlay for changing picture -->
+              <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -74,7 +83,7 @@
   </div>
 
   <!-- Color Palette Section -->
-  @if (userProfile().palette && userProfile().palette.length > 0) {
+  @if (userProfile().palette && userProfile().palette!.length > 0) {
     <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
       <h2 class="text-2xl font-serif font-bold mb-6">Your Color Palette</h2>
       

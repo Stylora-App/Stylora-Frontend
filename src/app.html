@@ -74,8 +74,14 @@
     <!-- User Profile & Logout -->
     <div class="p-4 border-t border-gray-100">
       <div class="flex items-center gap-3 px-4 py-3 mb-2">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-medium">
-          {{ authService.getDisplayName().charAt(0).toUpperCase() }}
+        <!-- Avatar with gradient from palette colors -->
+        <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-medium shadow-md"
+             [style.background]="userProfile().profilePicture ? 'transparent' : sidebarAvatarGradient()">
+          @if (userProfile().profilePicture) {
+            <img [src]="userProfile().profilePicture" alt="Profile" class="w-full h-full object-cover rounded-full" />
+          } @else {
+            <span class="text-sm">{{ authService.getDisplayName().charAt(0).toUpperCase() }}</span>
+          }
         </div>
         <div class="flex-1 min-w-0">
           <div class="font-medium text-sm truncate">{{ authService.getDisplayName() }}</div>
@@ -97,8 +103,14 @@
   <div class="md:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur z-30 border-b border-gray-200 p-4 flex justify-between items-center">
     <h1 class="font-serif text-xl font-bold">Stylora.</h1>
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-sm font-medium">
-        {{ authService.getDisplayName().charAt(0).toUpperCase() }}
+      <!-- Mobile avatar with gradient from palette colors -->
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium shadow-md"
+           [style.background]="userProfile().profilePicture ? 'transparent' : sidebarAvatarGradient()">
+        @if (userProfile().profilePicture) {
+          <img [src]="userProfile().profilePicture" alt="Profile" class="w-full h-full object-cover rounded-full" />
+        } @else {
+          <span>{{ authService.getDisplayName().charAt(0).toUpperCase() }}</span>
+        }
       </div>
       <button (click)="isMenuOpen.set(!isMenuOpen())" class="p-2">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">

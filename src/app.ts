@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { WardrobeComponent } from './components/wardrobe/wardrobe';
@@ -27,6 +27,33 @@ export class AppComponent implements OnInit {
   
   // Mobile menu state
   isMenuOpen = signal(false);
+
+  // User profile data for avatar - direct reference to service signal
+  get userProfile() {
+    return this.wardrobeService.userProfile;
+  }
+  
+  // Generate CSS gradient from palette colors for the avatar background
+  sidebarAvatarGradient = computed(() => {
+    const palette = this.wardrobeService.userProfile().palette || [];
+    
+    // Default gradient if no palette
+    if (palette.length === 0) {
+      return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    }
+    
+    if (palette.length === 1) {
+      return `linear-gradient(135deg, ${palette[0]} 0%, ${palette[0]} 100%)`;
+    }
+    
+    // Create a diagonal gradient from palette colors
+    const stops = palette.slice(0, 3).map((color, index, arr) => {
+      const position = (index / (arr.length - 1)) * 100;
+      return `${color} ${position}%`;
+    }).join(', ');
+    
+    return `linear-gradient(135deg, ${stops})`;
+  });
 
   ngOnInit() {
     // Set up callback to load wardrobe data when auth changes
