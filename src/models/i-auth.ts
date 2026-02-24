@@ -18,3 +18,8 @@ export interface IRegisterRequest {
   firstName?: string;
   lastName?: string;
 }
+
+export interface IChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

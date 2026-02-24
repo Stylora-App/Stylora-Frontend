@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { IUser, IAuthResponse, ILoginRequest, IRegisterRequest } from '../models';
+import { IUser, IAuthResponse, ILoginRequest, IRegisterRequest, IChangePasswordRequest } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -83,6 +83,19 @@ export class AuthService {
       // Ignore errors on logout
     } finally {
       this.currentUser.set(null);
+    }
+  }
+
+  async changePassword(request: IChangePasswordRequest): Promise<IAuthResponse> {
+    try {
+      const response = await this.apiService.post<IAuthResponse>('/auth/change-password', request);
+      return response;
+    } catch (e: any) {
+      const errorMessage = e?.message || 'Failed to change password. Please try again.';
+      return {
+        success: false,
+        message: errorMessage
+      };
     }
   }
 
