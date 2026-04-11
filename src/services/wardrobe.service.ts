@@ -20,7 +20,7 @@ export class WardrobeService {
     try {
       const [items, profile] = await Promise.all([
         this.apiService.get<IWardrobeItem[]>('/wardrobe/items'),
-        this.apiService.get<IUserProfile>('/wardrobe/profile')
+        this.apiService.get<IUserProfile>('/users/profile')
       ]);
       this.items.set(items);
       this.userProfile.set(profile);
@@ -60,7 +60,7 @@ export class WardrobeService {
   }
 
   async updateProfile(request: IUpdateProfileRequest) {
-    const updated = await this.apiService.put<IUserProfile>('/wardrobe/profile', request);
+    const updated = await this.apiService.put<IUserProfile>('/users/profile', request);
     this.userProfile.set(updated);
   }
 
