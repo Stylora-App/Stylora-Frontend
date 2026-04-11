@@ -11,3 +11,6 @@ export * from './i-season-analysis';
 
 // Try-On
 export * from './i-try-on';
+
+// Shopping
+export * from './i-shopping-product';

@@ -63,6 +63,14 @@
       </button>
 
       <button 
+        (click)="navigate('explore')"
+        [class.bg-gray-100]="currentView() === 'explore'"
+        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
+        <app-icon name="shopping-bag" class="w-5 h-5"/>
+        <span>Explore</span>
+      </button>
+
+      <button 
         (click)="navigate('profile')"
         [class.bg-gray-100]="currentView() === 'profile'"
         class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
@@ -145,6 +153,7 @@
         <button (click)="navigate('wardrobe')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Wardrobe</button>
         <button (click)="navigate('tryon')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Virtual Try-On</button>
         <button (click)="navigate('analysis')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Color Analysis</button>
+        <button (click)="navigate('explore')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Explore</button>
         <button (click)="navigate('profile')" class="block w-full text-left text-lg py-2 border-b border-gray-100">Profile</button>
       </nav>
 
@@ -168,6 +177,7 @@
         @case ('analysis') { <app-analysis (navigateToProfile)="navigate('profile')" /> }
         @case ('profile') { <app-profile /> }
         @case ('tryon') { <app-try-on /> }
+        @case ('explore') { <app-explore /> }
       }
     </div>
   </main>

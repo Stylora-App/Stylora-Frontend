@@ -67,3 +67,6 @@ yarn.lock.backup
 
 # Angular specific
 .angular/cache/
+
+# Environment (contains API keys — copy environment.example.ts → environment.ts)
+src/environments/environment.ts

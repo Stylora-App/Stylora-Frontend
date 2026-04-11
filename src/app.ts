@@ -8,15 +8,16 @@ import { ProfileComponent } from './components/profile/profile';
 import { AuthComponent } from './components/auth/auth';
 import { IconComponent } from './components/ui/icons';
 import { NotificationComponent } from './components/ui/notification/notification';
+import { ExploreComponent } from './components/explore/explore';
 import { AuthService } from './services/auth.service';
 import { WardrobeService } from './services/wardrobe.service';
 
-type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon' | 'profile';
+type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon' | 'profile' | 'explore';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, ProfileComponent, AuthComponent, IconComponent, NotificationComponent],
+  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, ProfileComponent, AuthComponent, IconComponent, NotificationComponent, ExploreComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
