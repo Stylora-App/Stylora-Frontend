@@ -2,7 +2,6 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WardrobeService } from '../../services/wardrobe.service';
-import { GeminiService } from '../../services/gemini.service';
 import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 import { ClothingCategory } from '../../models';
@@ -16,16 +15,16 @@ import { ClothingCategory } from '../../models';
 })
 export class WardrobeComponent {
   wardrobeService = inject(WardrobeService);
-  geminiService = inject(GeminiService);
   notificationService = inject(NotificationService);
 
   isUploading = signal(false);
   isAnalyzing = signal(false);
   newItemImage = signal<string | null>(null);
   newItemCategory: ClothingCategory = 'top';
-  newItemOccasion = 'casual';
+  newItemStyle = '';
 
-  categories = ['all', 'top', 'bottom', 'shoes', 'accessory', 'fullbody'];
+  categories = ['all', 'top', 'bottom', 'dress', 'jumpsuit', 'shoes'];
+  readonly styleOptions = ['Casual', 'Office', 'Sport', 'Elegant', 'Bohemian', 'Streetwear', 'Formal'];
   selectedCategory = signal('all');
 
   filteredItems = computed(() => {
@@ -52,11 +51,12 @@ export class WardrobeComponent {
       await this.wardrobeService.addItem({
         image: this.newItemImage()!,
         category: this.newItemCategory,
-        tags: [this.newItemOccasion]
+        style: this.newItemStyle || undefined
       });
       
       this.isUploading.set(false);
       this.newItemImage.set(null);
+      this.newItemStyle = '';
       this.notificationService.success('Item added to wardrobe!');
     } catch (e) {
       console.error(e);

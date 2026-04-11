@@ -1,8 +1,16 @@
 export interface IUserProfile {
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
+  style?: string;
   season?: string;
   subSeason?: string;
   palette?: string[];
-  displayName?: string;
-  preferredStyle?: string;
+}
+
+export interface IUpdateProfileRequest {
+  firstName?: string;
+  lastName?: string;
   profilePicture?: string;
+  style?: string;
 }

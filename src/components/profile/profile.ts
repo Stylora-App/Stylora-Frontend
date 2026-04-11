@@ -21,8 +21,11 @@ export class ProfileComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   isEditing = signal(false);
-  displayName = signal('');
-  preferredStyle = signal('');
+  firstName = signal('');
+  lastName = signal('');
+  style = signal('');
+
+  readonly styleOptions = ['Casual', 'Office', 'Sport', 'Elegant', 'Bohemian', 'Streetwear', 'Formal'];
 
   // Change password modal state
   showChangePasswordModal = signal(false);
@@ -34,51 +37,44 @@ export class ProfileComponent {
   showNewPassword = signal(false);
   showConfirmPassword = signal(false);
 
-  // Profile picture upload state
   isUploadingPicture = signal(false);
 
-  // Direct reference to service signal for reactivity
   get userProfile() {
     return this.wardrobeService.userProfile;
   }
-  
-  // Generate CSS gradient from palette colors for the avatar background
+
   avatarGradient = computed(() => {
     const palette = this.wardrobeService.userProfile().palette || [];
-    
-    // Default gradient if no palette
-    if (palette.length === 0) {
-      return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-    }
-    
-    if (palette.length === 1) {
-      return `linear-gradient(135deg, ${palette[0]} 0%, ${palette[0]} 100%)`;
-    }
-    
-    // Create a diagonal gradient from palette colors (use up to 3 colors)
+    if (palette.length === 0) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    if (palette.length === 1) return `linear-gradient(135deg, ${palette[0]} 0%, ${palette[0]} 100%)`;
     const stops = palette.slice(0, 3).map((color, index, arr) => {
       const position = (index / (arr.length - 1)) * 100;
       return `${color} ${position}%`;
     }).join(', ');
-    
     return `linear-gradient(135deg, ${stops})`;
   });
 
   ngOnInit() {
     const profile = this.userProfile();
-    this.displayName.set(profile.displayName || '');
-    this.preferredStyle.set(profile.preferredStyle || '');
+    this.firstName.set(profile.firstName || '');
+    this.lastName.set(profile.lastName || '');
+    this.style.set(profile.style || '');
+  }
+
+  startEditing() {
+    const profile = this.userProfile();
+    this.firstName.set(profile.firstName || '');
+    this.lastName.set(profile.lastName || '');
+    this.style.set(profile.style || '');
+    this.isEditing.set(true);
   }
 
   async saveProfile() {
     try {
       await this.wardrobeService.updateProfile({
-        displayName: this.displayName(),
-        preferredStyle: this.preferredStyle(),
-        season: this.userProfile().season,
-        subSeason: this.userProfile().subSeason,
-        palette: this.userProfile().palette,
-        profilePicture: this.userProfile().profilePicture
+        firstName: this.firstName() || undefined,
+        lastName: this.lastName() || undefined,
+        style: this.style() || undefined
       });
       this.isEditing.set(false);
       this.notificationService.success('Profile saved successfully!');
@@ -88,7 +84,6 @@ export class ProfileComponent {
     }
   }
 
-  // Profile picture upload methods
   triggerFileInput() {
     this.fileInput?.nativeElement?.click();
   }
@@ -96,40 +91,27 @@ export class ProfileComponent {
   async onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       this.notificationService.error('Please select an image file.');
       return;
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       this.notificationService.error('Image must be smaller than 5MB.');
       return;
     }
 
     this.isUploadingPicture.set(true);
-
     try {
-      // Convert to base64
       const base64 = await this.fileToBase64(file);
-      
-      // Update profile with new picture
-      await this.wardrobeService.updateProfile({
-        ...this.userProfile(),
-        profilePicture: base64
-      });
-      
+      await this.wardrobeService.updateProfile({ profilePicture: base64 });
       this.notificationService.success('Profile picture updated!');
     } catch (e) {
       console.error(e);
       this.notificationService.error('Failed to upload profile picture.');
     } finally {
       this.isUploadingPicture.set(false);
-      // Reset file input
       if (input) input.value = '';
     }
   }
@@ -145,10 +127,7 @@ export class ProfileComponent {
 
   async removeProfilePicture() {
     try {
-      await this.wardrobeService.updateProfile({
-        ...this.userProfile(),
-        profilePicture: undefined
-      });
+      await this.wardrobeService.updateProfile({ profilePicture: '' });
       this.notificationService.success('Profile picture removed.');
     } catch (e) {
       console.error(e);
@@ -156,7 +135,6 @@ export class ProfileComponent {
     }
   }
 
-  // Change password methods
   openChangePasswordModal() {
     this.showChangePasswordModal.set(true);
     this.currentPassword.set('');
@@ -176,25 +154,21 @@ export class ProfileComponent {
       this.notificationService.error('Please fill in all fields.');
       return;
     }
-
     if (this.newPassword().length < 6) {
       this.notificationService.error('New password must be at least 6 characters.');
       return;
     }
-
     if (this.newPassword() !== this.confirmPassword()) {
       this.notificationService.error('New passwords do not match.');
       return;
     }
 
     this.isChangingPassword.set(true);
-
     try {
       const response = await this.authService.changePassword({
         currentPassword: this.currentPassword(),
         newPassword: this.newPassword()
       });
-
       if (response.success) {
         this.notificationService.success('Password changed successfully!');
         this.closeChangePasswordModal();

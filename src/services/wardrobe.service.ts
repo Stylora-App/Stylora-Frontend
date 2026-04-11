@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest } from '../models';
+import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest, IUpdateProfileRequest, ISeasonAnalysisResult } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +27,6 @@ export class WardrobeService {
       this.isInitialized = true;
     } catch (e) {
       console.warn('Failed to load wardrobe data from API', e);
-      // Clear data on error (user might not be authenticated)
       this.items.set([]);
       this.userProfile.set({});
     }
@@ -43,7 +42,7 @@ export class WardrobeService {
     const newItem = await this.apiService.post<IWardrobeItem>('/wardrobe/items', {
       image: item.image,
       category: item.category,
-      tags: item.tags
+      style: item.style
     });
     this.items.update(current => [...current, newItem]);
   }
@@ -55,18 +54,18 @@ export class WardrobeService {
 
   async logWear(id: string) {
     await this.apiService.post(`/wardrobe/items/${id}/wear`, {});
-    this.items.update(current => 
-      current.map(i => i.id === id ? { ...i, wearCount: i.wearCount + 1, lastWorn: new Date().toISOString() } : i)
+    this.items.update(current =>
+      current.map(i => i.id === id ? { ...i, wornCount: i.wornCount + 1 } : i)
     );
   }
 
-  async updateProfile(profile: IUserProfile) {
-    const updated = await this.apiService.put<IUserProfile>('/wardrobe/profile', profile);
+  async updateProfile(request: IUpdateProfileRequest) {
+    const updated = await this.apiService.put<IUserProfile>('/wardrobe/profile', request);
     this.userProfile.set(updated);
   }
 
-  resetProfile() {
-    this.userProfile.set({});
-    this.updateProfile({});
+  async saveAnalysis(analysis: ISeasonAnalysisResult) {
+    const updated = await this.apiService.post<IUserProfile>('/analysis/save-profile', analysis);
+    this.userProfile.set(updated);
   }
 }

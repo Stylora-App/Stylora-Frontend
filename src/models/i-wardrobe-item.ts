@@ -1,18 +1,16 @@
-export type ClothingCategory = 'top' | 'bottom' | 'shoes' | 'accessory' | 'fullbody';
+export type ClothingCategory = 'top' | 'bottom' | 'dress' | 'jumpsuit' | 'shoes';
 
 export interface IWardrobeItem {
   id: string;
   image: string;
   category: ClothingCategory;
-  tags: string[];
+  style?: string;
   color?: string;
-  wearCount: number;
-  lastWorn?: string;
-  description?: string;
+  wornCount: number;
 }
 
 export interface ICreateWardrobeItemRequest {
   image: string;
   category: ClothingCategory;
-  tags: string[];
+  style?: string;
 }

@@ -102,7 +102,6 @@ export class AuthService {
   getDisplayName(): string {
     const user = this.currentUser();
     if (!user) return 'Guest';
-    if (user.displayName) return user.displayName;
     if (user.firstName) return user.firstName;
     return user.email.split('@')[0];
   }

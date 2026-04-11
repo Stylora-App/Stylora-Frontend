@@ -3,8 +3,7 @@ export interface IUser {
   email: string;
   firstName?: string;
   lastName?: string;
-  displayName?: string;
-  season?: string;
-  subSeason?: string;
+  profilePicture?: string;
+  style?: string;
   createdAt: string;
 }

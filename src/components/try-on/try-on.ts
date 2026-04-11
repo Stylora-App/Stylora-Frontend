@@ -50,8 +50,7 @@ export class TryOnComponent {
           id: 'temp_' + Date.now(),
           image: e.target?.result as string,
           category: 'top',
-          tags: ['custom'],
-          wearCount: 0
+          wornCount: 0
         };
         this.tempItem.set(newItem);
         this.selectedItem.set(newItem);

@@ -1,4 +1,5 @@
 export interface ISeasonAnalysisResult {
+  id?: string;
   season: string;
   subSeason: string;
   description: string;

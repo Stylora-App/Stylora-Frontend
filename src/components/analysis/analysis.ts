@@ -51,11 +51,7 @@ export class AnalysisComponent {
   async saveProfile() {
     const result = this.analysisResult();
     if (result) {
-      await this.wardrobeService.updateProfile({
-        season: result.season,
-        subSeason: result.subSeason,
-        palette: result.recommendedColors
-      });
+      await this.wardrobeService.saveAnalysis(result);
       this.navigateToProfile.emit();
     }
   }
