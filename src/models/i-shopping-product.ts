@@ -6,4 +6,5 @@ export interface IShoppingProduct {
   imageUrl: string;
   url: string;
   colour?: string;
+  paletteMatch?: boolean;
 }

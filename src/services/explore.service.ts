@@ -1,6 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { ApiService } from './api.service';
 import { IShoppingProduct } from '../models';
-import { environment } from '../environments/environment';
+
+export interface IExploreResult {
+  products: IShoppingProduct[];
+  hasMore: boolean;
+  page: number;
+  pageSize: number;
+}
 
 const SEASON_TERMS: Record<string, string> = {
   'light spring':  'bright pastel spring fashion coral peach',
@@ -19,8 +26,7 @@ const SEASON_TERMS: Record<string, string> = {
 
 @Injectable({ providedIn: 'root' })
 export class ExploreService {
-  private readonly API_HOST = 'asos2.p.rapidapi.com';
-  private readonly API_BASE = 'https://asos2.p.rapidapi.com';
+  private api = inject(ApiService);
 
   getSeasonQuery(season?: string): string {
     if (!season) return 'fashion outfit trending';
@@ -29,45 +35,41 @@ export class ExploreService {
     return match ? SEASON_TERMS[match] : 'fashion outfit trending';
   }
 
-  async searchProducts(query: string, limit = 12, offset = 0): Promise<IShoppingProduct[]> {
-    const key = environment.rapidApiKey;
-    if (!key) throw new Error('NO_API_KEY');
+  async search(params: {
+    q?: string;
+    category?: string;
+    gender?: string;
+    season?: string;
+    palette?: string[];
+    page?: number;
+    pageSize?: number;
+  }): Promise<IExploreResult> {
+    const queryParts: string[] = [];
 
-    const params = new URLSearchParams({
-      store: 'US',
-      country: 'US',
-      lang: 'en-US',
-      currency: 'USD',
-      q: query,
-      limit: String(limit),
-      offset: String(offset),
-    });
+    if (params.q)        queryParts.push(`q=${encodeURIComponent(params.q)}`);
+    if (params.category) queryParts.push(`category=${encodeURIComponent(params.category)}`);
+    if (params.gender)   queryParts.push(`gender=${encodeURIComponent(params.gender)}`);
+    if (params.season)   queryParts.push(`season=${encodeURIComponent(params.season)}`);
+    if (params.palette?.length) queryParts.push(`palette=${encodeURIComponent(params.palette.join(','))}`);
+    if (params.page)     queryParts.push(`page=${params.page}`);
+    if (params.pageSize) queryParts.push(`pageSize=${params.pageSize}`);
 
-    const response = await fetch(`${this.API_BASE}/products/v2/list?${params}`, {
-      headers: {
-        'X-RapidAPI-Key': key,
-        'X-RapidAPI-Host': this.API_HOST,
-      },
-    });
+    const qs = queryParts.length ? `?${queryParts.join('&')}` : '';
+    const result = await this.api.get<IExploreResult>(`/explore${qs}`);
 
-    if (response.status === 401 || response.status === 403) {
-      throw new Error('INVALID_API_KEY');
-    }
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch products. Please try again.');
-    }
-
-    const data = await response.json();
-    return (data.products || []).map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      brandName: p.brandName || 'ASOS',
-      price: p.price?.current?.text || '',
-      imageUrl: p.imageUrl ? `https:${p.imageUrl}` : '',
-      url: p.url ? `https://www.asos.com/${p.url}` : 'https://www.asos.com',
-      colour: p.colour,
+    // Normalise to frontend model shape
+    result.products = result.products.map((p: any) => ({
+      id:        p.id,
+      name:      p.name,
+      brandName: p.brandName ?? 'ASOS',
+      price:     p.price ?? '',
+      imageUrl:  p.imageUrl ?? '',
+      url:       p.url ?? 'https://www.asos.com',
+      colour:    p.colour,
+      paletteMatch: p.paletteMatch ?? false,
     }));
+
+    return result;
   }
 }
 

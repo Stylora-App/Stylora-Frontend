@@ -1,137 +1,255 @@
-<div class="space-y-8 animate-fade-in">
+<div class="explore-root animate-fade-in">
 
-  <!-- Header -->
-  <div class="flex flex-col gap-2 border-b border-gray-200 pb-6">
-    <h1 class="text-4xl font-serif font-bold text-gray-900">Explore</h1>
-    <p class="text-gray-500">{{ seasonHeadline }}</p>
-    @if (palette.length > 0) {
-      <div class="flex gap-2 mt-1">
-        @for (color of palette; track color) {
-          <div class="w-5 h-5 rounded-full border border-gray-200 shadow-sm flex-shrink-0"
-               [style.background]="color"></div>
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 1 — Gender selection
+  ═══════════════════════════════════════════════════════════════════════ -->
+  @if (step() === 'gender') {
+    <div class="gender-stage">
+      <div class="gender-intro">
+        <h1 class="explore-wordmark">Explore</h1>
+        <p class="explore-sub">{{ seasonHeadline }}</p>
+        @if (palette.length > 0) {
+          <div class="palette-strip">
+            @for (c of palette; track c) {
+              <span class="palette-dot" [style.background]="c"></span>
+            }
+          </div>
         }
       </div>
-    }
-  </div>
 
-  <!-- Search Bar + Category Filters -->
-  <div class="flex flex-col gap-4">
-    <div class="flex gap-3">
-      <div class="relative flex-1">
-        <app-icon name="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-        <input
-          type="text"
-          placeholder="Search styles, colours, items…"
-          class="w-full rounded-xl border border-gray-200 pl-10 pr-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="searchQuery.set($event)"
-          (keydown.enter)="onSearch()"
-        />
-      </div>
-      <button
-        (click)="onSearch()"
-        class="px-5 py-3 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition">
-        Search
-      </button>
-    </div>
+      <p class="gender-prompt">Who are you shopping for?</p>
 
-    <!-- Category Pills -->
-    <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-      @for (cat of categories; track cat.id) {
-        <button
-          (click)="onCategoryChange(cat.id)"
-          [class]="selectedCategory() === cat.id
-            ? 'bg-gray-900 text-white border-gray-900'
-            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'"
-          class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border transition">
-          {{ cat.label }}
+      <div class="gender-panels">
+        <!-- WOMEN -->
+        <button class="gender-panel gender-women" (click)="selectGender('women')">
+          <div class="gender-panel-content">
+            <span class="gender-eyebrow">Shop</span>
+            <span class="gender-title">Women</span>
+            <span class="gender-arrow">→</span>
+          </div>
         </button>
-      }
-    </div>
-  </div>
 
-  <!-- Error Banner -->
-  @if (error()) {
-    <div class="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-start gap-3">
-      <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874
-                 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-      </svg>
-      <div class="flex-1">
-        <p class="text-sm text-red-700">{{ error() }}</p>
-        <button (click)="fetchProducts(true)" class="mt-1 text-xs text-red-700 underline">Retry</button>
+        <!-- MEN -->
+        <button class="gender-panel gender-men" (click)="selectGender('men')">
+          <div class="gender-panel-content">
+            <span class="gender-eyebrow">Shop</span>
+            <span class="gender-title">Men</span>
+            <span class="gender-arrow">→</span>
+          </div>
+        </button>
       </div>
     </div>
   }
 
-  <!-- Loading Skeletons -->
-  @if (isLoading() && products().length === 0) {
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      @for (i of skeletonItems; track i) {
-        <div class="animate-pulse rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm">
-          <div class="aspect-[3/4] bg-gray-200"></div>
-          <div class="p-3 space-y-2">
-            <div class="h-3 bg-gray-200 rounded w-2/5"></div>
-            <div class="h-4 bg-gray-200 rounded w-4/5"></div>
-            <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 2 — Category selection
+  ═══════════════════════════════════════════════════════════════════════ -->
+  @if (step() === 'category') {
+    <div class="category-stage">
+
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <button class="breadcrumb-back" (click)="goBackToGender()">← Explore</button>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">{{ selectedGender() | uppercase }}</span>
+      </div>
+
+      <!-- Inline search bar -->
+      <div class="search-row">
+        <div class="search-wrap">
+          <app-icon name="search" class="search-icon" />
+          <input
+            type="text"
+            placeholder="Search any style or colour…"
+            class="search-input"
+            [value]="searchQuery()"
+            (input)="onSearchInput($any($event.target).value)"
+            (keydown.enter)="onSearchSubmit()"
+          />
+          @if (searchQuery()) {
+            <button class="search-clear" (click)="onSearchInput('')">✕</button>
+          }
+        </div>
+        <button class="search-btn" (click)="onSearchSubmit()">Search</button>
+      </div>
+
+      <!-- Featured "For You" hero card -->
+      <button class="cat-hero" (click)="onCategorySelect('all')">
+        <div class="cat-hero-palette">
+          @for (c of palette.slice(0, 10); track c) {
+            <div class="cat-hero-swatch" [style.background]="c"></div>
+          }
+          @if (!palette.length) {
+            <div class="cat-hero-swatch" style="background:#1c1c1c"></div>
+            <div class="cat-hero-swatch" style="background:#3d3d3d"></div>
+            <div class="cat-hero-swatch" style="background:#6b6b6b"></div>
+          }
+        </div>
+        <div class="cat-hero-overlay">
+          <div>
+            <p class="cat-hero-eyebrow">Colour-curated</p>
+            <h2 class="cat-hero-title">For You</h2>
+            @if (season) {
+              <p class="cat-hero-season">{{ season }} edit</p>
+            }
+          </div>
+          <span class="cat-hero-cta">Explore all →</span>
+        </div>
+      </button>
+
+      <!-- Category tiles grid -->
+      <div class="cat-grid">
+        @for (cat of visibleCategories; track cat.id; let i = $index) {
+          <button class="cat-tile" [style.background]="tilePaletteColor(i)" (click)="onCategorySelect(cat.id)">
+            <div class="cat-tile-content">
+              <span class="cat-tile-tagline">{{ cat.tagline }}</span>
+              <h3 class="cat-tile-label">{{ cat.label | uppercase }}</h3>
+            </div>
+            <span class="cat-tile-arrow">→</span>
+          </button>
+        }
+      </div>
+
+    </div>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       STEP 3 — Results
+  ═══════════════════════════════════════════════════════════════════════ -->
+  @if (step() === 'results') {
+    <div class="results-stage">
+
+      <!-- Top bar: breadcrumb + search -->
+      <div class="results-topbar">
+        <div class="breadcrumb">
+          <button class="breadcrumb-back" (click)="goBackToGender()">← Explore</button>
+          <span class="breadcrumb-sep">/</span>
+          <button class="breadcrumb-back" (click)="goBackToCategory()">{{ selectedGender() | uppercase }}</button>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current">{{ activeCategoryLabel | uppercase }}</span>
+        </div>
+
+        <div class="search-row">
+          <div class="search-wrap">
+            <app-icon name="search" class="search-icon" />
+            <input
+              type="text"
+              placeholder="Search…"
+              class="search-input"
+              [value]="searchQuery()"
+              (input)="onSearchInput($any($event.target).value)"
+              (keydown.enter)="onSearchSubmit()"
+            />
+            @if (searchQuery()) {
+              <button class="search-clear" (click)="onSearchInput('')">✕</button>
+            }
+          </div>
+          <button class="search-btn" (click)="onSearchSubmit()">Search</button>
+        </div>
+      </div>
+
+      <!-- Category pills -->
+      <div class="pills-strip">
+        <button
+          class="pill"
+          [class.pill-active]="selectedCategory() === null"
+          (click)="onPillCategoryChange('all')">For You</button>
+        @for (cat of visibleCategories; track cat.id) {
+          <button
+            class="pill"
+            [class.pill-active]="selectedCategory() === cat.id"
+            (click)="onPillCategoryChange(cat.id)">{{ cat.label }}</button>
+        }
+      </div>
+
+      <!-- Context line -->
+      @if (palette.length > 0 && !searchQuery()) {
+        <div class="context-line">
+          <div class="palette-strip">
+            @for (c of palette; track c) {
+              <span class="palette-dot" [style.background]="c"></span>
+            }
+          </div>
+          <span class="context-text">Showing palette-matched results only</span>
+        </div>
+      }
+
+      <!-- Error -->
+      @if (error()) {
+        <div class="error-banner">
+          <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71
+                     c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5
+                     -3.898 0L2.697 16.126z" />
+          </svg>
+          <div>
+            <p class="error-msg">{{ error() }}</p>
+            <button (click)="fetchProducts(true)" class="error-retry">Retry</button>
           </div>
         </div>
       }
-    </div>
-  }
 
-  <!-- Product Grid -->
-  @if (products().length > 0) {
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      @for (product of products(); track product.id) {
-        <a
-          [href]="product.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-          <div class="aspect-[3/4] overflow-hidden bg-gray-50">
-            @if (product.imageUrl) {
-              <img
-                [src]="product.imageUrl"
-                [alt]="product.name"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                loading="lazy"
-              />
-            } @else {
-              <div class="w-full h-full flex items-center justify-center">
-                <app-icon name="shopping-bag" class="w-12 h-12 text-gray-300" />
+      <!-- Skeleton -->
+      @if (isLoading() && products().length === 0) {
+        <div class="product-grid">
+          @for (i of skeletonItems; track i) {
+            <div class="skeleton-card">
+              <div class="skeleton-img"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line" style="width:40%"></div>
+                <div class="skeleton-line" style="width:80%"></div>
+                <div class="skeleton-line" style="width:33%"></div>
               </div>
-            }
-          </div>
-          <div class="p-3">
-            <p class="text-xs text-gray-400 font-medium uppercase tracking-wider truncate">{{ product.brandName }}</p>
-            <p class="text-sm font-medium text-gray-900 leading-snug mt-0.5 line-clamp-2">{{ product.name }}</p>
-            <p class="text-sm font-semibold text-gray-900 mt-1">{{ product.price }}</p>
-          </div>
-        </a>
+            </div>
+          }
+        </div>
       }
-    </div>
 
-    <!-- Load More -->
-    @if (hasMore()) {
-      <div class="flex justify-center pt-2">
-        <button
-          (click)="loadMore()"
-          [disabled]="isLoading()"
-          class="px-8 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
-          @if (isLoading()) { Loading… } @else { Load More }
-        </button>
-      </div>
-    }
-  }
+      <!-- Products -->
+      @if (products().length > 0) {
+        <div class="product-grid">
+          @for (product of products(); track product.id) {
+            <a [href]="product.url" target="_blank" rel="noopener noreferrer" class="product-card">
+              <div class="product-img-wrap">
+                @if (product.imageUrl) {
+                  <img [src]="product.imageUrl" [alt]="product.name" class="product-img" loading="lazy" />
+                } @else {
+                  <div class="product-img-placeholder">
+                    <app-icon name="shopping-bag" class="w-8 h-8" />
+                  </div>
+                }
+              </div>
+              <div class="product-info">
+                <p class="product-brand">{{ product.brandName }}</p>
+                <p class="product-name">{{ product.name }}</p>
+                <p class="product-price">{{ product.price }}</p>
+              </div>
+            </a>
+          }
+        </div>
 
-  <!-- Empty State -->
-  @if (!isLoading() && !error() && products().length === 0) {
-    <div class="text-center py-20 text-gray-400">
-      <app-icon name="shopping-bag" class="w-12 h-12 mx-auto mb-3 opacity-40" />
-      <p class="font-medium">No items found.</p>
-      <p class="text-sm mt-1">Try a different search or category.</p>
+        <!-- Load more -->
+        <div class="load-more-row">
+          @if (isLoading()) {
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+          } @else if (hasMore()) {
+            <button class="load-more-btn" (click)="loadMore()">Load more</button>
+          } @else {
+            <p class="end-label">End of results</p>
+          }
+        </div>
+      }
+
+      <!-- Empty state -->
+      @if (!isLoading() && !error() && products().length === 0) {
+        <div class="empty-state">
+          <app-icon name="shopping-bag" class="w-10 h-10 mx-auto mb-3 opacity-30" />
+          <p class="font-medium text-gray-500">No palette-matched items found.</p>
+          <p class="text-sm text-gray-400 mt-1">Try a different category or search term.</p>
+        </div>
+      }
+
     </div>
   }
 

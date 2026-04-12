@@ -1,106 +1,175 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { ExploreService } from '../../services/explore.service';
 import { IShoppingProduct } from '../../models';
 import { IconComponent } from '../ui/icons';
 
-const CATEGORIES = [
-  { id: 'all',         label: 'For You' },
-  { id: 'tops',        label: 'Tops' },
-  { id: 'bottoms',     label: 'Bottoms' },
-  { id: 'dresses',     label: 'Dresses' },
-  { id: 'shoes',       label: 'Shoes' },
-  { id: 'accessories', label: 'Accessories' },
+const WOMEN_CATEGORIES = [
+  { id: 'tops',        label: 'Tops',        tagline: 'Blouses, shirts & more' },
+  { id: 'dresses',     label: 'Dresses',     tagline: 'From casual to formal' },
+  { id: 'bottoms',     label: 'Bottoms',     tagline: 'Trousers, skirts & jeans' },
+  { id: 'outerwear',   label: 'Outerwear',   tagline: 'Coats, jackets & blazers' },
+  { id: 'shoes',       label: 'Shoes',       tagline: 'Heels, boots & sneakers' },
+  { id: 'accessories', label: 'Accessories', tagline: 'Bags, jewellery & more' },
 ];
 
-const CATEGORY_SUFFIXES: Record<string, string> = {
-  tops:        ' top blouse shirt',
-  bottoms:     ' pants trousers skirt jeans',
-  dresses:     ' dress',
-  shoes:       ' shoes boots heels sneakers',
-  accessories: ' bag accessories jewelry',
-};
+const MEN_CATEGORIES = [
+  { id: 'tops',        label: 'Tops',        tagline: 'Shirts, polos & sweatshirts' },
+  { id: 'bottoms',     label: 'Bottoms',     tagline: 'Trousers, jeans & chinos' },
+  { id: 'outerwear',   label: 'Outerwear',   tagline: 'Coats, jackets & blazers' },
+  { id: 'shoes',       label: 'Shoes',       tagline: 'Boots, sneakers & loafers' },
+  { id: 'accessories', label: 'Accessories', tagline: 'Watches, bags & more' },
+];
+
+// Editorial fallbacks when no palette available
+const TILE_FALLBACK_COLORS = ['#1E293B', '#3D1A24', '#292524', '#0F1F14', '#1C1712', '#1A2535'];
+
+type Step = 'gender' | 'category' | 'results';
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent],
+  imports: [CommonModule, IconComponent],
   templateUrl: './explore.html',
   styleUrl: './explore.css',
 })
-export class ExploreComponent implements OnInit {
-  private exploreService = inject(ExploreService);
+export class ExploreComponent implements OnDestroy {
+  private exploreService  = inject(ExploreService);
   private wardrobeService = inject(WardrobeService);
 
-  readonly categories = CATEGORIES;
+  readonly skeletonItems = Array.from({ length: 10 }, (_, i) => i);
 
-  products         = signal<IShoppingProduct[]>([]);
-  isLoading        = signal(false);
-  error            = signal<string | null>(null);
-  searchQuery      = signal('');
-  selectedCategory = signal('all');
-  hasMore          = signal(false);
-  readonly skeletonItems = [1, 2, 3, 4, 5, 6, 7, 8];
+  step             = signal<Step>('gender');
+  selectedGender   = signal<'women' | 'men' | null>(null);
+  selectedCategory = signal<string | null>(null);
 
-  private offset = 0;
+  products  = signal<IShoppingProduct[]>([]);
+  isLoading = signal(false);
+  error     = signal<string | null>(null);
+  searchQuery = signal('');
+  hasMore   = signal(false);
+
+  private currentPage = 1;
+  private readonly PAGE_SIZE = 20;
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   get season()  { return this.wardrobeService.userProfile().season; }
   get palette() { return this.wardrobeService.userProfile().palette || []; }
 
-  get seasonHeadline() {
-    const s = this.season;
-    return s ? `Curated picks for your ${s} palette` : 'Discover your next favourite look';
+  get visibleCategories() {
+    return this.selectedGender() === 'men' ? MEN_CATEGORIES : WOMEN_CATEGORIES;
   }
 
-  ngOnInit() {
+  get seasonHeadline() {
+    const s = this.season;
+    return s ? `Curated for your ${s} palette` : 'Discover your next favourite look';
+  }
+
+  get activeCategoryLabel() {
+    if (!this.selectedCategory()) return 'For You';
+    return this.visibleCategories.find(c => c.id === this.selectedCategory())?.label ?? 'For You';
+  }
+
+  tilePaletteColor(index: number): string {
+    if (!this.palette.length) return TILE_FALLBACK_COLORS[index % TILE_FALLBACK_COLORS.length];
+    const hex = this.palette[index % this.palette.length];
+    return this.darkenHex(hex, 0.48);
+  }
+
+  private darkenHex(hex: string, amount: number): string {
+    const h = hex.replace('#', '');
+    if (h.length !== 6) return '#1C1917';
+    const r = Math.round(parseInt(h.slice(0, 2), 16) * (1 - amount));
+    const g = Math.round(parseInt(h.slice(2, 4), 16) * (1 - amount));
+    const b = Math.round(parseInt(h.slice(4, 6), 16) * (1 - amount));
+    return `rgb(${r},${g},${b})`;
+  }
+
+  ngOnDestroy() {
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+  }
+
+  selectGender(g: 'women' | 'men') {
+    this.selectedGender.set(g);
+    this.step.set('category');
+  }
+
+  goBackToGender() {
+    this.step.set('gender');
+    this.selectedGender.set(null);
+    this.selectedCategory.set(null);
+    this.products.set([]);
+    this.error.set(null);
+    this.searchQuery.set('');
+  }
+
+  goBackToCategory() {
+    this.step.set('category');
+    this.selectedCategory.set(null);
+    this.products.set([]);
+    this.error.set(null);
+  }
+
+  onCategorySelect(catId: string) {
+    this.selectedCategory.set(catId === 'all' ? null : catId);
+    this.step.set('results');
     this.fetchProducts(true);
   }
 
-  private buildQuery(): string {
-    const base   = this.searchQuery() || this.exploreService.getSeasonQuery(this.season);
-    const suffix = CATEGORY_SUFFIXES[this.selectedCategory()] ?? '';
-    return `${base}${suffix}`;
+  onSearchInput(value: string) {
+    this.searchQuery.set(value);
+    if (this.step() !== 'results') {
+      this.selectedCategory.set(null);
+      this.step.set('results');
+    }
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => this.fetchProducts(true), 400);
   }
+
+  onSearchSubmit() {
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    if (this.step() !== 'results') {
+      this.selectedCategory.set(null);
+      this.step.set('results');
+    }
+    this.fetchProducts(true);
+  }
+
+  onPillCategoryChange(catId: string) {
+    this.selectedCategory.set(catId === 'all' ? null : catId);
+    this.fetchProducts(true);
+  }
+
+  loadMore() { this.fetchProducts(false); }
 
   async fetchProducts(reset: boolean) {
     if (reset) {
-      this.offset = 0;
+      this.currentPage = 1;
       this.products.set([]);
     }
     this.isLoading.set(true);
     this.error.set(null);
 
     try {
-      const items = await this.exploreService.searchProducts(this.buildQuery(), 12, this.offset);
-      this.products.update(p => reset ? items : [...p, ...items]);
-      this.hasMore.set(items.length === 12);
-      this.offset += items.length;
+      const result = await this.exploreService.search({
+        q:        this.searchQuery() || undefined,
+        category: this.selectedCategory() ?? 'all',
+        gender:   this.selectedGender() ?? undefined,
+        season:   this.season,
+        palette:  this.palette,
+        page:     this.currentPage,
+        pageSize: this.PAGE_SIZE,
+      });
+
+      this.products.update(prev => reset ? result.products : [...prev, ...result.products]);
+      this.hasMore.set(result.hasMore);
+      this.currentPage = reset ? 2 : this.currentPage + 1;
     } catch (e: any) {
-      if (e.message === 'NO_API_KEY') {
-        this.error.set('RapidAPI key is not configured. Add it to src/environments/environment.ts.');
-      } else if (e.message === 'INVALID_API_KEY') {
-        this.error.set('The RapidAPI key is invalid or has exceeded its quota.');
-      } else {
-        this.error.set(e.message || 'Something went wrong. Please try again.');
-      }
+      this.error.set(e.message || 'Something went wrong. Please try again.');
     } finally {
       this.isLoading.set(false);
     }
-  }
-
-  onSearch() {
-    this.fetchProducts(true);
-  }
-
-  onCategoryChange(cat: string) {
-    this.selectedCategory.set(cat);
-    this.fetchProducts(true);
-  }
-
-  loadMore() {
-    this.fetchProducts(false);
   }
 }
 
