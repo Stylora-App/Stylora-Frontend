@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { ExploreService } from '../../services/explore.service';
+import { TryOnStateService } from '../../services/try-on-state.service';
 import { IShoppingProduct } from '../../models';
 import { IconComponent } from '../ui/icons';
 
@@ -37,6 +38,10 @@ type Step = 'gender' | 'category' | 'results';
 export class ExploreComponent implements OnDestroy {
   private exploreService  = inject(ExploreService);
   private wardrobeService = inject(WardrobeService);
+  private tryOnStateService = inject(TryOnStateService);
+
+  /** Emitted when the user clicks "Try On" in the product modal */
+  @Output() navigateToTryOn = new EventEmitter<void>();
 
   readonly skeletonItems = Array.from({ length: 10 }, (_, i) => i);
 
@@ -49,6 +54,9 @@ export class ExploreComponent implements OnDestroy {
   error     = signal<string | null>(null);
   searchQuery = signal('');
   hasMore   = signal(false);
+
+  /** Product whose modal is currently open. */
+  selectedProduct = signal<IShoppingProduct | null>(null);
 
   private currentPage = 1;
   private readonly PAGE_SIZE = 20;
@@ -142,6 +150,25 @@ export class ExploreComponent implements OnDestroy {
   }
 
   loadMore() { this.fetchProducts(false); }
+
+  openProductModal(product: IShoppingProduct) {
+    this.selectedProduct.set(product);
+  }
+
+  closeModal() {
+    this.selectedProduct.set(null);
+  }
+
+  goToWebsite(product: IShoppingProduct) {
+    window.open(product.url, '_blank', 'noopener,noreferrer');
+    this.closeModal();
+  }
+
+  tryOnProduct(product: IShoppingProduct) {
+    this.tryOnStateService.pendingProduct.set(product);
+    this.closeModal();
+    this.navigateToTryOn.emit();
+  }
 
   async fetchProducts(reset: boolean) {
     if (reset) {

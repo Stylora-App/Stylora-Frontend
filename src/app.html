@@ -177,7 +177,7 @@
         @case ('analysis') { <app-analysis (navigateToProfile)="navigate('profile')" /> }
         @case ('profile') { <app-profile /> }
         @case ('tryon') { <app-try-on /> }
-        @case ('explore') { <app-explore /> }
+        @case ('explore') { <app-explore (navigateToTryOn)="onTryOnFromExplore()" /> }
       }
     </div>
   </main>

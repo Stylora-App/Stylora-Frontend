@@ -69,6 +69,11 @@ export class AppComponent implements OnInit {
     this.isMenuOpen.set(false);
   }
 
+  onTryOnFromExplore() {
+    this.currentView.set('tryon');
+    this.isMenuOpen.set(false);
+  }
+
   onAuthenticated() {
     // Load wardrobe data after login
     this.wardrobeService.initializeData();

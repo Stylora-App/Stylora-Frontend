@@ -7,6 +7,7 @@ export interface IWardrobeItem {
   style?: string;
   color?: string;
   wornCount: number;
+  name?: string;
 }
 
 export interface ICreateWardrobeItemRequest {

@@ -210,7 +210,7 @@
       @if (products().length > 0) {
         <div class="product-grid">
           @for (product of products(); track product.id) {
-            <a [href]="product.url" target="_blank" rel="noopener noreferrer" class="product-card">
+            <button class="product-card" (click)="openProductModal(product)">
               <div class="product-img-wrap">
                 @if (product.imageUrl) {
                   <img [src]="product.imageUrl" [alt]="product.name" class="product-img" loading="lazy" />
@@ -225,7 +225,7 @@
                 <p class="product-name">{{ product.name }}</p>
                 <p class="product-price">{{ product.price }}</p>
               </div>
-            </a>
+            </button>
           }
         </div>
 
@@ -255,3 +255,48 @@
 
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════════════
+     Product Modal
+═══════════════════════════════════════════════════════════════════════ -->
+@if (selectedProduct(); as product) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-sheet" (click)="$event.stopPropagation()">
+      <!-- Close -->
+      <button class="modal-close" (click)="closeModal()" aria-label="Close">✕</button>
+
+      <!-- Product image -->
+      <div class="modal-img-wrap">
+        @if (product.imageUrl) {
+          <img [src]="product.imageUrl" [alt]="product.name" class="modal-img" />
+        } @else {
+          <div class="modal-img-placeholder">
+            <app-icon name="shopping-bag" class="w-10 h-10" />
+          </div>
+        }
+      </div>
+
+      <!-- Product details -->
+      <div class="modal-info">
+        <p class="modal-brand">{{ product.brandName }}</p>
+        <h2 class="modal-name">{{ product.name }}</h2>
+        <p class="modal-price">{{ product.price }}</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-tryon" (click)="tryOnProduct(product)">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="modal-btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+          </svg>
+          Try On
+        </button>
+        <button class="modal-btn modal-btn-website" (click)="goToWebsite(product)">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="modal-btn-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+          </svg>
+          Go to Website
+        </button>
+      </div>
+    </div>
+  </div>
+}
