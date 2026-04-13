@@ -36,7 +36,6 @@ export class AppComponent implements OnInit {
   sidebarAvatarGradient = computed(() => {
     const palette = this.wardrobeService.userProfile().palette || [];
     
-    // Default gradient if no palette
     if (palette.length === 0) {
       return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
@@ -45,13 +44,20 @@ export class AppComponent implements OnInit {
       return `linear-gradient(135deg, ${palette[0]} 0%, ${palette[0]} 100%)`;
     }
     
-    // Create a diagonal gradient from palette colors
     const stops = palette.slice(0, 3).map((color, index, arr) => {
       const position = (index / (arr.length - 1)) * 100;
       return `${color} ${position}%`;
     }).join(', ');
     
     return `linear-gradient(135deg, ${stops})`;
+  });
+
+  // Conic gradient aura from palette colors (null when no palette exists)
+  paletteAuraGradient = computed(() => {
+    const palette = this.wardrobeService.userProfile().palette || [];
+    if (palette.length === 0) return null;
+    const colors = palette.length === 1 ? [palette[0], palette[0], palette[0]] : palette.slice(0, 6);
+    return `conic-gradient(${[...colors, colors[0]].join(', ')})`;
   });
 
   ngOnInit() {

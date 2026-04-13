@@ -16,8 +16,15 @@
         <div class="flex flex-col md:flex-row items-center gap-8">
           <!-- Avatar with gradient background -->
           <div class="relative group">
+            <!-- Palette aura -->
+            @if (paletteAuraGradient()) {
+              <div class="absolute rounded-full pointer-events-none"
+                   style="inset: -8px; filter: blur(12px) saturate(2); opacity: 0.95;"
+                   [style.background]="paletteAuraGradient()">
+              </div>
+            }
             <!-- Avatar container -->
-            <div class="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl ring-4 ring-white overflow-hidden text-white"
+            <div class="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl overflow-hidden text-white"
                  [style.background]="avatarGradient()">
               
               @if (userProfile().profilePicture) {

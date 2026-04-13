@@ -54,6 +54,13 @@ export class ProfileComponent {
     return `linear-gradient(135deg, ${stops})`;
   });
 
+  paletteAuraGradient = computed(() => {
+    const palette = this.wardrobeService.userProfile().palette || [];
+    if (palette.length === 0) return null;
+    const colors = palette.length === 1 ? [palette[0], palette[0], palette[0]] : palette.slice(0, 6);
+    return `conic-gradient(${[...colors, colors[0]].join(', ')})`;
+  });
+
   ngOnInit() {
     const profile = this.userProfile();
     this.firstName.set(profile.firstName || '');
