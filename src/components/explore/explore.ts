@@ -63,6 +63,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   get season()  { return this.wardrobeService.userProfile().season; }
   get palette() { return this.wardrobeService.userProfile().palette || []; }
+  get hasPalette() { return this.palette.length > 0; }
 
   get visibleCategories() {
     return this.selectedGender() === 'men' ? MEN_CATEGORIES : WOMEN_CATEGORIES;
@@ -117,6 +118,10 @@ export class ExploreComponent implements OnInit, OnDestroy {
     state.searchQuery.set(this.searchQuery());
     state.hasMore.set(this.hasMore());
     state.currentPage = this.currentPage;
+  }
+
+  goToAnalysis() {
+    this.router.navigate(['/analysis']);
   }
 
   selectGender(g: 'women' | 'men') {

@@ -142,6 +142,79 @@
 .gender-men .gender-title,
 .gender-men .gender-arrow { color: #1C1917; }
 
+/* ── No palette info card ───────────────────────────────────────────────── */
+.no-palette-card {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #E7E5E4;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+  animation: fadeIn 0.4s ease;
+}
+
+.no-palette-icon {
+  width: 56px;
+  height: 56px;
+  background: #F5F5F4;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #78716C;
+}
+
+.no-palette-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.no-palette-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1C1917;
+  margin: 0;
+}
+
+.no-palette-body {
+  font-size: 0.95rem;
+  color: #78716C;
+  line-height: 1.65;
+  max-width: 380px;
+  margin: 0;
+}
+
+.no-palette-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: #1C1917;
+  color: #F3EDE4;
+  border: none;
+  border-radius: 100px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.no-palette-cta:hover { background: #3D3735; transform: translateY(-1px); }
+
+.no-palette-arrow {
+  transition: transform 0.2s ease;
+}
+
+.no-palette-cta:hover .no-palette-arrow { transform: translateX(4px); }
+
 /* ═══════════════════════════════════════════════════════════════════════════
    STEP 2 — Category Selection
    ═══════════════════════════════════════════════════════════════════════════ */
