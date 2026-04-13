@@ -94,5 +94,6 @@ export class AppComponent implements OnInit {
     await this.authService.logout();
     this.wardrobeService.clearData();
     this.isMenuOpen.set(false);
+    this.router.navigate(['/login']);
   }
 }

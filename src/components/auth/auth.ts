@@ -1,7 +1,9 @@
 import { Component, signal, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { WardrobeService } from '../../services/wardrobe.service';
 import { ILoginRequest, IRegisterRequest } from '../../models';
 
 @Component({
@@ -13,6 +15,8 @@ import { ILoginRequest, IRegisterRequest } from '../../models';
 })
 export class AuthComponent {
   private authService = inject(AuthService);
+  private wardrobeService = inject(WardrobeService);
+  private router = inject(Router);
 
   @Output() authenticated = new EventEmitter<void>();
 
@@ -55,7 +59,12 @@ export class AuthComponent {
     this.isLoading.set(false);
 
     if (response.success) {
-      this.authenticated.emit();
+      if (this.authenticated.observed) {
+        this.authenticated.emit();
+      } else {
+        this.wardrobeService.initializeData();
+        this.router.navigate(['/dashboard']);
+      }
     } else {
       this.errorMessage.set(response.message || 'Login failed. Please try again.');
     }
@@ -94,7 +103,12 @@ export class AuthComponent {
     this.isLoading.set(false);
 
     if (response.success) {
-      this.authenticated.emit();
+      if (this.authenticated.observed) {
+        this.authenticated.emit();
+      } else {
+        this.wardrobeService.initializeData();
+        this.router.navigate(['/dashboard']);
+      }
     } else {
       this.errorMessage.set(response.message || 'Registration failed. Please try again.');
     }
