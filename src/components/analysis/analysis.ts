@@ -1,5 +1,6 @@
-import { Component, inject, signal, output } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { GeminiService } from '../../services/gemini.service';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { NotificationService } from '../../services/notification.service';
@@ -17,13 +18,11 @@ export class AnalysisComponent {
   geminiService = inject(GeminiService);
   wardrobeService = inject(WardrobeService);
   notificationService = inject(NotificationService);
+  private router = inject(Router);
 
   previewImage = signal<string | null>(null);
   isLoading = signal(false);
   analysisResult = signal<ISeasonAnalysisResult | null>(null);
-  
-  // Event to notify parent to navigate to profile
-  navigateToProfile = output<void>();
 
   onFileSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -52,7 +51,7 @@ export class AnalysisComponent {
     const result = this.analysisResult();
     if (result) {
       await this.wardrobeService.saveAnalysis(result);
-      this.navigateToProfile.emit();
+      this.router.navigate(['/profile']);
     }
   }
 }

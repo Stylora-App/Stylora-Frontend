@@ -171,14 +171,7 @@
   <!-- Main Content Area -->
   <main class="flex-1 p-6 md:p-12 overflow-y-auto h-screen pt-20 md:pt-12">
     <div class="max-w-6xl mx-auto">
-      @switch (currentView()) {
-        @case ('dashboard') { <app-dashboard /> }
-        @case ('wardrobe') { <app-wardrobe /> }
-        @case ('analysis') { <app-analysis (navigateToProfile)="navigate('profile')" /> }
-        @case ('profile') { <app-profile /> }
-        @case ('tryon') { <app-try-on /> }
-        @case ('explore') { <app-explore (navigateToTryOn)="onTryOnFromExplore()" /> }
-      }
+      <router-outlet />
     </div>
   </main>
 

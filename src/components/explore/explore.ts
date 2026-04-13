@@ -1,8 +1,10 @@
-import { Component, inject, signal, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, inject, signal, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { ExploreService } from '../../services/explore.service';
 import { TryOnStateService } from '../../services/try-on-state.service';
+import { ExploreStateService } from '../../services/explore-state.service';
 import { IShoppingProduct } from '../../models';
 import { IconComponent } from '../ui/icons';
 
@@ -23,7 +25,6 @@ const MEN_CATEGORIES = [
   { id: 'accessories', label: 'Accessories', tagline: 'Watches, bags & more' },
 ];
 
-// Editorial fallbacks when no palette available
 const TILE_FALLBACK_COLORS = ['#1E293B', '#3D1A24', '#292524', '#0F1F14', '#1C1712', '#1A2535'];
 
 type Step = 'gender' | 'category' | 'results';
@@ -35,13 +36,12 @@ type Step = 'gender' | 'category' | 'results';
   templateUrl: './explore.html',
   styleUrl: './explore.css',
 })
-export class ExploreComponent implements OnDestroy {
+export class ExploreComponent implements OnInit, OnDestroy {
   private exploreService  = inject(ExploreService);
   private wardrobeService = inject(WardrobeService);
   private tryOnStateService = inject(TryOnStateService);
-
-  /** Emitted when the user clicks "Try On" in the product modal */
-  @Output() navigateToTryOn = new EventEmitter<void>();
+  private exploreStateService = inject(ExploreStateService);
+  private router = inject(Router);
 
   readonly skeletonItems = Array.from({ length: 10 }, (_, i) => i);
 
@@ -55,7 +55,6 @@ export class ExploreComponent implements OnDestroy {
   searchQuery = signal('');
   hasMore   = signal(false);
 
-  /** Product whose modal is currently open. */
   selectedProduct = signal<IShoppingProduct | null>(null);
 
   private currentPage = 1;
@@ -94,8 +93,30 @@ export class ExploreComponent implements OnDestroy {
     return `rgb(${r},${g},${b})`;
   }
 
+  ngOnInit() {
+    // Restore persisted state from the service
+    const state = this.exploreStateService;
+    this.step.set(state.step());
+    this.selectedGender.set(state.selectedGender());
+    this.selectedCategory.set(state.selectedCategory());
+    this.products.set(state.products());
+    this.searchQuery.set(state.searchQuery());
+    this.hasMore.set(state.hasMore());
+    this.currentPage = state.currentPage;
+  }
+
   ngOnDestroy() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
+
+    // Persist current state so we can restore on return
+    const state = this.exploreStateService;
+    state.step.set(this.step());
+    state.selectedGender.set(this.selectedGender());
+    state.selectedCategory.set(this.selectedCategory());
+    state.products.set(this.products());
+    state.searchQuery.set(this.searchQuery());
+    state.hasMore.set(this.hasMore());
+    state.currentPage = this.currentPage;
   }
 
   selectGender(g: 'women' | 'men') {
@@ -166,8 +187,9 @@ export class ExploreComponent implements OnDestroy {
 
   tryOnProduct(product: IShoppingProduct) {
     this.tryOnStateService.pendingProduct.set(product);
+    this.exploreStateService.cameFromExplore.set(true);
     this.closeModal();
-    this.navigateToTryOn.emit();
+    this.router.navigate(['/tryon']);
   }
 
   async fetchProducts(reset: boolean) {

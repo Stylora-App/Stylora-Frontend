@@ -1,14 +1,10 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardComponent } from './components/dashboard/dashboard';
-import { WardrobeComponent } from './components/wardrobe/wardrobe';
-import { AnalysisComponent } from './components/analysis/analysis';
-import { TryOnComponent } from './components/try-on/try-on';
-import { ProfileComponent } from './components/profile/profile';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthComponent } from './components/auth/auth';
 import { IconComponent } from './components/ui/icons';
 import { NotificationComponent } from './components/ui/notification/notification';
-import { ExploreComponent } from './components/explore/explore';
 import { AuthService } from './services/auth.service';
 import { WardrobeService } from './services/wardrobe.service';
 
@@ -17,13 +13,14 @@ type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon' | 'profile' | 'explo
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, DashboardComponent, WardrobeComponent, AnalysisComponent, TryOnComponent, ProfileComponent, AuthComponent, IconComponent, NotificationComponent, ExploreComponent],
+  imports: [CommonModule, RouterOutlet, AuthComponent, IconComponent, NotificationComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class AppComponent implements OnInit {
   authService = inject(AuthService);
   wardrobeService = inject(WardrobeService);
+  private router = inject(Router);
   
   currentView = signal<View>('dashboard');
   
@@ -62,22 +59,29 @@ export class AppComponent implements OnInit {
     this.authService.setOnAuthChangeCallback(() => {
       this.wardrobeService.initializeData();
     });
+
+    // Sync currentView signal with router URL
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe(e => {
+      const path = e.urlAfterRedirects.replace(/^#?\//, '').split('?')[0];
+      const viewMap: Record<string, View> = {
+        dashboard: 'dashboard', wardrobe: 'wardrobe', analysis: 'analysis',
+        tryon: 'tryon', profile: 'profile', explore: 'explore',
+      };
+      if (viewMap[path]) this.currentView.set(viewMap[path]);
+    });
   }
 
   navigate(view: View) {
-    this.currentView.set(view);
-    this.isMenuOpen.set(false);
-  }
-
-  onTryOnFromExplore() {
-    this.currentView.set('tryon');
+    this.router.navigate([`/${view}`]);
     this.isMenuOpen.set(false);
   }
 
   onAuthenticated() {
     // Load wardrobe data after login
     this.wardrobeService.initializeData();
-    this.currentView.set('dashboard');
+    this.router.navigate(['/dashboard']);
   }
 
   async logout() {

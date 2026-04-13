@@ -1,9 +1,11 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { GeminiService } from '../../services/gemini.service';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { TryOnStateService } from '../../services/try-on-state.service';
+import { ExploreStateService } from '../../services/explore-state.service';
 import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
 import { IWardrobeItem } from '../../models';
@@ -20,6 +22,8 @@ export class TryOnComponent implements OnInit {
   geminiService = inject(GeminiService);
   notificationService = inject(NotificationService);
   tryOnStateService = inject(TryOnStateService);
+  exploreStateService = inject(ExploreStateService);
+  private router = inject(Router);
 
   selectedItem = signal<IWardrobeItem | null>(null);
   userPhoto = signal<string | null>(null);
@@ -29,6 +33,10 @@ export class TryOnComponent implements OnInit {
   isGenerating = signal(false);
   isLoadingPhoto = signal(false);
   generatedImage = signal<string | null>(null);
+
+  get showBackToExplore(): boolean {
+    return this.exploreStateService.cameFromExplore();
+  }
 
   async ngOnInit() {
     const pending = this.tryOnStateService.pendingProduct();
@@ -141,5 +149,10 @@ export class TryOnComponent implements OnInit {
   revertToOriginal() {
     this.userPhoto.set(this.originalPhoto());
     this.generatedImage.set(null);
+  }
+
+  goBackToExplore() {
+    this.exploreStateService.cameFromExplore.set(false);
+    this.router.navigate(['/explore']);
   }
 }
