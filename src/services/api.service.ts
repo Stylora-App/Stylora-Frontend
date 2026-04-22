@@ -118,6 +118,8 @@ export class ApiService {
         return 'The requested resource was not found.';
       case 409:
         return 'This resource already exists.';
+      case 429:
+        return 'Too many requests to the AI service. Please wait a minute and try again.';
       case 500:
         return 'A server error occurred. Please try again later.';
       case 503:

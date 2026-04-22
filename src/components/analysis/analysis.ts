@@ -39,9 +39,12 @@ export class AnalysisComponent {
     try {
       const result = await this.geminiService.analyzeSeason(this.previewImage()!.split(',')[1]);
       this.analysisResult.set(result);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
-      this.notificationService.error('Analysis failed. Please try a different photo.');
+      const errorMessage = e instanceof Error
+        ? e.message
+        : 'Analysis failed. Please try a different photo.';
+      this.notificationService.error(errorMessage);
     } finally {
       this.isLoading.set(false);
     }
