@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest, IUpdateProfileRequest, ISeasonAnalysisResult } from '../models';
+import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest, IUpdateProfileRequest, ISeasonAnalysisResult, ICreateWardrobeItemResponse } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -39,12 +39,17 @@ export class WardrobeService {
   }
 
   async addItem(item: ICreateWardrobeItemRequest) {
-    const newItem = await this.apiService.post<IWardrobeItem>('/wardrobe/items', {
+    const response = await this.apiService.post<ICreateWardrobeItemResponse>('/wardrobe/items', {
       image: item.image,
       category: item.category,
-      style: item.style
+      style: item.style,
+      overrideValidationWarning: item.overrideValidationWarning ?? false
     });
-    this.items.update(current => [...current, newItem]);
+    if (response.item) {
+      this.items.update(current => [...current, response.item!]);
+    }
+
+    return response;
   }
 
   async deleteItem(id: string) {

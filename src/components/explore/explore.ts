@@ -60,8 +60,11 @@ export class ExploreComponent implements OnInit, OnDestroy {
   private currentPage = 1;
   private readonly PAGE_SIZE = 20;
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private requestVersion = 0;
 
-  get season()  { return this.wardrobeService.userProfile().season; }
+  get season()  { return this.wardrobeService.userProfile().subSeason || this.wardrobeService.userProfile().season; }
+  get baseSeason() { return this.wardrobeService.userProfile().season; }
+  get subSeason() { return this.wardrobeService.userProfile().subSeason; }
   get palette() { return this.wardrobeService.userProfile().palette || []; }
   get hasPalette() { return this.palette.length > 0; }
 
@@ -108,6 +111,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    this.cacheCurrentResults(this.buildCacheKey(), this.products(), this.hasMore(), this.currentPage);
 
     // Persist current state so we can restore on return
     const state = this.exploreStateService;
@@ -136,6 +140,8 @@ export class ExploreComponent implements OnInit, OnDestroy {
     this.products.set([]);
     this.error.set(null);
     this.searchQuery.set('');
+    this.hasMore.set(false);
+    this.currentPage = 1;
   }
 
   goBackToCategory() {
@@ -143,12 +149,14 @@ export class ExploreComponent implements OnInit, OnDestroy {
     this.selectedCategory.set(null);
     this.products.set([]);
     this.error.set(null);
+    this.hasMore.set(false);
+    this.currentPage = 1;
   }
 
   onCategorySelect(catId: string) {
     this.selectedCategory.set(catId === 'all' ? null : catId);
     this.step.set('results');
-    this.fetchProducts(true);
+    this.loadResultsForCurrentTab();
   }
 
   onSearchInput(value: string) {
@@ -158,7 +166,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
       this.step.set('results');
     }
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
-    this.debounceTimer = setTimeout(() => this.fetchProducts(true), 400);
+    this.debounceTimer = setTimeout(() => this.loadResultsForCurrentTab(), 400);
   }
 
   onSearchSubmit() {
@@ -167,12 +175,12 @@ export class ExploreComponent implements OnInit, OnDestroy {
       this.selectedCategory.set(null);
       this.step.set('results');
     }
-    this.fetchProducts(true);
+    this.loadResultsForCurrentTab();
   }
 
   onPillCategoryChange(catId: string) {
     this.selectedCategory.set(catId === 'all' ? null : catId);
-    this.fetchProducts(true);
+    this.loadResultsForCurrentTab();
   }
 
   loadMore() { this.fetchProducts(false); }
@@ -197,7 +205,45 @@ export class ExploreComponent implements OnInit, OnDestroy {
     this.router.navigate(['/tryon']);
   }
 
-  async fetchProducts(reset: boolean) {
+  private loadResultsForCurrentTab(forceRefresh = false) {
+    const cacheKey = this.buildCacheKey();
+    if (!forceRefresh) {
+      const cached = this.exploreStateService.getCachedResults(cacheKey);
+      if (cached) {
+        this.products.set(cached.products);
+        this.hasMore.set(cached.hasMore);
+        this.currentPage = cached.currentPage;
+        this.error.set(null);
+        this.isLoading.set(false);
+        return;
+      }
+    }
+
+    void this.fetchProducts(true, forceRefresh);
+  }
+
+  private buildCacheKey() {
+    return [
+      this.selectedGender() ?? 'unknown',
+      this.selectedCategory() ?? 'all',
+      this.searchQuery().trim().toLowerCase(),
+      this.baseSeason ?? '',
+      this.subSeason ?? '',
+    ].join('|');
+  }
+
+  private cacheCurrentResults(cacheKey: string, products: IShoppingProduct[], hasMore: boolean, currentPage: number) {
+    this.exploreStateService.setCachedResults(cacheKey, {
+      products,
+      hasMore,
+      currentPage,
+    });
+  }
+
+  async fetchProducts(reset: boolean, forceRefresh = false) {
+    const cacheKey = this.buildCacheKey();
+    const requestVersion = ++this.requestVersion;
+
     if (reset) {
       this.currentPage = 1;
       this.products.set([]);
@@ -210,19 +256,38 @@ export class ExploreComponent implements OnInit, OnDestroy {
         q:        this.searchQuery() || undefined,
         category: this.selectedCategory() ?? 'all',
         gender:   this.selectedGender() ?? undefined,
-        season:   this.season,
+        season:   this.baseSeason,
+        subSeason: this.subSeason,
         palette:  this.palette,
         page:     this.currentPage,
         pageSize: this.PAGE_SIZE,
       });
 
-      this.products.update(prev => reset ? result.products : [...prev, ...result.products]);
+      const previousProducts = reset || forceRefresh
+        ? []
+        : this.exploreStateService.getCachedResults(cacheKey)?.products ?? this.products();
+      const nextProducts = reset ? result.products : [...previousProducts, ...result.products];
+      const nextPage = reset ? 2 : this.currentPage + 1;
+
+      this.cacheCurrentResults(cacheKey, nextProducts, result.hasMore, nextPage);
+
+      if (requestVersion !== this.requestVersion || cacheKey !== this.buildCacheKey()) {
+        return;
+      }
+
+      this.products.set(nextProducts);
       this.hasMore.set(result.hasMore);
-      this.currentPage = reset ? 2 : this.currentPage + 1;
+      this.currentPage = nextPage;
     } catch (e: any) {
+      if (requestVersion !== this.requestVersion || cacheKey !== this.buildCacheKey()) {
+        return;
+      }
+
       this.error.set(e.message || 'Something went wrong. Please try again.');
     } finally {
-      this.isLoading.set(false);
+      if (requestVersion === this.requestVersion && cacheKey === this.buildCacheKey()) {
+        this.isLoading.set(false);
+      }
     }
   }
 }

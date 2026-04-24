@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
-import { ClothingCategory } from '../../models';
+import { ClothingCategory, IWardrobeValidationWarning } from '../../models';
+import { ApiError } from '../../services/api.service';
 
 @Component({
   selector: 'app-wardrobe',
@@ -20,6 +21,7 @@ export class WardrobeComponent {
   isUploading = signal(false);
   isAnalyzing = signal(false);
   newItemImage = signal<string | null>(null);
+  validationWarning = signal<IWardrobeValidationWarning | null>(null);
   newItemCategory: ClothingCategory = 'top';
   newItemStyle = '';
 
@@ -38,7 +40,10 @@ export class WardrobeComponent {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => this.newItemImage.set(e.target?.result as string);
+      reader.onload = (e) => {
+        this.newItemImage.set(e.target?.result as string);
+        this.validationWarning.set(null);
+      };
       reader.readAsDataURL(file);
     }
   }
@@ -51,19 +56,32 @@ export class WardrobeComponent {
       await this.wardrobeService.addItem({
         image: this.newItemImage()!,
         category: this.newItemCategory,
-        style: this.newItemStyle || undefined
+        style: this.newItemStyle || undefined,
+        overrideValidationWarning: this.validationWarning()?.canOverride ?? false
       });
+
+      this.validationWarning.set(null);
       
       this.isUploading.set(false);
       this.newItemImage.set(null);
       this.newItemStyle = '';
       this.notificationService.success('Item added to wardrobe!');
     } catch (e) {
+      if (this.isValidationWarningError(e)) {
+        this.validationWarning.set(e.data ?? null);
+        return;
+      }
+
       console.error(e);
       this.notificationService.error('Failed to save item. Please try again.');
     } finally {
       this.isAnalyzing.set(false);
     }
+  }
+
+  closeUploadModal() {
+    this.isUploading.set(false);
+    this.validationWarning.set(null);
   }
 
   async deleteItem(id: string) {
@@ -72,5 +90,14 @@ export class WardrobeComponent {
       this.wardrobeService.deleteItem(id);
       this.notificationService.success('Item removed from wardrobe');
     }
+  }
+
+  private isValidationWarningError(error: unknown): error is ApiError<IWardrobeValidationWarning> {
+    return error instanceof ApiError &&
+      error.status === 409 &&
+      !!error.data &&
+      typeof error.data === 'object' &&
+      'message' in error.data &&
+      'canOverride' in error.data;
   }
 }

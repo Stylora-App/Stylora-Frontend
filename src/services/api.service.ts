@@ -1,5 +1,16 @@
 import { Injectable } from '@angular/core';
 
+export class ApiError<T = unknown> extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly data?: T
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,7 +30,7 @@ export class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         const errorMessage = errorData?.message || errorData?.error || this.getDefaultErrorMessage(response.status);
-        throw new Error(errorMessage);
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       return response.json();
@@ -45,7 +56,7 @@ export class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         const errorMessage = errorData?.message || errorData?.error || this.getDefaultErrorMessage(response.status);
-        throw new Error(errorMessage);
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       return response.json();
@@ -71,7 +82,7 @@ export class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         const errorMessage = errorData?.message || errorData?.error || this.getDefaultErrorMessage(response.status);
-        throw new Error(errorMessage);
+        throw new ApiError(errorMessage, response.status, errorData);
       }
 
       return response.json();
@@ -96,7 +107,7 @@ export class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         const errorMessage = errorData?.message || errorData?.error || this.getDefaultErrorMessage(response.status);
-        throw new Error(errorMessage);
+        throw new ApiError(errorMessage, response.status, errorData);
       }
     } catch (error: any) {
       if (error instanceof Error && error.message !== 'Failed to fetch') {
