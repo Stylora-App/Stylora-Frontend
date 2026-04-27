@@ -104,12 +104,16 @@
         </div>
       }
     </div>
+
+    @if (isAnalyzingClothing()) {
+      <div class="mb-3 text-xs text-stone-500">Analyzing uploaded item details…</div>
+    }
     
     <div class="flex gap-4 overflow-x-auto pb-4 px-1 scrollbar-hide snap-x">
       <!-- Add Custom Item Button -->
       <div class="flex-none snap-start">
         <div class="w-20 h-28 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-gray-900 hover:text-gray-900 transition cursor-pointer relative bg-gray-50 hover:bg-white group">
-          <input type="file" (change)="onClothingUpload($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10">
+          <input type="file" (change)="onClothingUpload($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" [disabled]="isAnalyzingClothing()">
           <div class="p-1.5 bg-white rounded-full shadow-sm mb-1 group-hover:scale-110 transition">
             <app-icon name="plus" class="w-4 h-4"/>
           </div>

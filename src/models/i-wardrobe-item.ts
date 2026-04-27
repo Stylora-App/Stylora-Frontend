@@ -1,9 +1,11 @@
-export type ClothingCategory = 'top' | 'bottom' | 'dress' | 'jumpsuit' | 'shoes';
+export type ClothingCategory = 'top' | 'bottom' | 'dress' | 'jumpsuit' | 'shoes' | 'outerwear' | 'accessories';
 
 export interface IWardrobeItem {
   id: string;
   image: string;
   category: ClothingCategory;
+  articleTypeLabel?: string;
+  audienceTag?: string;
   style?: string;
   color?: string;
   wornCount: number;
@@ -16,8 +18,9 @@ export interface IWardrobeItem {
 
 export interface ICreateWardrobeItemRequest {
   image: string;
-  category: ClothingCategory;
+  category?: ClothingCategory;
   style?: string;
+  color?: string;
   overrideValidationWarning?: boolean;
 }
 
@@ -28,6 +31,13 @@ export interface IWardrobeValidationWarning {
   message: string;
   canOverride: boolean;
   nearestLabels: string[];
+  suggestedCategory?: ClothingCategory;
+  suggestedArticleType?: string;
+  suggestedStyle?: string;
+  suggestedColor?: string;
+  suggestedColorFamily?: string;
+  suggestedUsage?: string;
+  suggestedGender?: string;
 }
 
 export interface ICreateWardrobeItemResponse {

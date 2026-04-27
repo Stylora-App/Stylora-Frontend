@@ -24,8 +24,10 @@ export class WardrobeComponent {
   validationWarning = signal<IWardrobeValidationWarning | null>(null);
   newItemCategory: ClothingCategory = 'top';
   newItemStyle = '';
+  newItemColor = '';
+  newItemArticleType = '';
 
-  categories = ['all', 'top', 'bottom', 'dress', 'jumpsuit', 'shoes'];
+  categories = ['all', 'top', 'bottom', 'dress', 'jumpsuit', 'outerwear', 'shoes', 'accessories'];
   readonly styleOptions = ['Casual', 'Office', 'Sport', 'Elegant', 'Bohemian', 'Streetwear', 'Formal'];
   selectedCategory = signal('all');
 
@@ -40,9 +42,26 @@ export class WardrobeComponent {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        this.newItemImage.set(e.target?.result as string);
+      reader.onload = async (e) => {
+        const image = e.target?.result as string;
+        this.newItemImage.set(image);
         this.validationWarning.set(null);
+        this.newItemColor = '';
+
+        this.isAnalyzing.set(true);
+        try {
+          const analysis = await this.wardrobeService.analyzeItem(image);
+          this.validationWarning.set(analysis);
+          this.newItemCategory = analysis.suggestedCategory ?? 'top';
+          this.newItemArticleType = analysis.suggestedArticleType ?? '';
+          this.newItemStyle = this.toDisplayStyle(analysis.suggestedStyle);
+          this.newItemColor = analysis.suggestedColor ?? '';
+        } catch (error) {
+          console.error(error);
+          this.notificationService.error('Failed to analyze this item. You can still choose the details manually.');
+        } finally {
+          this.isAnalyzing.set(false);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -57,6 +76,7 @@ export class WardrobeComponent {
         image: this.newItemImage()!,
         category: this.newItemCategory,
         style: this.newItemStyle || undefined,
+        color: this.newItemColor || undefined,
         overrideValidationWarning: this.validationWarning()?.canOverride ?? false
       });
 
@@ -64,7 +84,9 @@ export class WardrobeComponent {
       
       this.isUploading.set(false);
       this.newItemImage.set(null);
+      this.newItemArticleType = '';
       this.newItemStyle = '';
+      this.newItemColor = '';
       this.notificationService.success('Item added to wardrobe!');
     } catch (e) {
       if (this.isValidationWarningError(e)) {
@@ -82,6 +104,8 @@ export class WardrobeComponent {
   closeUploadModal() {
     this.isUploading.set(false);
     this.validationWarning.set(null);
+    this.newItemArticleType = '';
+    this.newItemColor = '';
   }
 
   async deleteItem(id: string) {
@@ -99,5 +123,22 @@ export class WardrobeComponent {
       typeof error.data === 'object' &&
       'message' in error.data &&
       'canOverride' in error.data;
+  }
+
+  private toDisplayStyle(style?: string): string {
+    if (!style) {
+      return '';
+    }
+
+    return style.charAt(0).toUpperCase() + style.slice(1);
+  }
+
+  displayItemLabel(articleTypeLabel?: string, category?: string | null): string {
+    const source = articleTypeLabel || category || '';
+    return source
+      .split(/[\s-]+/)
+      .filter(Boolean)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
   }
 }

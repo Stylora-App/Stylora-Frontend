@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { ApiService } from './api.service';
-import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest, IUpdateProfileRequest, ISeasonAnalysisResult, ICreateWardrobeItemResponse } from '../models';
+import { IWardrobeItem, IUserProfile, ICreateWardrobeItemRequest, IUpdateProfileRequest, ISeasonAnalysisResult, ICreateWardrobeItemResponse, IWardrobeValidationWarning } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +43,7 @@ export class WardrobeService {
       image: item.image,
       category: item.category,
       style: item.style,
+      color: item.color,
       overrideValidationWarning: item.overrideValidationWarning ?? false
     });
     if (response.item) {
@@ -50,6 +51,12 @@ export class WardrobeService {
     }
 
     return response;
+  }
+
+  async analyzeItem(image: string) {
+    return this.apiService.post<IWardrobeValidationWarning>('/wardrobe/items/analyze', {
+      image
+    });
   }
 
   async deleteItem(id: string) {

@@ -32,7 +32,8 @@
         <img [src]="item.image" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" alt="Clothing item">
         
         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4 text-white">
-          <div class="font-medium capitalize">{{item.category}}</div>
+          <div class="font-medium">{{displayItemLabel(item.articleTypeLabel, item.category)}}</div>
+          <div class="text-xs opacity-80 capitalize">{{item.category}}</div>
           <div class="text-xs opacity-75 mb-2">{{item.style || ''}}</div>
           <div class="flex gap-2">
             <button (click)="deleteItem(item.id)" class="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-red-500 hover:border-red-500 transition">
@@ -80,10 +81,24 @@
 
           @if (newItemImage()) {
             @if (validationWarning(); as warning) {
-              <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                <div class="font-medium">Validation warning</div>
+              <div
+                class="rounded-xl p-3 text-sm"
+                [class.border-amber-200]="warning.status === 'warning'"
+                [class.bg-amber-50]="warning.status === 'warning'"
+                [class.text-amber-900]="warning.status === 'warning'"
+                [class.border-emerald-200]="warning.status === 'pass'"
+                [class.bg-emerald-50]="warning.status === 'pass'"
+                [class.text-emerald-900]="warning.status === 'pass'"
+              >
+                <div class="font-medium">{{warning.status === 'warning' ? 'Validation warning' : 'Validation passed'}}</div>
                 <p class="mt-1">{{warning.message}}</p>
-                <p class="mt-2 text-xs text-amber-700">Confidence: {{(warning.confidence * 100).toFixed(0)}}%</p>
+                <p
+                  class="mt-2 text-xs"
+                  [class.text-amber-700]="warning.status === 'warning'"
+                  [class.text-emerald-700]="warning.status === 'pass'"
+                >
+                  Confidence: {{(warning.confidence * 100).toFixed(0)}}%
+                </p>
               </div>
             }
 
@@ -95,7 +110,9 @@
                   <option value="bottom">Bottom</option>
                   <option value="dress">Dress</option>
                   <option value="jumpsuit">Jumpsuit</option>
+                  <option value="outerwear">Outerwear</option>
                   <option value="shoes">Shoes</option>
+                  <option value="accessories">Accessories</option>
                 </select>
               </div>
               <div>
@@ -109,6 +126,29 @@
               </div>
             </div>
 
+            @if (validationWarning(); as warning) {
+              <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700 space-y-2">
+                <div class="font-medium text-gray-900">Detected details</div>
+                <div class="flex flex-wrap gap-2">
+                  @if (warning.suggestedCategory) {
+                    <span class="rounded-full bg-white px-2 py-1 border border-gray-200 capitalize">Category: {{warning.suggestedCategory}}</span>
+                  }
+                  @if (warning.suggestedArticleType) {
+                    <span class="rounded-full bg-white px-2 py-1 border border-gray-200">{{displayItemLabel(warning.suggestedArticleType)}}</span>
+                  }
+                  @if (warning.suggestedColor) {
+                    <span class="rounded-full bg-white px-2 py-1 border border-gray-200 capitalize">Color: {{warning.suggestedColor}}</span>
+                  }
+                  @if (warning.suggestedUsage) {
+                    <span class="rounded-full bg-white px-2 py-1 border border-gray-200 capitalize">Usage: {{warning.suggestedUsage}}</span>
+                  }
+                  @if (warning.suggestedGender) {
+                    <span class="rounded-full bg-white px-2 py-1 border border-gray-200 capitalize">Audience: {{warning.suggestedGender}}</span>
+                  }
+                </div>
+              </div>
+            }
+
             <button 
               (click)="saveNewItem()"
               [disabled]="isAnalyzing()"
@@ -116,7 +156,7 @@
               @if (isAnalyzing()) {
                 <span class="animate-spin">⟳</span> Analyzing...
               } @else {
-                <span>{{validationWarning() ? 'Save Anyway' : 'Save to Wardrobe'}}</span>
+                <span>{{validationWarning()?.status === 'warning' ? 'Save Anyway' : 'Save to Wardrobe'}}</span>
               }
             </button>
           }

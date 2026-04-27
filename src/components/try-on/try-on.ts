@@ -32,6 +32,7 @@ export class TryOnComponent implements OnInit {
 
   isGenerating = signal(false);
   isLoadingPhoto = signal(false);
+  isAnalyzingClothing = signal(false);
   generatedImage = signal<string | null>(null);
 
   get showBackToExplore(): boolean {
@@ -88,13 +89,32 @@ export class TryOnComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
+        const image = e.target?.result as string;
         const newItem: IWardrobeItem = {
           id: 'temp_' + Date.now(),
-          image: e.target?.result as string,
+          image,
           category: 'top',
           wornCount: 0
         };
+
+        this.isAnalyzingClothing.set(true);
+        try {
+          const analysis = await this.wardrobeService.analyzeItem(image);
+          newItem.category = analysis.suggestedCategory ?? 'top';
+          newItem.color = analysis.suggestedColor;
+          newItem.style = analysis.suggestedStyle;
+          newItem.name = [
+            analysis.suggestedColor,
+            analysis.suggestedArticleType ?? analysis.suggestedCategory,
+          ].filter(Boolean).join(' ');
+        } catch (error) {
+          console.error(error);
+          this.notificationService.error('We could not analyze the uploaded item, so it will be used as a generic top for now.');
+        } finally {
+          this.isAnalyzingClothing.set(false);
+        }
+
         this.tempItem.set(newItem);
         this.selectedItem.set(newItem);
         (event.target as HTMLInputElement).value = '';
