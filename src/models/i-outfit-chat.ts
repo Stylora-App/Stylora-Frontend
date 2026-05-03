@@ -31,5 +31,6 @@ export interface IOutfitChatResponse {
   missingFields: string[];
   missingRoles: string[];
   suggestedReplies: string[];
+  hasMoreOutfits: boolean;
   outfit?: IOutfitBoard;
 }

@@ -39,6 +39,12 @@ export class DashboardComponent {
   ];
 
   readonly activeOutfit = computed(() => this.latestResponse()?.outfit ?? null);
+  readonly hasUserStartedConversation = computed(() =>
+    this.messages().some(message => message.role === 'user')
+  );
+  readonly canShuffle = computed(() =>
+    this.latestResponse()?.status === 'success' && !!this.latestResponse()?.hasMoreOutfits
+  );
   readonly outputTitle = computed(() => {
     const response = this.latestResponse();
     if (!response) {
@@ -86,6 +92,30 @@ export class DashboardComponent {
 
   sendSuggestedReply(reply: string) {
     this.sendMessage(reply);
+  }
+
+  shuffleOutfit() {
+    if (!this.canShuffle() || this.isSending()) {
+      return;
+    }
+
+    this.sendMessage('Shuffle another option');
+  }
+
+  clearChat() {
+    if (this.isSending()) {
+      return;
+    }
+
+    this.draftMessage.set('');
+    this.latestResponse.set(null);
+    this.selectedBoardItemIndex.set(0);
+    this.messages.set([
+      {
+        role: 'assistant',
+        content: 'Describe the occasion and weather, and I will build an outfit only from your Stylora wardrobe.'
+      }
+    ]);
   }
 
   handleComposerKeydown(event: KeyboardEvent) {
@@ -138,7 +168,7 @@ export class DashboardComponent {
     }
 
     if (distance === 1) {
-      return offset * 3.6;
+      return offset * 8.1;
     }
 
     return Math.sign(offset) * (0.9 + ((distance - 2) * 1.1));

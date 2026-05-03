@@ -22,13 +22,15 @@
         <app-icon name="sparkles" class="w-6 h-6 text-stone-500"/>
       </div>
 
-      <div class="quick-prompts">
-        @for (prompt of quickPrompts; track prompt) {
-          <button type="button" class="quick-prompt-chip" (click)="sendSuggestedReply(prompt)">
-            {{prompt}}
-          </button>
-        }
-      </div>
+      @if (!hasUserStartedConversation()) {
+        <div class="quick-prompts">
+          @for (prompt of quickPrompts; track prompt) {
+            <button type="button" class="quick-prompt-chip" (click)="sendSuggestedReply(prompt)">
+              {{prompt}}
+            </button>
+          }
+        </div>
+      }
 
       <div class="chat-thread">
         @for (message of messages(); track $index) {
@@ -39,13 +41,19 @@
         }
       </div>
 
-      @if (latestResponse()?.suggestedReplies?.length) {
-        <div class="reply-suggestions">
-          @for (reply of latestResponse()!.suggestedReplies; track reply) {
-            <button type="button" class="reply-chip" (click)="sendSuggestedReply(reply)">
-              {{reply}}
-            </button>
-          }
+      @if (hasUserStartedConversation()) {
+        <div class="chat-actions">
+          <button
+            type="button"
+            class="chat-action-button"
+            [class.chat-action-button-disabled]="!canShuffle()"
+            (click)="shuffleOutfit()"
+            [disabled]="!canShuffle() || isSending()">
+            Shuffle
+          </button>
+          <button type="button" class="chat-action-button chat-action-button-secondary" (click)="clearChat()" [disabled]="isSending()">
+            Clear chat
+          </button>
         </div>
       }
 
