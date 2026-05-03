@@ -15,15 +15,21 @@ export class DashboardComponent {
   wardrobeService = inject(WardrobeService);
   authService = inject(AuthService);
 
-  mostWornItem = computed(() => {
+  topCategory = computed(() => {
     const items = this.wardrobeService.items();
-    if (items.length === 0) return null;
-    return [...items].sort((a, b) => b.wornCount - a.wornCount)[0];
+    if (items.length === 0) {
+      return null;
+    }
+
+    const counts = new Map<string, number>();
+    for (const item of items) {
+      counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
+    }
+
+    return [...counts.entries()].sort((left, right) => right[1] - left[1])[0]?.[0] ?? null;
   });
 
   recentItems = computed(() =>
-    [...this.wardrobeService.items()]
-      .sort((a, b) => b.wornCount - a.wornCount)
-      .slice(0, 6)
+    this.wardrobeService.items().slice(0, 6)
   );
 }

@@ -8,7 +8,7 @@ export interface IWardrobeItem {
   audienceTag?: string;
   style?: string;
   color?: string;
-  wornCount: number;
+  outfitRole?: string;
   name?: string;
   validationStatus?: 'pass' | 'warning';
   validationConfidence?: number;
@@ -19,6 +19,8 @@ export interface IWardrobeItem {
 export interface ICreateWardrobeItemRequest {
   image: string;
   category?: ClothingCategory;
+  articleTypeLabel?: string;
+  audienceTag?: string;
   style?: string;
   color?: string;
   overrideValidationWarning?: boolean;
@@ -35,9 +37,8 @@ export interface IWardrobeValidationWarning {
   suggestedArticleType?: string;
   suggestedStyle?: string;
   suggestedColor?: string;
-  suggestedColorFamily?: string;
-  suggestedUsage?: string;
   suggestedGender?: string;
+  suggestedOutfitRole?: string;
 }
 
 export interface ICreateWardrobeItemResponse {

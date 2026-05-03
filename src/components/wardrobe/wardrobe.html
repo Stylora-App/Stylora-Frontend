@@ -4,10 +4,37 @@
       <h2 class="text-3xl font-serif font-bold text-gray-900">Digital Wardrobe</h2>
       <p class="text-gray-500">Manage your collection</p>
     </div>
-    <button (click)="isUploading.set(true)" class="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition shadow-lg">
-      <app-icon name="plus" class="w-5 h-5"/>
-      <span>Add Item</span>
-    </button>
+    <div class="flex items-center gap-2">
+      @if (isSelectionMode()) {
+        <button
+          (click)="toggleSelectAllFilteredItems()"
+          [disabled]="!hasFilteredItems()"
+          class="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-400 transition shadow-sm disabled:opacity-50 disabled:hover:border-gray-200"
+        >
+          <span>{{areAllFilteredItemsSelected() ? 'Clear Selection' : 'Select All'}}</span>
+        </button>
+        <button
+          (click)="deleteSelectedItems()"
+          [disabled]="selectedItemIds().size === 0"
+          class="flex items-center justify-center bg-red-600 text-white w-11 h-11 rounded-lg hover:bg-red-500 transition shadow-lg disabled:opacity-50"
+          aria-label="Delete selected items"
+          title="Delete selected items"
+        >
+          <app-icon name="trash" class="w-5 h-5"/>
+        </button>
+      }
+      <button
+        (click)="toggleSelectionMode()"
+        [disabled]="!hasWardrobeItems()"
+        class="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-400 transition shadow-sm disabled:opacity-50 disabled:hover:border-gray-200"
+      >
+        <span>{{isSelectionMode() ? 'Cancel' : 'Select'}}</span>
+      </button>
+      <button (click)="isUploading.set(true)" class="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition shadow-lg">
+        <app-icon name="plus" class="w-5 h-5"/>
+        <span>Add Item</span>
+      </button>
+    </div>
   </div>
 
   <!-- Filters -->
@@ -30,24 +57,34 @@
     @for (item of filteredItems(); track item.id) {
       <div class="group relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden aspect-[3/4]">
         <img [src]="item.image" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" alt="Clothing item">
+
+        @if (isSelectionMode()) {
+          <button
+            type="button"
+            (click)="toggleItemSelection(item.id)"
+            class="absolute inset-0 z-10 border-2 transition"
+            [class.border-gray-200]="!isItemSelected(item.id)"
+            [class.border-gray-900]="isItemSelected(item.id)"
+            [class.bg-black/5]="isItemSelected(item.id)"
+            [attr.aria-pressed]="isItemSelected(item.id)"
+          >
+            <span class="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white bg-white/95 text-xs font-semibold text-gray-900 shadow-sm">
+              {{isItemSelected(item.id) ? '✓' : ''}}
+            </span>
+          </button>
+        }
         
         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4 text-white">
           <div class="font-medium">{{displayItemLabel(item.articleTypeLabel, item.category)}}</div>
           <div class="text-xs opacity-80 capitalize">{{item.category}}</div>
-          <div class="text-xs opacity-75 mb-2">{{item.style || ''}}</div>
+          <div class="text-xs opacity-75 mb-2">{{item.style || ''}}{{item.color ? ' · ' + item.color : ''}}</div>
           <div class="flex gap-2">
             <button (click)="deleteItem(item.id)" class="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-red-500 hover:border-red-500 transition">
               <app-icon name="trash" class="w-4 h-4"/>
             </button>
-            <div class="ml-auto text-xs flex items-center gap-1 bg-white/20 px-2 rounded-full">
-              <span>Worn: {{item.wornCount}}</span>
-            </div>
           </div>
         </div>
         
-        @if (item.category === 'top' && item.color) {
-          <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-white shadow-sm" [style.background-color]="item.color"></div>
-        }
       </div>
     } @empty {
       <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
@@ -138,11 +175,11 @@
                         @if (warning.suggestedColor) {
                           <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Color: {{warning.suggestedColor}}</span>
                         }
-                        @if (warning.suggestedUsage) {
-                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Usage: {{warning.suggestedUsage}}</span>
-                        }
                         @if (warning.suggestedGender) {
                           <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Audience: {{warning.suggestedGender}}</span>
+                        }
+                        @if (warning.suggestedOutfitRole) {
+                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Outfit role: {{warning.suggestedOutfitRole.replace('_', ' ')}}</span>
                         }
                       </div>
                     </div>
@@ -162,6 +199,19 @@
                       </select>
                     </div>
                     <div>
+                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Article Type</label>
+                      <input [(ngModel)]="newItemArticleType" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm" placeholder="e.g. shirt, dress, blazer">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Audience</label>
+                      <select [(ngModel)]="newItemAudienceTag" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm">
+                        <option value="">— None —</option>
+                        @for (opt of audienceTagOptions; track opt) {
+                          <option [value]="opt">{{opt | titlecase}}</option>
+                        }
+                      </select>
+                    </div>
+                    <div>
                       <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Style</label>
                       <select [(ngModel)]="newItemStyle" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm">
                         <option value="">— None —</option>
@@ -169,6 +219,10 @@
                           <option [value]="opt">{{opt}}</option>
                         }
                       </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Color</label>
+                      <input [(ngModel)]="newItemColor" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm" placeholder="e.g. navy blue, camel, light pink">
                     </div>
                   </div>
 

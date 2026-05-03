@@ -46,7 +46,6 @@ export class TryOnComponent implements OnInit {
         id: 'explore_' + pending.id,
         image: pending.imageUrl,       
         category: 'top',
-        wornCount: 0,
         name: pending.name,
       };
       this.tempItem.set(tempItem);
@@ -94,15 +93,17 @@ export class TryOnComponent implements OnInit {
         const newItem: IWardrobeItem = {
           id: 'temp_' + Date.now(),
           image,
-          category: 'top',
-          wornCount: 0
+          category: 'top'
         };
 
         this.isAnalyzingClothing.set(true);
         try {
           const analysis = await this.wardrobeService.analyzeItem(image);
           newItem.category = analysis.suggestedCategory ?? 'top';
+          newItem.articleTypeLabel = analysis.suggestedArticleType;
+          newItem.audienceTag = analysis.suggestedGender;
           newItem.color = analysis.suggestedColor;
+          newItem.outfitRole = analysis.suggestedOutfitRole;
           newItem.style = analysis.suggestedStyle;
           newItem.name = [
             analysis.suggestedColor,

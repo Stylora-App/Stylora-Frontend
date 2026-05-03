@@ -42,6 +42,8 @@ export class WardrobeService {
     const response = await this.apiService.post<ICreateWardrobeItemResponse>('/wardrobe/items', {
       image: item.image,
       category: item.category,
+      articleTypeLabel: item.articleTypeLabel,
+      audienceTag: item.audienceTag,
       style: item.style,
       color: item.color,
       overrideValidationWarning: item.overrideValidationWarning ?? false
@@ -64,11 +66,12 @@ export class WardrobeService {
     this.items.update(current => current.filter(i => i.id !== id));
   }
 
-  async logWear(id: string) {
-    await this.apiService.post(`/wardrobe/items/${id}/wear`, {});
-    this.items.update(current =>
-      current.map(i => i.id === id ? { ...i, wornCount: i.wornCount + 1 } : i)
-    );
+  async deleteItems(itemIds: string[]) {
+    await this.apiService.post('/wardrobe/items/delete-batch', {
+      itemIds
+    });
+    const itemIdSet = new Set(itemIds);
+    this.items.update(current => current.filter(item => !itemIdSet.has(item.id)));
   }
 
   async updateProfile(request: IUpdateProfileRequest) {

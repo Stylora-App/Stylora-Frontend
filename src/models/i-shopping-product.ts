@@ -6,5 +6,10 @@ export interface IShoppingProduct {
   imageUrl: string;
   url: string;
   colour?: string;
+  category?: string;
+  articleTypeLabel?: string;
+  audienceTag?: string;
+  colorFamily?: string;
+  outfitRole?: string;
   paletteMatch?: boolean;
 }
