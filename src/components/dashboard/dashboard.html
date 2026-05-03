@@ -1,65 +1,179 @@
-<div class="space-y-8 animate-fade-in">
-  <!-- Welcome Header -->
-  <div class="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-gray-200 pb-6">
+<div class="dashboard-shell animate-fade-in">
+  <div class="dashboard-header">
     <div>
-      <h1 class="text-4xl font-serif font-bold text-gray-900 mb-2">
-        Hello, {{authService.getDisplayName()}}
-      </h1>
-      <p class="text-gray-500">
+      <h1 class="dashboard-title">Hello, {{authService.getDisplayName()}}</h1>
+      <p class="dashboard-subtitle">
         @if (wardrobeService.userProfile().season) {
-          Your season is <span class="font-medium text-gray-900">{{wardrobeService.userProfile().season}}</span>.
+          Your {{wardrobeService.userProfile().season}} palette is ready for outfit planning.
         } @else {
-          Discover your style today.
+          Describe the occasion and weather, and I will work from the wardrobe you already saved.
         }
       </p>
     </div>
   </div>
 
-  <!-- Stats Row -->
-  <div class="grid md:grid-cols-3 gap-6">
-    <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-      <div class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Total Items</div>
-      <div class="text-4xl font-serif font-bold">{{wardrobeService.items().length}} <span class="text-lg font-sans font-normal text-gray-400">items</span></div>
-    </div>
+  <div class="dashboard-grid">
+    <section class="chat-panel">
+      <div class="chat-panel-header">
+        <div>
+          <p class="chat-panel-label">Chatbot</p>
+          <h2>Outfit planning only</h2>
+        </div>
+        <app-icon name="sparkles" class="w-6 h-6 text-stone-500"/>
+      </div>
 
-    <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-      <div class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Season</div>
-      <div class="text-3xl font-serif font-bold">{{wardrobeService.userProfile().season || '—'}}</div>
-    </div>
-
-    <div class="bg-gray-900 text-white p-6 rounded-3xl shadow-lg relative overflow-hidden">
-      <div class="relative z-10">
-        <div class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-2">Top Category</div>
-        @if (topCategory(); as category) {
-          <div>
-            <div class="font-serif text-3xl capitalize">{{category}}</div>
-            <div class="text-gray-400 mt-1">Based on your current wardrobe mix</div>
-          </div>
-        } @else {
-          <div class="text-gray-500">No data yet</div>
+      <div class="quick-prompts">
+        @for (prompt of quickPrompts; track prompt) {
+          <button type="button" class="quick-prompt-chip" (click)="sendSuggestedReply(prompt)">
+            {{prompt}}
+          </button>
         }
       </div>
-      <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-gray-800 rounded-full"></div>
-    </div>
+
+      <div class="chat-thread">
+        @for (message of messages(); track $index) {
+          <article class="chat-bubble" [class.chat-bubble-user]="message.role === 'user'">
+            <span class="chat-role">{{message.role === 'user' ? 'You' : 'Stylist'}}</span>
+            <p>{{message.content}}</p>
+          </article>
+        }
+      </div>
+
+      @if (latestResponse()?.suggestedReplies?.length) {
+        <div class="reply-suggestions">
+          @for (reply of latestResponse()!.suggestedReplies; track reply) {
+            <button type="button" class="reply-chip" (click)="sendSuggestedReply(reply)">
+              {{reply}}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="composer">
+        <textarea
+          class="composer-input"
+          rows="4"
+          [ngModel]="draftMessage()"
+          (ngModelChange)="draftMessage.set($event)"
+          (keydown)="handleComposerKeydown($event)"
+          placeholder="Example: Build me a rainy office outfit for tomorrow."></textarea>
+        <button type="button" class="composer-send" (click)="sendMessage()" [disabled]="isSending()">
+          @if (isSending()) {
+            Styling...
+          } @else {
+            Send
+          }
+        </button>
+      </div>
+    </section>
+
+    <section class="output-panel">
+      <div class="output-panel-header">
+        <div>
+          <p class="chat-panel-label">Output</p>
+          <h2>{{outputTitle()}}</h2>
+        </div>
+        @if (latestResponse()?.status === 'success') {
+          <span class="output-status">Ready</span>
+        }
+      </div>
+
+      @if (isSending()) {
+        <div class="loading-board">
+          <div class="loading-orbit"></div>
+          <div class="loading-copy">
+            <h3>Composing your board</h3>
+            <p>Checking your saved wardrobe, palette, and request details.</p>
+          </div>
+          <div class="loading-cards">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      } @else if (latestResponse()?.status === 'success' && activeOutfit(); as outfit) {
+        <div class="board-surface">
+          <div class="board-meta">
+            <div>
+              <span class="dashboard-context-label">Occasion</span>
+              <strong class="capitalize">{{outfit.occasion}}</strong>
+            </div>
+            <div>
+              <span class="dashboard-context-label">Style</span>
+              <strong class="capitalize">{{outfit.style}}</strong>
+            </div>
+            <div>
+              <span class="dashboard-context-label">Weather</span>
+              <strong class="capitalize">{{outfit.weatherSummary}}</strong>
+            </div>
+          </div>
+
+          <div class="board-canvas">
+            @for (item of outfit.items; track item.id; let index = $index) {
+              <button
+                type="button"
+                class="board-item"
+                [class.board-item-active]="selectedBoardItemIndex() === index"
+                [style.--offset]="getBoardOffset(index)"
+                [style.--distance]="getBoardDistance(index)"
+                [style.--translate-x]="getBoardTranslateX(index) + 'rem'"
+                [style.--translate-y]="getBoardTranslateY(index) + 'rem'"
+                [style.--rotation]="getBoardRotation(index) + 'deg'"
+                [style.--scale]="getBoardScale(index)"
+                [style.--opacity]="getBoardOpacity(index)"
+                [style.z-index]="getBoardZIndex(index)"
+                (click)="selectBoardItem(index)">
+                <img [src]="item.image" [alt]="item.label">
+                <figcaption>
+                  <strong class="capitalize">{{item.label}}</strong>
+                  <span class="capitalize">{{item.category}}</span>
+                </figcaption>
+              </button>
+            }
+          </div>
+
+          <p class="board-summary">{{outfit.summary}}</p>
+
+          @if (outfit.palette.length > 0) {
+            <div class="board-palette">
+              @for (color of outfit.palette.slice(0, 6); track color) {
+                <span class="dashboard-swatch" [style.background]="color"></span>
+              }
+            </div>
+          }
+        </div>
+      } @else if (latestResponse()?.status === 'follow_up') {
+        <div class="empty-state-card">
+          <app-icon name="calendar" class="w-10 h-10 text-stone-500"/>
+          <h3>I need one more detail</h3>
+          <p>{{latestResponse()!.assistantMessage}}</p>
+        </div>
+      } @else if (latestResponse()?.status === 'not_enough_pieces') {
+        <div class="empty-state-card">
+          <app-icon name="hanger" class="w-10 h-10 text-stone-500"/>
+          <h3>Not enough wardrobe pieces</h3>
+          <p>{{latestResponse()!.assistantMessage}}</p>
+          @if (latestResponse()!.missingRoles.length > 0) {
+            <div class="missing-role-list">
+              @for (role of latestResponse()!.missingRoles; track role) {
+                <span class="reply-chip capitalize">{{role}}</span>
+              }
+            </div>
+          }
+        </div>
+      } @else if (latestResponse()?.status === 'out_of_scope') {
+        <div class="empty-state-card">
+          <app-icon name="sparkles" class="w-10 h-10 text-stone-500"/>
+          <h3>Outfit requests only</h3>
+          <p>{{latestResponse()!.assistantMessage}}</p>
+        </div>
+      } @else {
+        <div class="empty-state-card">
+          <app-icon name="palette" class="w-10 h-10 text-stone-500"/>
+          <h3>Your outfit board will appear here</h3>
+          <p>Ask for an outfit with an occasion and weather context, and I will assemble a board from your saved wardrobe.</p>
+        </div>
+      }
+    </section>
   </div>
-
-  <!-- Wardrobe Preview -->
-  @if (recentItems().length > 0) {
-    <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
-      <h2 class="text-2xl font-serif font-bold mb-6">Your Wardrobe</h2>
-      <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
-        @for (item of recentItems(); track item.id) {
-          <div class="aspect-[3/4] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shadow-sm">
-            <img [src]="item.image" class="w-full h-full object-cover">
-          </div>
-        }
-      </div>
-    </div>
-  } @else {
-    <div class="bg-white rounded-3xl shadow-xl p-12 border border-gray-100 text-center text-gray-400">
-      <app-icon name="hanger" class="w-16 h-16 mx-auto mb-4 opacity-50"/>
-      <p class="font-medium">Your wardrobe is empty.</p>
-      <p class="text-sm mt-1">Add your first item to get started.</p>
-    </div>
-  }
 </div>

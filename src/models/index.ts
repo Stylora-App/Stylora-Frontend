@@ -5,6 +5,7 @@ export * from './i-auth';
 // Wardrobe
 export * from './i-wardrobe-item';
 export * from './i-user-profile';
+export * from './i-outfit-chat';
 
 // Analysis
 export * from './i-season-analysis';
