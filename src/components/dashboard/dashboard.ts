@@ -28,14 +28,14 @@ export class DashboardComponent {
   messages = signal<IOutfitChatMessage[]>([
     {
       role: 'assistant',
-      content: 'Describe the occasion and weather, and I will build an outfit only from your Stylora wardrobe.'
+      content: 'Tell me where you are headed, and I will put together a look from your saved wardrobe.'
     }
   ]);
 
   readonly quickPrompts = [
-    'Build me a rainy work outfit',
-    'Create a sunny weekend look',
-    'Plan an elegant dinner outfit for cool weather'
+    'What should I wear for a walk in the park in Bucharest?',
+    'What should I wear for a trip to Milan this weekend?',
+    'What should I wear for a conference in Cluj tomorrow?'
   ];
 
   readonly activeOutfit = computed(() => this.latestResponse()?.outfit ?? null);
@@ -59,7 +59,7 @@ export class DashboardComponent {
       case 'not_enough_pieces':
         return 'Wardrobe needs more pieces';
       default:
-        return 'Stylist scope';
+        return 'Stylora Assistant';
     }
   });
 
@@ -84,7 +84,7 @@ export class DashboardComponent {
       ]);
     } catch (error) {
       console.error(error);
-      this.notificationService.error('The stylist could not respond right now. Please try again.');
+      this.notificationService.error('Stylora Assistant could not respond right now. Please try again.');
     } finally {
       this.isSending.set(false);
     }
@@ -113,7 +113,7 @@ export class DashboardComponent {
     this.messages.set([
       {
         role: 'assistant',
-        content: 'Describe the occasion and weather, and I will build an outfit only from your Stylora wardrobe.'
+        content: 'Tell me where you are headed, and I will put together a look from your saved wardrobe.'
       }
     ]);
   }

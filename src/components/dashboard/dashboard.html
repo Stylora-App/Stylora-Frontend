@@ -4,9 +4,9 @@
       <h1 class="dashboard-title">Hello, {{authService.getDisplayName()}}</h1>
       <p class="dashboard-subtitle">
         @if (wardrobeService.userProfile().season) {
-          Your {{wardrobeService.userProfile().season}} palette is ready for outfit planning.
+          Find the perfect outfit for your occasion.
         } @else {
-          Describe the occasion and weather, and I will work from the wardrobe you already saved.
+          Tell me where you are headed, and I will build a look from the wardrobe you already saved.
         }
       </p>
     </div>
@@ -17,7 +17,7 @@
       <div class="chat-panel-header">
         <div>
           <p class="chat-panel-label">Chatbot</p>
-          <h2>Outfit planning only</h2>
+          <h2>Stylora Assistant</h2>
         </div>
         <app-icon name="sparkles" class="w-6 h-6 text-stone-500"/>
       </div>
@@ -35,7 +35,7 @@
       <div class="chat-thread">
         @for (message of messages(); track $index) {
           <article class="chat-bubble" [class.chat-bubble-user]="message.role === 'user'">
-            <span class="chat-role">{{message.role === 'user' ? 'You' : 'Stylist'}}</span>
+            <span class="chat-role">{{message.role === 'user' ? 'You' : 'Stylora'}}</span>
             <p>{{message.content}}</p>
           </article>
         }
@@ -179,7 +179,7 @@
         <div class="empty-state-card">
           <app-icon name="palette" class="w-10 h-10 text-stone-500"/>
           <h3>Your outfit board will appear here</h3>
-          <p>Ask for an outfit with an occasion and weather context, and I will assemble a board from your saved wardrobe.</p>
+          <p>Share the plan, city, or timing, and I will assemble a board from your saved wardrobe.</p>
         </div>
       }
     </section>

@@ -5,6 +5,7 @@ import { WardrobeService } from '../../services/wardrobe.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
+import { PASSWORD_POLICY_MESSAGE, isPasswordPolicyValid } from '../../utils/password-policy';
 
 @Component({
   selector: 'app-profile',
@@ -36,6 +37,7 @@ export class ProfileComponent {
   showCurrentPassword = signal(false);
   showNewPassword = signal(false);
   showConfirmPassword = signal(false);
+  readonly passwordPolicyMessage = PASSWORD_POLICY_MESSAGE;
 
   isUploadingPicture = signal(false);
 
@@ -161,8 +163,8 @@ export class ProfileComponent {
       this.notificationService.error('Please fill in all fields.');
       return;
     }
-    if (this.newPassword().length < 6) {
-      this.notificationService.error('New password must be at least 6 characters.');
+    if (!isPasswordPolicyValid(this.newPassword())) {
+      this.notificationService.error(this.passwordPolicyMessage);
       return;
     }
     if (this.newPassword() !== this.confirmPassword()) {
