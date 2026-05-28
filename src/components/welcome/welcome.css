@@ -510,7 +510,7 @@
 .wlc-photo-card {
   position: absolute;
   left: 50%; top: 50%;
-  width: 260px; height: 340px;
+  width: 300px; height: 400px;
   transform: translate(-50%,-50%) scale(.92);
   border-radius: 18px;
   overflow: hidden;
@@ -1527,7 +1527,7 @@
     grid-template-columns: 1fr;
     gap: 48px;
   }
-  .wlc-analysis-visual { height: 400px; }
+  .wlc-analysis-visual { height: 500px; }
   .wlc-nav-links { display: none; }
   .wlc-stylist-grid,
   .wlc-explore-grid {
@@ -1562,12 +1562,51 @@
 
   .wlc-flow-grid { grid-template-columns: 1fr; gap: 16px; }
   .wlc-analysis-grid { grid-template-columns: 1fr; gap: 40px; }
-  .wlc-analysis-visual { height: 320px; }
 
-  .wlc-annotation { display: none; } /* simplify on mobile */
-  .wlc-photo-card {
-    width: 180px; height: 240px;
+  /* Analysis visual becomes a stacked flex column on mobile */
+  .wlc-analysis-visual {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 8px;
   }
+
+  /* Photo card: exit absolute-centering, become a normal flex child */
+  .wlc-photo-card,
+  .wlc-photo-card.wlc-shown {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 200px;
+    height: 260px;
+    margin: 0 auto;
+    flex-shrink: 0;
+  }
+  .wlc-photo-card         { transform: scale(0.92) !important; }
+  .wlc-photo-card.wlc-shown { transform: scale(1)    !important; }
+
+  /* Hide the pulse dots — no room on narrow screens */
+  .wlc-pulse-anchor { display: none; }
+
+  /* Annotations: show as stacked cards below the photo */
+  .wlc-annotation {
+    display: block;
+    position: relative !important;
+    top:   auto !important;
+    left:  auto !important;
+    right: auto !important;
+    transform: translateY(14px) !important;
+    width: 100%;
+    max-width: 280px;
+  }
+  .wlc-annotation-left,
+  .wlc-annotation-right {
+    left:  auto !important;
+    right: auto !important;
+  }
+  .wlc-annotation.wlc-shown { transform: translateY(0) !important; }
 
   .wlc-fan-board { height: 320px; }
 

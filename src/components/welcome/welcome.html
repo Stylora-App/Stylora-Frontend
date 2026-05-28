@@ -183,47 +183,47 @@
           <div class="wlc-photo-badge">SELFIE · ANALYZED</div>
         </div>
 
-        <!-- Pulse anchors -->
-        <span class="wlc-pulse-anchor wlc-pulse-left" style="top: calc(12% + 90px)"
+        <!-- Pulse anchors — top percentages align with hair top, eye level, cheek level -->
+        <span class="wlc-pulse-anchor wlc-pulse-left" style="top: 25%"
           [style.opacity]="analysisShown() ? '1' : '0'"
           [style.transition]="'opacity 500ms 500ms ease'"
-          [style.borderColor]="'#a78054'"></span>
-        <span class="wlc-pulse-anchor wlc-pulse-left" style="top: calc(44% + 90px)"
+          [style.borderColor]="'#2c1a10'"></span>
+        <span class="wlc-pulse-anchor wlc-pulse-left" style="top: 47%"
           [style.opacity]="analysisShown() ? '1' : '0'"
           [style.transition]="'opacity 500ms 700ms ease'"
-          [style.borderColor]="'#8a6c4a'"></span>
-        <span class="wlc-pulse-anchor wlc-pulse-right" style="top: calc(28% + 90px)"
+          [style.borderColor]="'#3d2010'"></span>
+        <span class="wlc-pulse-anchor wlc-pulse-right" style="top: 47%"
           [style.opacity]="analysisShown() ? '1' : '0'"
           [style.transition]="'opacity 500ms 900ms ease'"
-          [style.borderColor]="'#d9a684'"></span>
+          [style.borderColor]="'#c8956a'"></span>
 
         <!-- Floating annotation cards -->
         <article class="wlc-annotation wlc-annotation-left" style="top: 12%"
           [class.wlc-shown]="analysisShown()"
           [style.transition-delay]="'600ms'">
           <div class="wlc-annotation-head">
-            <span class="wlc-annotation-dot" style="background: #a78054"></span>
+            <span class="wlc-annotation-dot" style="background: #2c1a10"></span>
             <span class="wlc-annotation-label">HAIR</span>
           </div>
-          <div class="wlc-annotation-title">Honey-warm brown</div>
+          <div class="wlc-annotation-title">Deep espresso brown</div>
         </article>
-        <article class="wlc-annotation wlc-annotation-left" style="top: 44%"
+        <article class="wlc-annotation wlc-annotation-left" style="top: 33%"
           [class.wlc-shown]="analysisShown()"
           [style.transition-delay]="'820ms'">
           <div class="wlc-annotation-head">
-            <span class="wlc-annotation-dot" style="background: #8a6c4a"></span>
+            <span class="wlc-annotation-dot" style="background: #3d2010"></span>
             <span class="wlc-annotation-label">EYES</span>
           </div>
-          <div class="wlc-annotation-title">Soft hazel</div>
+          <div class="wlc-annotation-title">Deep warm brown</div>
         </article>
-        <article class="wlc-annotation wlc-annotation-right" style="top: 28%"
+        <article class="wlc-annotation wlc-annotation-right" style="top: 44%"
           [class.wlc-shown]="analysisShown()"
           [style.transition-delay]="'1040ms'">
           <div class="wlc-annotation-head">
-            <span class="wlc-annotation-dot" style="background: #d9a684"></span>
+            <span class="wlc-annotation-dot" style="background: #c8956a"></span>
             <span class="wlc-annotation-label">SKIN</span>
           </div>
-          <div class="wlc-annotation-title">Warm undertone</div>
+          <div class="wlc-annotation-title">Light warm beige</div>
         </article>
       </div>
     </div>
