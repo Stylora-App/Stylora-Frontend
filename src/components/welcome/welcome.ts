@@ -34,7 +34,9 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('flowSection')     flowSectionRef!:     ElementRef<HTMLElement>;
   @ViewChild('analysisSection') analysisSectionRef!: ElementRef<HTMLElement>;
+  @ViewChild('stylistSection')  stylistSectionRef!:  ElementRef<HTMLElement>;
   @ViewChild('wardrobeSection') wardrobeSectionRef!: ElementRef<HTMLElement>;
+  @ViewChild('exploreSection')  exploreSectionRef!:  ElementRef<HTMLElement>;
   @ViewChild('finalCtaSection') finalCtaSectionRef!: ElementRef<HTMLElement>;
 
   // ── Entry animation ──────────────────────────────────────────────────────
@@ -52,8 +54,13 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
   // ── Section reveal states ─────────────────────────────────────────────────
   flowShown     = signal(false);
   analysisShown = signal(false);
+  stylistShown  = signal(false);
   wardrobeShown = signal(false);
+  exploreShown  = signal(false);
   finalCtaShown = signal(false);
+
+  // ── Explore gender toggle ─────────────────────────────────────────────────
+  exploreGender = signal<'women' | 'men'>('women');
 
   // ── Wardrobe fan ─────────────────────────────────────────────────────────
   wardrobeActive = signal(2);
@@ -123,6 +130,47 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   readonly analysisPaletteColors = ['#7a3a2f', '#a96a3c', '#cf9b5e', '#d9b483', '#6b7d7a', '#3e4a4a'];
 
+  readonly stylistMessages = [
+    { role: 'assistant', text: 'Where are you headed today? Share the vibe and I\'ll pull a look from your wardrobe.' },
+    { role: 'user',      text: 'Casual brunch with friends, sunny, 22°C in Milan.' },
+    { role: 'assistant', text: 'Going relaxed-warm: rust knit, ecru trousers, leather mules. Denim layer in case the breeze picks up.' },
+  ];
+
+  readonly stylistBullets = [
+    'Pulls only from pieces you already own',
+    'Adjusts for weather, occasion and dress code',
+    'Explains why each piece works for your palette',
+  ];
+
+  readonly exploreBullets = [
+    'Hand-picked from real e-commerce catalogues',
+    'Filtered by your seasonal palette and sub-season',
+    'Virtual try-on before you visit the brand site',
+  ];
+
+  readonly explorePaletteColors = ['#7a3a2f', '#a96a3c', '#cf9b5e', '#d9b483', '#6b7d7a'];
+
+  private readonly exploreProducts = {
+    women: [
+      { brand: 'Aurea', name: 'Rust merino knit',       tone: '#a96a3c', swatch: '#a96a3c', cat: 'Top'    },
+      { brand: 'Linea', name: 'Ecru wide trouser',       tone: '#dcc7a0', swatch: '#dcc7a0', cat: 'Bottom' },
+      { brand: 'Maré',  name: 'Caramel leather mule',   tone: '#8a6440', swatch: '#8a6440', cat: 'Shoe'   },
+      { brand: 'Nord',  name: 'Olive trench coat',       tone: '#6b6f44', swatch: '#6b6f44', cat: 'Outer'  },
+      { brand: 'Soto',  name: 'Terracotta silk top',     tone: '#c97a4f', swatch: '#c97a4f', cat: 'Top'    },
+      { brand: 'Verde', name: 'Sage suede bag',          tone: '#7b8a72', swatch: '#7b8a72', cat: 'Bag'    },
+    ],
+    men: [
+      { brand: 'Aurea', name: 'Cognac suede jacket',    tone: '#8a5530', swatch: '#8a5530', cat: 'Outer'  },
+      { brand: 'Linea', name: 'Olive linen shirt',      tone: '#7d8455', swatch: '#7d8455', cat: 'Top'    },
+      { brand: 'Maré',  name: 'Sand chino trouser',     tone: '#c4a779', swatch: '#c4a779', cat: 'Bottom' },
+      { brand: 'Nord',  name: 'Brick wool overshirt',   tone: '#9a4d3a', swatch: '#9a4d3a', cat: 'Outer'  },
+      { brand: 'Soto',  name: 'Cream cotton knit',      tone: '#e5d6b8', swatch: '#e5d6b8', cat: 'Top'    },
+      { brand: 'Verde', name: 'Tan leather derby',      tone: '#a07549', swatch: '#a07549', cat: 'Shoe'   },
+    ],
+  };
+
+  currentExploreProducts = computed(() => this.exploreProducts[this.exploreGender()]);
+
   private observers:    IntersectionObserver[] = [];
   private enterTimer?:  ReturnType<typeof setTimeout>;
   private wardrobeTimer?: ReturnType<typeof setInterval>;
@@ -144,6 +192,11 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
       () => this.analysisShown.set(false)
     );
     this.observe(
+      this.stylistSectionRef, 0.18,
+      () => this.stylistShown.set(true),
+      () => this.stylistShown.set(false)
+    );
+    this.observe(
       this.wardrobeSectionRef, 0.18,
       () => {
         this.wardrobeShown.set(true);
@@ -159,6 +212,11 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
         clearInterval(this.wardrobeTimer);
         this.wardrobeTimer = undefined;
       }
+    );
+    this.observe(
+      this.exploreSectionRef, 0.18,
+      () => this.exploreShown.set(true),
+      () => this.exploreShown.set(false)
     );
     this.observe(
       this.finalCtaSectionRef, 0.22,

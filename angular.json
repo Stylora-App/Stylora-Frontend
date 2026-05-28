@@ -19,6 +19,12 @@
             "index": "index.html",
             "browser": "index.tsx",
             "tsConfig": "tsconfig.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
+            ],
             "styles": ["src/app.css"],
             "scripts": []
           },

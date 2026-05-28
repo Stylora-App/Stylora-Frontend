@@ -10,7 +10,8 @@
       <div class="wlc-nav-links">
         <a href="#flow"     class="wlc-nav-link">How it works</a>
         <a href="#analysis" class="wlc-nav-link">Color analysis</a>
-        <a href="#wardrobe" class="wlc-nav-link">Wardrobe</a>
+        <a href="#stylist"  class="wlc-nav-link">Stylist</a>
+        <a href="#explore"  class="wlc-nav-link">Explore</a>
       </div>
       <button class="wlc-cta-btn wlc-cta-sm" (click)="openDrawer('register')">
         Get started
@@ -178,61 +179,118 @@
       <div class="wlc-analysis-visual">
         <!-- Central photo card -->
         <div class="wlc-photo-card" [class.wlc-shown]="analysisShown()">
-          <svg viewBox="0 0 280 360" class="wlc-face-svg">
-            <defs>
-              <radialGradient id="lg-sky" cx="50%" cy="20%" r="80%">
-                <stop offset="0%"   stop-color="#f4e3cc"/>
-                <stop offset="100%" stop-color="#e1c8a4"/>
-              </radialGradient>
-              <radialGradient id="lg-skin" cx="50%" cy="50%" r="44%">
-                <stop offset="0%"   stop-color="#f3cfa4"/>
-                <stop offset="100%" stop-color="#d9a684"/>
-              </radialGradient>
-              <linearGradient id="lg-hair" x1="50%" y1="0%" x2="50%" y2="100%">
-                <stop offset="0%"   stop-color="#7a4f2c"/>
-                <stop offset="100%" stop-color="#a87a45"/>
-              </linearGradient>
-              <linearGradient id="lg-shoulder" x1="50%" y1="0%" x2="50%" y2="100%">
-                <stop offset="0%"   stop-color="#c89668"/>
-                <stop offset="100%" stop-color="#9c6f43"/>
-              </linearGradient>
-            </defs>
-            <rect width="280" height="360" fill="url(#lg-sky)"/>
-            <ellipse cx="140" cy="118" rx="92" ry="96" fill="url(#lg-hair)"/>
-            <path d="M 30 360 Q 50 250 140 235 Q 230 250 250 360 Z" fill="url(#lg-shoulder)"/>
-            <ellipse cx="140" cy="155" rx="68" ry="84" fill="url(#lg-skin)"/>
-            <path d="M 80 110 Q 140 60 200 115 Q 170 95 140 100 Q 105 95 80 110 Z" fill="url(#lg-hair)" opacity=".95"/>
-            <ellipse cx="122" cy="160" rx="7" ry="5" fill="#8a6c4a"/>
-            <ellipse cx="158" cy="160" rx="7" ry="5" fill="#8a6c4a"/>
-            <ellipse cx="122" cy="160" rx="2.8" ry="2.8" fill="#3d2c1a"/>
-            <ellipse cx="158" cy="160" rx="2.8" ry="2.8" fill="#3d2c1a"/>
-            <ellipse cx="140" cy="200" rx="14" ry="5" fill="#b76a55" opacity=".8"/>
-          </svg>
+          <img src="coloranalysissample.jpg" alt="Selfie for color analysis" class="wlc-analysis-img">
           <div class="wlc-photo-badge">SELFIE · ANALYZED</div>
         </div>
 
-        <!-- Floating annotation cards (transition-delay handled by CSS nth-child) -->
-        <article class="wlc-annotation wlc-annotation-left" style="top: 12%" [class.wlc-shown]="analysisShown()">
+        <!-- Pulse anchors -->
+        <span class="wlc-pulse-anchor wlc-pulse-left" style="top: calc(12% + 90px)"
+          [style.opacity]="analysisShown() ? '1' : '0'"
+          [style.transition]="'opacity 500ms 500ms ease'"
+          [style.borderColor]="'#a78054'"></span>
+        <span class="wlc-pulse-anchor wlc-pulse-left" style="top: calc(44% + 90px)"
+          [style.opacity]="analysisShown() ? '1' : '0'"
+          [style.transition]="'opacity 500ms 700ms ease'"
+          [style.borderColor]="'#8a6c4a'"></span>
+        <span class="wlc-pulse-anchor wlc-pulse-right" style="top: calc(28% + 90px)"
+          [style.opacity]="analysisShown() ? '1' : '0'"
+          [style.transition]="'opacity 500ms 900ms ease'"
+          [style.borderColor]="'#d9a684'"></span>
+
+        <!-- Floating annotation cards -->
+        <article class="wlc-annotation wlc-annotation-left" style="top: 12%"
+          [class.wlc-shown]="analysisShown()"
+          [style.transition-delay]="'600ms'">
           <div class="wlc-annotation-head">
             <span class="wlc-annotation-dot" style="background: #a78054"></span>
             <span class="wlc-annotation-label">HAIR</span>
           </div>
           <div class="wlc-annotation-title">Honey-warm brown</div>
         </article>
-        <article class="wlc-annotation wlc-annotation-left" style="top: 44%" [class.wlc-shown]="analysisShown()">
+        <article class="wlc-annotation wlc-annotation-left" style="top: 44%"
+          [class.wlc-shown]="analysisShown()"
+          [style.transition-delay]="'820ms'">
           <div class="wlc-annotation-head">
             <span class="wlc-annotation-dot" style="background: #8a6c4a"></span>
             <span class="wlc-annotation-label">EYES</span>
           </div>
           <div class="wlc-annotation-title">Soft hazel</div>
         </article>
-        <article class="wlc-annotation wlc-annotation-right" style="top: 28%" [class.wlc-shown]="analysisShown()">
+        <article class="wlc-annotation wlc-annotation-right" style="top: 28%"
+          [class.wlc-shown]="analysisShown()"
+          [style.transition-delay]="'1040ms'">
           <div class="wlc-annotation-head">
             <span class="wlc-annotation-dot" style="background: #d9a684"></span>
             <span class="wlc-annotation-label">SKIN</span>
           </div>
           <div class="wlc-annotation-title">Warm undertone</div>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ STYLIST CHAT ════════════════ -->
+  <section id="stylist" class="wlc-stylist" #stylistSection>
+    <div class="wlc-stylist-haze"></div>
+    <div class="wlc-container wlc-stylist-grid">
+
+      <!-- Chat panel -->
+      <div class="wlc-chat-panel" [class.wlc-shown]="stylistShown()">
+        <div class="wlc-chat-header">
+          <div>
+            <div class="wlc-chat-kicker">STYLIST</div>
+            <h3 class="wlc-chat-title">Stylora</h3>
+          </div>
+          <div class="wlc-chat-avatar">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.8 15.9 9 18.75l-.81-2.85a4.5 4.5 0 0 0-3.1-3.09L2.25 12l2.85-.81a4.5 4.5 0 0 0 3.09-3.1L9 5.25l.81 2.85a4.5 4.5 0 0 0 3.1 3.09L15.75 12l-2.85.81a4.5 4.5 0 0 0-3.09 3.1Z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="wlc-chat-messages">
+          @for (msg of stylistMessages; track msg.text; let i = $index) {
+            <article
+              class="wlc-chat-msg"
+              [class.wlc-chat-msg-user]="msg.role === 'user'"
+              [style.opacity]="stylistShown() ? '1' : '0'"
+              [style.transform]="stylistShown() ? 'translateY(0)' : 'translateY(12px)'"
+              [style.transition]="'opacity 600ms ' + (400 + i * 180) + 'ms cubic-bezier(.22,1,.36,1), transform 600ms ' + (400 + i * 180) + 'ms cubic-bezier(.22,1,.36,1)'"
+            >
+              <span class="wlc-chat-role">{{ msg.role === 'user' ? 'YOU' : 'STYLORA' }}</span>
+              <div class="wlc-chat-bubble" [class.wlc-chat-bubble-user]="msg.role === 'user'">{{ msg.text }}</div>
+            </article>
+          }
+        </div>
+      </div>
+
+      <!-- Copy side -->
+      <div class="wlc-stylist-copy">
+        <div class="wlc-section-eyebrow wlc-eyebrow-gold" [class.wlc-shown]="stylistShown()">
+          <span class="wlc-divider-line wlc-divider-gold"></span>
+          <span class="wlc-eyebrow-text">YOUR STYLIST</span>
+        </div>
+        <h2 class="wlc-stylist-h2" [class.wlc-shown]="stylistShown()" style="transition-delay: 120ms">
+          A stylist that <em class="wlc-stylist-em">writes back.</em>
+        </h2>
+        <p class="wlc-stylist-sub" [class.wlc-shown]="stylistShown()" style="transition-delay: 220ms">
+          Tell Stylora the occasion, the weather, the mood. It cross-references your wardrobe and
+          palette — and writes back with a complete look in seconds.
+        </p>
+        <ul class="wlc-stylist-list">
+          @for (item of stylistBullets; track item; let i = $index) {
+            <li
+              class="wlc-stylist-bullet"
+              [style.opacity]="stylistShown() ? '1' : '0'"
+              [style.transform]="stylistShown() ? 'translateX(0)' : 'translateX(-16px)'"
+              [style.transition]="'opacity 700ms ' + (400 + i * 120) + 'ms cubic-bezier(.22,1,.36,1), transform 700ms ' + (400 + i * 120) + 'ms cubic-bezier(.22,1,.36,1)'"
+            >
+              <span class="wlc-bullet-check">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+              </span>
+              {{ item }}
+            </li>
+          }
+        </ul>
       </div>
     </div>
   </section>
@@ -284,6 +342,112 @@
               (click)="wardrobeActive.set(i)"
             ></button>
           }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ EXPLORE ════════════════ -->
+  <section id="explore" class="wlc-explore" #exploreSection>
+    <div class="wlc-explore-haze"></div>
+    <div class="wlc-container wlc-explore-grid">
+
+      <!-- Copy side -->
+      <div class="wlc-explore-copy">
+        <div class="wlc-section-eyebrow wlc-eyebrow-gold" [class.wlc-shown]="exploreShown()">
+          <span class="wlc-divider-line wlc-divider-gold"></span>
+          <span class="wlc-eyebrow-text">EXPLORE &amp; TRY ON</span>
+        </div>
+        <h2 class="wlc-explore-h2" [class.wlc-shown]="exploreShown()" style="transition-delay: 120ms">
+          Real pieces. <em class="wlc-explore-em">Your palette.</em><br>See them on you.
+        </h2>
+        <p class="wlc-explore-sub" [class.wlc-shown]="exploreShown()" style="transition-delay: 220ms">
+          Browse pieces from the brands you already love — filtered down to the shades that suit
+          your palette. Tap any item to try it on virtually, then jump to the brand site when you're ready.
+        </p>
+        <ul class="wlc-stylist-list">
+          @for (item of exploreBullets; track item; let i = $index) {
+            <li
+              class="wlc-stylist-bullet"
+              [style.opacity]="exploreShown() ? '1' : '0'"
+              [style.transform]="exploreShown() ? 'translateX(0)' : 'translateX(-16px)'"
+              [style.transition]="'opacity 700ms ' + (380 + i * 120) + 'ms cubic-bezier(.22,1,.36,1), transform 700ms ' + (380 + i * 120) + 'ms cubic-bezier(.22,1,.36,1)'"
+            >
+              <span class="wlc-bullet-check">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+              </span>
+              {{ item }}
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Product board -->
+      <div class="wlc-product-board-wrap">
+        <!-- "Try on virtually" floating badge -->
+        <div class="wlc-tryon-badge" [class.wlc-shown]="exploreShown()" style="transition-delay: 800ms">
+          <span class="wlc-tryon-badge-icon">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.8 15.9 9 18.75l-.81-2.85a4.5 4.5 0 0 0-3.1-3.09L2.25 12l2.85-.81a4.5 4.5 0 0 0 3.09-3.1L9 5.25l.81 2.85a4.5 4.5 0 0 0 3.1 3.09L15.75 12l-2.85.81a4.5 4.5 0 0 0-3.09 3.1Z"/>
+            </svg>
+          </span>
+          Try on virtually
+        </div>
+
+        <div class="wlc-product-board" [class.wlc-shown]="exploreShown()">
+          <!-- Board header -->
+          <div class="wlc-board-header">
+            <div>
+              <div class="wlc-board-kicker">EXPLORE</div>
+              <div class="wlc-board-subtitle">Curated for <em class="wlc-board-season">Soft Autumn</em></div>
+            </div>
+            <div class="wlc-board-palette">
+              @for (c of explorePaletteColors; track c) {
+                <span class="wlc-board-swatch" [style.background]="c"></span>
+              }
+            </div>
+          </div>
+
+          <!-- Gender toggle -->
+          <div class="wlc-gender-toggle">
+            <div class="wlc-gender-indicator" [class.wlc-gender-right]="exploreGender() === 'men'"></div>
+            <button class="wlc-gender-btn" [class.wlc-gender-active]="exploreGender() === 'women'" (click)="exploreGender.set('women')" type="button">Women</button>
+            <button class="wlc-gender-btn" [class.wlc-gender-active]="exploreGender() === 'men'"   (click)="exploreGender.set('men')"   type="button">Men</button>
+          </div>
+
+          <!-- Product grid -->
+          <div class="wlc-product-grid">
+            @for (product of currentExploreProducts(); track product.name; let i = $index) {
+              <article
+                class="wlc-product-card"
+                [class.wlc-product-card-highlight]="i === 1"
+                [style.opacity]="exploreShown() ? '1' : '0'"
+                [style.transform]="exploreShown() ? 'translateY(0)' : 'translateY(20px)'"
+                [style.transition]="'opacity 600ms ' + (260 + i * 90) + 'ms cubic-bezier(.22,1,.36,1), transform 600ms ' + (260 + i * 90) + 'ms cubic-bezier(.22,1,.36,1)'"
+              >
+                <div class="wlc-product-img" [style.background]="'linear-gradient(160deg, ' + product.tone + ', ' + product.tone + 'c8)'">
+                  <div class="wlc-product-img-texture"></div>
+                  <span class="wlc-product-match-dot">
+                    <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+                  </span>
+                  @if (i === 1) {
+                    <span class="wlc-product-tryon-tag">TRY ON</span>
+                  }
+                  <span class="wlc-product-swatch-dot" [style.background]="product.swatch"></span>
+                </div>
+                <div class="wlc-product-meta">
+                  <div class="wlc-product-brand">{{ product.brand | uppercase }}</div>
+                  <div class="wlc-product-name">{{ product.name }}</div>
+                </div>
+              </article>
+            }
+          </div>
+
+          <!-- Board footer -->
+          <div class="wlc-board-footer">
+            <span>Showing palette-matched results only</span>
+            <span class="wlc-board-load">Load more →</span>
+          </div>
         </div>
       </div>
     </div>
