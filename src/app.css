@@ -2,6 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Sidebar navigation */
+.sidebar-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  border-radius: 10px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background 180ms ease, color 180ms ease;
+  font-family: inherit;
+}
+
+.sidebar-nav-item:hover {
+  background: #f9fafb;
+  color: #1f2937;
+}
+
+.sidebar-nav-item-active {
+  background: #f4efe7 !important;
+  color: #1f2937 !important;
+}
+
+.sidebar-nav-indicator {
+  position: absolute;
+  left: -12px;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: #b48a55;
+  border-radius: 0 4px 4px 0;
+}
+
 /* Base layer customizations */
 @layer base {
   body {

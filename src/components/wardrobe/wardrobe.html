@@ -1,96 +1,88 @@
-<div class="space-y-6 animate-fade-in">
-  <div class="flex justify-between items-center">
+<div class="wardrobe-shell animate-fade-in">
+
+  <!-- Header -->
+  <div class="wardrobe-header">
     <div>
-      <h2 class="text-3xl font-serif font-bold text-gray-900">Digital Wardrobe</h2>
-      <p class="text-gray-500">Manage your collection</p>
+      <h2 class="wardrobe-title">Digital Wardrobe</h2>
+      <p class="wardrobe-sub">Manage your collection</p>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="wardrobe-header-actions">
       @if (isSelectionMode()) {
         <button
+          class="wardrobe-btn wardrobe-btn-ghost"
           (click)="toggleSelectAllFilteredItems()"
-          [disabled]="!hasFilteredItems()"
-          class="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-400 transition shadow-sm disabled:opacity-50 disabled:hover:border-gray-200"
-        >
-          <span>{{areAllFilteredItemsSelected() ? 'Clear Selection' : 'Select All'}}</span>
+          [disabled]="!hasFilteredItems()">
+          {{areAllFilteredItemsSelected() ? 'Clear Selection' : 'Select All'}}
         </button>
         <button
+          class="wardrobe-btn wardrobe-btn-danger"
           (click)="deleteSelectedItems()"
           [disabled]="selectedItemIds().size === 0"
-          class="flex items-center justify-center bg-red-600 text-white w-11 h-11 rounded-lg hover:bg-red-500 transition shadow-lg disabled:opacity-50"
           aria-label="Delete selected items"
-          title="Delete selected items"
-        >
-          <app-icon name="trash" class="w-5 h-5"/>
+          title="Delete selected items">
+          <app-icon name="trash" class="w-4 h-4"/>
         </button>
       }
       <button
+        class="wardrobe-btn wardrobe-btn-ghost"
         (click)="toggleSelectionMode()"
-        [disabled]="!hasWardrobeItems()"
-        class="flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-200 hover:border-gray-400 transition shadow-sm disabled:opacity-50 disabled:hover:border-gray-200"
-      >
-        <span>{{isSelectionMode() ? 'Cancel' : 'Select'}}</span>
+        [disabled]="!hasWardrobeItems()">
+        {{isSelectionMode() ? 'Cancel' : 'Select'}}
       </button>
-      <button (click)="isUploading.set(true)" class="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition shadow-lg">
-        <app-icon name="plus" class="w-5 h-5"/>
-        <span>Add Item</span>
+      <button class="wardrobe-btn wardrobe-btn-primary" (click)="isUploading.set(true)">
+        <app-icon name="plus" class="w-4 h-4"/>
+        Add Item
       </button>
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="flex gap-2 overflow-x-auto pb-2">
+  <!-- Category filter pills -->
+  <div class="wardrobe-pills">
     @for (cat of categories; track cat) {
-      <button 
-        (click)="selectedCategory.set(cat)"
-        [class.bg-gray-900]="selectedCategory() === cat"
-        [class.text-white]="selectedCategory() === cat"
-        [class.bg-white]="selectedCategory() !== cat"
-        [class.text-gray-600]="selectedCategory() !== cat"
-        class="px-4 py-1.5 rounded-full border border-gray-200 text-sm font-medium transition whitespace-nowrap">
+      <button
+        class="wardrobe-pill"
+        [class.wardrobe-pill-active]="selectedCategory() === cat"
+        (click)="selectedCategory.set(cat)">
         {{cat | titlecase}}
       </button>
     }
   </div>
 
   <!-- Grid -->
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div class="wardrobe-grid">
     @for (item of filteredItems(); track item.id) {
-      <div class="group relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden aspect-[3/4]">
-        <img [src]="item.image" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" alt="Clothing item">
+      <div class="wardrobe-card group">
+        <img [src]="item.image" class="wardrobe-card-img" alt="Clothing item">
 
         @if (isSelectionMode()) {
           <button
             type="button"
+            class="wardrobe-select-overlay"
+            [class.wardrobe-select-overlay-active]="isItemSelected(item.id)"
             (click)="toggleItemSelection(item.id)"
-            class="absolute inset-0 z-10 border-2 transition"
-            [class.border-gray-200]="!isItemSelected(item.id)"
-            [class.border-gray-900]="isItemSelected(item.id)"
-            [class.bg-black/5]="isItemSelected(item.id)"
-            [attr.aria-pressed]="isItemSelected(item.id)"
-          >
-            <span class="absolute top-3 right-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white bg-white/95 text-xs font-semibold text-gray-900 shadow-sm">
-              {{isItemSelected(item.id) ? '✓' : ''}}
+            [attr.aria-pressed]="isItemSelected(item.id)">
+            <span class="wardrobe-check-badge">
+              @if (isItemSelected(item.id)) { ✓ }
             </span>
           </button>
         }
-        
-        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-4 text-white">
-          <div class="font-medium">{{displayItemLabel(item.articleTypeLabel, item.category)}}</div>
-          <div class="text-xs opacity-80 capitalize">{{item.category}}</div>
-          <div class="text-xs opacity-75 mb-2">{{item.style || ''}}{{item.color ? ' · ' + item.color : ''}}</div>
-          <div class="flex gap-2">
-            <button (click)="deleteItem(item.id)" class="p-2 bg-white/20 backdrop-blur rounded-full hover:bg-red-500 hover:border-red-500 transition">
+
+        <div class="wardrobe-hover-overlay">
+          <div class="wardrobe-item-label">{{displayItemLabel(item.articleTypeLabel, item.category)}}</div>
+          <div class="wardrobe-item-sub">{{item.category}}</div>
+          <div class="wardrobe-item-meta">{{item.style || ''}}{{item.color ? ' · ' + item.color : ''}}</div>
+          <div class="wardrobe-card-actions">
+            <button class="wardrobe-delete-btn" (click)="deleteItem(item.id)" title="Delete item">
               <app-icon name="trash" class="w-4 h-4"/>
             </button>
           </div>
         </div>
-        
       </div>
     } @empty {
-      <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
-        <app-icon name="hanger" class="w-16 h-16 mb-4 opacity-50"/>
-        <p>Your wardrobe is empty.</p>
-        <p class="text-sm">Upload your first item to get started.</p>
+      <div class="wardrobe-empty">
+        <app-icon name="hanger" class="w-14 h-14" />
+        <p class="wardrobe-empty-title">Your wardrobe is empty.</p>
+        <p class="wardrobe-empty-sub">Upload your first item to get started.</p>
       </div>
     }
   </div>
@@ -108,8 +100,8 @@
 
           <div class="upload-modal__body">
             <div class="upload-modal__header">
-              <h3 id="upload-modal-title" class="text-2xl font-serif font-bold text-gray-900">Add New Item</h3>
-              <p class="text-sm text-gray-500">Upload a photo and review the suggested details.</p>
+              <h3 id="upload-modal-title" class="upload-modal__title">Add New Item</h3>
+              <p class="upload-modal__subtitle">Upload a photo and review the suggested details.</p>
             </div>
 
             <div class="upload-modal__content" [class.upload-modal__content--with-image]="!!newItemImage()">
@@ -128,11 +120,11 @@
                 } @else {
                   <div class="upload-modal__empty-state">
                     <div class="upload-modal__empty-icon">
-                      <app-icon name="camera" class="w-8 h-8 text-gray-500"/>
+                      <app-icon name="camera" class="w-8 h-8"/>
                     </div>
-                    <div class="space-y-1">
-                      <p class="text-base font-medium text-gray-900">Click to upload a photo</p>
-                      <p class="text-sm text-gray-500">PNG or JPG, one clothing item in frame.</p>
+                    <div>
+                      <p class="upload-modal__empty-label">Click to upload a photo</p>
+                      <p class="upload-modal__empty-hint">PNG or JPG, one clothing item in frame.</p>
                     </div>
                   </div>
                 }
@@ -141,54 +133,42 @@
               @if (newItemImage()) {
                 <div class="upload-modal__details-stack">
                   @if (validationWarning(); as warning) {
-                    <div
-                      class="rounded-2xl p-4 text-sm border"
-                      [class.border-amber-200]="warning.status === 'warning'"
-                      [class.bg-amber-50]="warning.status === 'warning'"
-                      [class.text-amber-900]="warning.status === 'warning'"
-                      [class.border-emerald-200]="warning.status === 'pass'"
-                      [class.bg-emerald-50]="warning.status === 'pass'"
-                      [class.text-emerald-900]="warning.status === 'pass'"
-                    >
-                      <div class="font-medium">{{warning.status === 'warning' ? 'Validation warning' : 'Validation passed'}}</div>
-                      <p class="mt-1.5 leading-6">{{warning.message}}</p>
-                      <p
-                        class="mt-3 text-xs uppercase tracking-[0.18em]"
-                        [class.text-amber-700]="warning.status === 'warning'"
-                        [class.text-emerald-700]="warning.status === 'pass'"
-                      >
-                        Confidence {{(warning.confidence * 100).toFixed(0)}}%
-                      </p>
+                    <div class="upload-modal__validation"
+                      [class.upload-modal__validation-warn]="warning.status === 'warning'"
+                      [class.upload-modal__validation-pass]="warning.status === 'pass'">
+                      <div class="upload-modal__validation-title">
+                        {{warning.status === 'warning' ? 'Validation warning' : 'Validation passed'}}
+                      </div>
+                      <p class="upload-modal__validation-msg">{{warning.message}}</p>
+                      <p class="upload-modal__validation-conf">Confidence {{(warning.confidence * 100).toFixed(0)}}%</p>
                     </div>
-                  }
 
-                  @if (validationWarning(); as warning) {
-                    <div class="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 space-y-3">
-                      <div class="font-medium text-gray-900">Detected details</div>
-                      <div class="flex flex-wrap gap-2">
+                    <div class="upload-modal__detected">
+                      <div class="upload-modal__detected-title">Detected details</div>
+                      <div class="upload-modal__detected-chips">
                         @if (warning.suggestedCategory) {
-                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Category: {{warning.suggestedCategory}}</span>
+                          <span class="upload-modal__chip">Category: {{warning.suggestedCategory}}</span>
                         }
                         @if (warning.suggestedArticleType) {
-                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200">{{displayItemLabel(warning.suggestedArticleType)}}</span>
+                          <span class="upload-modal__chip">{{displayItemLabel(warning.suggestedArticleType)}}</span>
                         }
                         @if (warning.suggestedColor) {
-                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Color: {{warning.suggestedColor}}</span>
+                          <span class="upload-modal__chip">Color: {{warning.suggestedColor}}</span>
                         }
                         @if (warning.suggestedGender) {
-                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Audience: {{warning.suggestedGender}}</span>
+                          <span class="upload-modal__chip">Audience: {{warning.suggestedGender}}</span>
                         }
                         @if (warning.suggestedOutfitRole) {
-                          <span class="rounded-full bg-white px-3 py-1.5 border border-gray-200 capitalize">Outfit role: {{warning.suggestedOutfitRole.replace('_', ' ')}}</span>
+                          <span class="upload-modal__chip">Outfit role: {{warning.suggestedOutfitRole.replace('_', ' ')}}</span>
                         }
                       </div>
                     </div>
                   }
 
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Category</label>
-                      <select [(ngModel)]="newItemCategory" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm">
+                  <div class="upload-modal__fields">
+                    <div class="upload-modal__field">
+                      <label class="upload-modal__field-label">Category</label>
+                      <select [(ngModel)]="newItemCategory" class="upload-modal__field-select">
                         <option value="top">Top</option>
                         <option value="bottom">Bottom</option>
                         <option value="dress">Dress</option>
@@ -198,43 +178,45 @@
                         <option value="accessories">Accessories</option>
                       </select>
                     </div>
-                    <div>
-                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Article Type</label>
-                      <input [(ngModel)]="newItemArticleType" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm" placeholder="e.g. shirt, dress, blazer">
+                    <div class="upload-modal__field">
+                      <label class="upload-modal__field-label">Article Type</label>
+                      <input [(ngModel)]="newItemArticleType" class="upload-modal__field-input" placeholder="e.g. shirt, dress, blazer">
                     </div>
-                    <div>
-                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Audience</label>
-                      <select [(ngModel)]="newItemAudienceTag" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm">
+                    <div class="upload-modal__field">
+                      <label class="upload-modal__field-label">Audience</label>
+                      <select [(ngModel)]="newItemAudienceTag" class="upload-modal__field-select">
                         <option value="">— None —</option>
                         @for (opt of audienceTagOptions; track opt) {
                           <option [value]="opt">{{opt | titlecase}}</option>
                         }
                       </select>
                     </div>
-                    <div>
-                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Style</label>
-                      <select [(ngModel)]="newItemStyle" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm">
+                    <div class="upload-modal__field">
+                      <label class="upload-modal__field-label">Style</label>
+                      <select [(ngModel)]="newItemStyle" class="upload-modal__field-select">
                         <option value="">— None —</option>
                         @for (opt of styleOptions; track opt) {
                           <option [value]="opt">{{opt}}</option>
                         }
                       </select>
                     </div>
-                    <div>
-                      <label class="block text-xs font-medium uppercase tracking-[0.16em] text-gray-500 mb-2">Color</label>
-                      <input [(ngModel)]="newItemColor" class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-3 text-sm" placeholder="e.g. navy blue, camel, light pink">
+                    <div class="upload-modal__field">
+                      <label class="upload-modal__field-label">Color</label>
+                      <input [(ngModel)]="newItemColor" class="upload-modal__field-input" placeholder="e.g. navy blue, camel">
                     </div>
                   </div>
 
                   <button
+                    class="upload-modal__save-btn"
                     (click)="saveNewItem()"
-                    [disabled]="isAnalyzing()"
-                    class="w-full bg-gray-900 text-white py-3.5 rounded-xl font-medium hover:bg-gray-800 transition disabled:opacity-50 flex justify-center gap-2"
-                  >
+                    [disabled]="isAnalyzing()">
                     @if (isAnalyzing()) {
-                      <span class="animate-spin">⟳</span> Analyzing...
+                      <svg class="upload-modal__save-spinner" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5" stroke-dasharray="32" stroke-linecap="round"/>
+                      </svg>
+                      Analyzing…
                     } @else {
-                      <span>{{validationWarning()?.status === 'warning' ? 'Save Anyway' : 'Save to Wardrobe'}}</span>
+                      {{validationWarning()?.status === 'warning' ? 'Save Anyway' : 'Save to Wardrobe'}}
                     }
                   </button>
                 </div>

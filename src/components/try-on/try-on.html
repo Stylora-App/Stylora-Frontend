@@ -1,10 +1,10 @@
-<div class="h-full flex flex-col bg-white relative overflow-hidden rounded-3xl border border-gray-200 shadow-sm">
-  
+<div class="tryon-shell">
+
   <!-- Back to Explore banner -->
   @if (showBackToExplore) {
-    <div class="flex items-center gap-2 px-5 py-2.5 bg-stone-50 border-b border-stone-200 shrink-0">
-      <button (click)="goBackToExplore()" class="flex items-center gap-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+    <div class="tryon-back-banner">
+      <button class="tryon-back-btn" (click)="goBackToExplore()">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
         </svg>
         Back to Explore
@@ -12,144 +12,131 @@
     </div>
   }
 
-  <!-- Studio / Cabin Area -->
-  <div class="flex-1 relative bg-stone-50 flex flex-col items-center justify-center p-6 min-h-0">
-    
-    <!-- Decorative Background: "The Wall" -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-stone-50 to-stone-100 opacity-80 pointer-events-none"></div>
-    <div class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-stone-200/30 to-transparent pointer-events-none"></div>
+  <!-- Studio area -->
+  <div class="tryon-studio">
+    <div class="tryon-studio-bg"></div>
+    <div class="tryon-studio-floor"></div>
 
-    <!-- The Mirror Frame (Container) -->
-    <div class="relative z-10 h-[400px] md:h-[480px] w-auto aspect-[3/4] bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.25)] rounded-2xl border-[8px] border-stone-800 overflow-hidden group transition-all duration-500 ease-out hover:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.3)]">
-      
+    <!-- Mirror frame -->
+    <div class="tryon-mirror" [class.tryon-mirror-loaded]="userPhoto() || generatedImage()">
+
       @if (generatedImage()) {
-        <img [src]="generatedImage()" class="w-full h-full object-cover animate-fade-in">
-        
-        <!-- Controls -->
-        <div class="absolute top-3 right-3 flex gap-2">
-          <button (click)="revertToOriginal()" class="bg-white/90 p-2 rounded-full shadow-md text-gray-900 hover:scale-110 transition" title="Revert to Original">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+        <img [src]="generatedImage()" class="tryon-mirror-img animate-fade-in" alt="Generated try-on">
+        <div class="tryon-mirror-controls">
+          <button class="tryon-ctrl-btn" (click)="revertToOriginal()" title="Revert to original">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
             </svg>
           </button>
-          <a [href]="generatedImage()" download="stylora-look.jpg" class="bg-stone-900 text-white p-2 rounded-full shadow-md hover:scale-110 transition" title="Download">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <a [href]="generatedImage()" download="stylora-look.jpg" class="tryon-ctrl-btn tryon-ctrl-btn-dark" title="Download">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
             </svg>
           </a>
         </div>
 
       } @else if (userPhoto()) {
-        <img [src]="userPhoto()" class="w-full h-full object-cover animate-fade-in">
-        
-        <div class="absolute top-3 left-3 pointer-events-auto z-10">
-          <button (click)="fileInput.click()" class="bg-white/90 backdrop-blur px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest shadow-md hover:bg-white hover:scale-105 transition text-stone-900 opacity-0 group-hover:opacity-100">
-            Change Photo
-          </button>
+        <img [src]="userPhoto()" class="tryon-mirror-img animate-fade-in" alt="Your photo">
+        <div class="tryon-mirror-change-overlay">
+          <button class="tryon-change-btn" (click)="fileInput.click()">Change Photo</button>
         </div>
+
       } @else if (isLoadingPhoto()) {
-        <!-- Loading try-on picture -->
-        <div class="w-full h-full flex flex-col items-center justify-center bg-stone-100">
-          <div class="w-8 h-8 border-2 border-stone-300 border-t-stone-700 rounded-full animate-spin mb-3"></div>
-          <span class="text-xs text-stone-400">Loading your try-on picture…</span>
+        <div class="tryon-mirror-loading">
+          <div class="tryon-loading-ring"></div>
+          <span class="tryon-loading-hint">Loading your try-on picture…</span>
         </div>
+
       } @else {
-        <!-- Empty State -->
-        <div class="w-full h-full flex flex-col items-center justify-center text-stone-300 bg-stone-100 cursor-pointer hover:bg-stone-200 transition duration-500" (click)="fileInput.click()">
-          <div class="w-16 h-16 border-2 border-dashed border-stone-300 rounded-full flex items-center justify-center mb-4">
-            <app-icon name="camera" class="w-6 h-6"/>
+        <div class="tryon-mirror-empty" (click)="fileInput.click()">
+          <div class="tryon-empty-icon">
+            <app-icon name="camera" class="w-6 h-6" />
           </div>
-          <span class="font-serif text-lg text-stone-500 font-bold">Tap to Start</span>
-          <span class="text-xs text-stone-400 mt-1">Upload Full Body Photo</span>
+          <span class="tryon-empty-title">Tap to Start</span>
+          <span class="tryon-empty-hint">Upload Full Body Photo</span>
         </div>
       }
-      
+
       <input #fileInput type="file" accept="image/*" (change)="onUserPhotoSelected($event)" class="hidden">
-      
-      <!-- Loading Overlay -->
+
+      <!-- Generating overlay -->
       @if (isGenerating()) {
-        <div class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-20">
-          <div class="w-12 h-12 border-4 border-stone-200 border-t-stone-800 rounded-full animate-spin mb-4"></div>
-          <span class="font-serif text-lg font-bold text-stone-900 animate-pulse">Fitting...</span>
-          <span class="text-xs text-stone-500 mt-2 max-w-[200px] text-center truncate">Trying on {{ selectedItem()?.name || selectedItem()?.category }}</span>
+        <div class="tryon-generating-overlay">
+          <div class="tryon-generating-ring"></div>
+          <span class="tryon-generating-label">Fitting…</span>
+          <span class="tryon-generating-item">Trying on {{ selectedItem()?.name || selectedItem()?.category }}</span>
         </div>
       }
     </div>
-    
-    <!-- Shadow under the mirror -->
-    <div class="w-40 h-4 bg-black/10 blur-xl rounded-[100%] -mt-2 z-0"></div>
 
-    <!-- Generate Button (Floating below mirror) -->
+    <!-- Mirror shadow -->
+    <div class="tryon-mirror-shadow"></div>
+
+    <!-- Generate button -->
     @if (userPhoto() && selectedItem() && !isGenerating()) {
-      <div class="absolute bottom-8 z-20 animate-slide-up">
-        <button (click)="generate()" class="group bg-stone-900 text-white pl-5 pr-6 py-3 rounded-full shadow-xl hover:bg-black hover:scale-105 transition flex items-center gap-3 ring-4 ring-white">
-          <app-icon name="sparkles" class="w-5 h-5 text-amber-200"/>
-          <span class="font-medium text-sm">Try It On</span>
+      <div class="tryon-generate-wrap animate-slide-up">
+        <button class="tryon-generate-btn" (click)="generate()">
+          <app-icon name="sparkles" class="w-5 h-5" />
+          Try It On
         </button>
       </div>
     }
   </div>
 
-  <!-- Bottom Wardrobe Carousel -->
-  <div class="h-auto bg-white border-t border-gray-100 p-6 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.02)] z-10">
-    <div class="flex items-center justify-between mb-4">
-      <div>
-        <h3 class="font-serif font-bold text-gray-900 text-lg">Fitting Room Items</h3>
-      </div>
-      
+  <!-- Bottom carousel -->
+  <div class="tryon-carousel-panel">
+    <div class="tryon-carousel-header">
+      <h3 class="tryon-carousel-title">Fitting Room Items</h3>
       @if (selectedItem()) {
-        <div class="flex items-center gap-2 text-sm bg-stone-100 px-3 py-1 rounded-full border border-stone-200 max-w-[260px]">
-          <span class="text-stone-500 text-xs uppercase tracking-wider font-bold shrink-0">Selected</span>
-          <span class="font-medium capitalize text-stone-900 truncate">{{ selectedItem()?.name || selectedItem()?.category }}</span>
+        <div class="tryon-selected-chip">
+          <span class="tryon-selected-label">Selected</span>
+          <span class="tryon-selected-name">{{ selectedItem()?.name || selectedItem()?.category }}</span>
         </div>
       }
     </div>
 
     @if (isAnalyzingClothing()) {
-      <div class="mb-3 text-xs text-stone-500">Analyzing uploaded item details…</div>
+      <p class="tryon-analyzing-hint">Analyzing uploaded item details…</p>
     }
-    
-    <div class="flex gap-4 overflow-x-auto pb-4 px-1 scrollbar-hide snap-x">
-      <!-- Add Custom Item Button -->
-      <div class="flex-none snap-start">
-        <div class="w-20 h-28 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-gray-900 hover:text-gray-900 transition cursor-pointer relative bg-gray-50 hover:bg-white group">
-          <input type="file" (change)="onClothingUpload($event)" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" [disabled]="isAnalyzingClothing()">
-          <div class="p-1.5 bg-white rounded-full shadow-sm mb-1 group-hover:scale-110 transition">
-            <app-icon name="plus" class="w-4 h-4"/>
+
+    <div class="tryon-scroll">
+      <!-- Add custom item -->
+      <div class="tryon-add-wrap">
+        <div class="tryon-add-btn" [class.tryon-add-btn-disabled]="isAnalyzingClothing()">
+          <input type="file" (change)="onClothingUpload($event)" accept="image/*" class="tryon-add-input" [disabled]="isAnalyzingClothing()">
+          <div class="tryon-add-icon">
+            <app-icon name="plus" class="w-4 h-4" />
           </div>
-          <span class="text-[10px] font-bold uppercase tracking-wide">Add New</span>
+          <span class="tryon-add-label">Add New</span>
         </div>
       </div>
 
-      <!-- Custom Uploaded Item (Temporary) -->
+      <!-- Custom uploaded item -->
       @if (tempItem(); as temp) {
-        <button 
-          (click)="selectItem(temp)" 
-          [class.ring-2]="selectedItem()?.id === temp.id"
-          class="flex-none w-20 h-28 rounded-xl border border-gray-100 bg-white overflow-hidden relative ring-stone-900 transition shadow-sm snap-start group">
-          <img [src]="temp.image" class="w-full h-full object-cover">
-          <div class="absolute top-1 right-1 bg-pink-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">NEW</div>
+        <button
+          class="tryon-item-btn"
+          [class.tryon-item-btn-active]="selectedItem()?.id === temp.id"
+          (click)="selectItem(temp)">
+          <img [src]="temp.image" [alt]="temp.name || temp.category" class="tryon-item-img">
+          <span class="tryon-item-new-badge">NEW</span>
           @if (selectedItem()?.id === temp.id) {
-            <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <app-icon name="check" class="w-6 h-6 text-white drop-shadow-md"/>
+            <div class="tryon-item-check">
+              <app-icon name="check" class="w-5 h-5 text-white" />
             </div>
           }
         </button>
       }
 
-      <!-- Wardrobe Items -->
+      <!-- Wardrobe items -->
       @for (item of wardrobeService.items(); track item.id) {
-        <button 
-          (click)="selectItem(item)" 
-          [class.ring-2]="selectedItem()?.id === item.id"
-          class="flex-none w-20 h-28 rounded-xl border border-gray-100 bg-white overflow-hidden relative ring-stone-900 transition shadow-sm snap-start hover:shadow-md">
-          <img [src]="item.image" class="w-full h-full object-cover">
-          <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-1 text-white text-[10px] text-left opacity-0 group-hover:opacity-100">
-            {{item.category}}
-          </div>
+        <button
+          class="tryon-item-btn"
+          [class.tryon-item-btn-active]="selectedItem()?.id === item.id"
+          (click)="selectItem(item)">
+          <img [src]="item.image" [alt]="item.name || item.category" class="tryon-item-img">
           @if (selectedItem()?.id === item.id) {
-            <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <app-icon name="check" class="w-6 h-6 text-white drop-shadow-md"/>
+            <div class="tryon-item-check">
+              <app-icon name="check" class="w-5 h-5 text-white" />
             </div>
           }
         </button>

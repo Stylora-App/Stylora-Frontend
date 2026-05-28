@@ -1,4 +1,4 @@
-import { Component, signal, inject, Output, EventEmitter } from '@angular/core';
+import { Component, signal, inject, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,7 +20,7 @@ import {
   templateUrl: './auth.html',
   styleUrl: './auth.css'
 })
-export class AuthComponent {
+export class AuthComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private wardrobeService = inject(WardrobeService);
   private router = inject(Router);
@@ -34,7 +34,13 @@ export class AuthComponent {
   showLoginPassword = signal(false);
   showRegisterPassword = signal(false);
   showConfirmPassword = signal(false);
+  entered = signal(false);
+  pulse = signal(false);
   readonly passwordPolicyMessage = PASSWORD_POLICY_MESSAGE;
+  readonly heroPaletteColors = ['#7a3a2f', '#a86438', '#cf9b5e', '#d9b483', '#6b7d7a', '#3e4a4a'];
+
+  private enterTimer?: ReturnType<typeof setTimeout>;
+  private pulseTimer?: ReturnType<typeof setInterval>;
 
   // Login form
   loginEmail = '';
@@ -47,6 +53,16 @@ export class AuthComponent {
   registerEmail = '';
   registerPassword = '';
   confirmPassword = '';
+
+  ngOnInit() {
+    this.enterTimer = setTimeout(() => this.entered.set(true), 80);
+    this.pulseTimer = setInterval(() => this.pulse.update(v => !v), 2200);
+  }
+
+  ngOnDestroy() {
+    clearTimeout(this.enterTimer);
+    clearInterval(this.pulseTimer);
+  }
 
   setAuthMode(isLogin: boolean) {
     this.isLoginMode.set(isLogin);

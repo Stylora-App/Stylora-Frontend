@@ -1,345 +1,261 @@
-<div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+<div class="profile-shell animate-fade-in">
   <!-- Hidden file input for profile picture -->
-  <input 
-    type="file" 
-    #fileInput 
-    (change)="onFileSelected($event)" 
-    accept="image/*" 
+  <input
+    type="file"
+    #fileInput
+    (change)="onFileSelected($event)"
+    accept="image/*"
     class="hidden"
   />
 
-  <!-- Profile Header -->
-  <div class="relative">
-    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-      
-      <div class="relative z-10 p-8 md:p-12">
-        <div class="flex flex-col md:flex-row items-center gap-8">
-          <!-- Avatar with gradient background -->
-          <div class="relative group">
-            <!-- Palette aura -->
-            @if (paletteAuraGradient()) {
-              <div class="absolute rounded-full pointer-events-none"
-                   style="inset: -8px; filter: blur(12px) saturate(2); opacity: 0.95;"
-                   [style.background]="paletteAuraGradient()">
-              </div>
-            }
-            <!-- Avatar container -->
-            <div class="relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl overflow-hidden text-white"
-                 [style.background]="avatarGradient()">
-              
-              @if (userProfile().profilePicture) {
-                <img [src]="userProfile().profilePicture" alt="Profile" class="w-full h-full object-cover" />
-              } @else {
-                <!-- User initials -->
-                <span class="text-5xl font-serif font-bold">{{ authService.getDisplayName().charAt(0).toUpperCase() }}</span>
-              }
-              
-              <!-- Hover overlay for changing picture -->
-              <div 
-                (click)="triggerFileInput()"
-                class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                @if (isUploadingPicture()) {
-                  <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                } @else {
-                  <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
-                  </svg>
-                }
-              </div>
-            </div>
-            
-            <!-- Remove picture button (only shows if there's a profile picture) -->
-            @if (userProfile().profilePicture) {
-              <button 
-                (click)="removeProfilePicture()"
-                class="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition"
-                title="Remove profile picture">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            }
-          </div>
-
-          <!-- Profile Info -->
-          <div class="flex-1 text-center md:text-left">
-            @if (isEditing()) {
-              <div class="flex gap-2 mb-2">
-                <input
-                  type="text"
-                  [(ngModel)]="firstName"
-                  placeholder="First Name"
-                  class="text-xl font-serif font-bold border-b-2 border-gray-900 bg-transparent focus:outline-none w-full"
-                >
-                <input
-                  type="text"
-                  [(ngModel)]="lastName"
-                  placeholder="Last Name"
-                  class="text-xl font-serif font-bold border-b-2 border-gray-900 bg-transparent focus:outline-none w-full"
-                >
-              </div>
-            } @else {
-              <h1 class="text-3xl md:text-4xl font-serif font-bold mb-2">
-                {{(userProfile().firstName || authService.getDisplayName())}} {{userProfile().lastName}}
-              </h1>
-            }
-            
-            @if (userProfile().season) {
-              <div class="inline-block px-4 py-1 bg-gray-900 text-white rounded-full text-sm mb-4">
-                {{userProfile().season}} - {{userProfile().subSeason}}
-              </div>
-            }
-            
-            @if (isEditing()) {
-              <select
-                [(ngModel)]="style"
-                class="block text-gray-600 mt-2 border-b border-gray-300 bg-transparent focus:outline-none"
-              >
-                <option value="">— No style preference —</option>
-                @for (opt of styleOptions; track opt) {
-                  <option [value]="opt">{{opt}}</option>
-                }
-              </select>
-            } @else if (userProfile().style) {
-              <p class="text-gray-600">Style: {{userProfile().style}}</p>
-            }
-          </div>
-
-          <!-- Edit Button -->
-          <div class="flex flex-col gap-2">
-            @if (isEditing()) {
-              <button
-                (click)="saveProfile()"
-                class="px-6 py-2 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition">
-                Save
-              </button>
-              <button
-                (click)="isEditing.set(false)"
-                class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition">
-                Cancel
-              </button>
-            } @else {
-              <button
-                (click)="startEditing()"
-                class="px-6 py-2 bg-gray-100 text-gray-900 rounded-full hover:bg-gray-200 transition">
-                Edit Profile
-              </button>
-            }
-            <button
-              (click)="openChangePasswordModal()"
-              class="px-6 py-2 text-gray-600 hover:text-gray-900 text-sm transition flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-              </svg>
-              Change Password
-            </button>
-          </div>
+  <!-- Profile Hero -->
+  <div class="profile-hero">
+    <!-- Avatar -->
+    <div class="profile-avatar-wrap">
+      @if (paletteAuraGradient()) {
+        <div class="profile-aura" [style.background]="paletteAuraGradient()"></div>
+      }
+      <div class="profile-avatar group" [style.background]="avatarGradient()">
+        @if (userProfile().profilePicture) {
+          <img [src]="userProfile().profilePicture" alt="Profile" class="profile-avatar-img" />
+        } @else {
+          <span class="profile-avatar-initial">{{ authService.getDisplayName().charAt(0).toUpperCase() }}</span>
+        }
+        <div class="profile-avatar-overlay" (click)="triggerFileInput()">
+          @if (isUploadingPicture()) {
+            <div class="profile-upload-spinner"></div>
+          } @else {
+            <svg class="profile-camera-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+            </svg>
+          }
         </div>
       </div>
+      @if (userProfile().profilePicture) {
+        <button class="profile-avatar-remove" (click)="removeProfilePicture()" title="Remove profile picture">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      }
+    </div>
+
+    <!-- Info -->
+    <div class="profile-info">
+      @if (isEditing()) {
+        <div class="profile-name-edit-row">
+          <input
+            type="text"
+            [ngModel]="firstName()"
+            (ngModelChange)="firstName.set($event)"
+            placeholder="First Name"
+            class="profile-name-input"
+          >
+          <input
+            type="text"
+            [ngModel]="lastName()"
+            (ngModelChange)="lastName.set($event)"
+            placeholder="Last Name"
+            class="profile-name-input"
+          >
+        </div>
+      } @else {
+        <h1 class="profile-name">
+          {{(userProfile().firstName || authService.getDisplayName())}} {{userProfile().lastName}}
+        </h1>
+      }
+
+      @if (userProfile().season) {
+        <span class="profile-season-badge">{{userProfile().season}} · {{userProfile().subSeason}}</span>
+      }
+
+      @if (isEditing()) {
+        <select [ngModel]="style()" (ngModelChange)="style.set($event)" class="profile-style-select">
+          <option value="">— No style preference —</option>
+          @for (opt of styleOptions; track opt) {
+            <option [value]="opt">{{opt}}</option>
+          }
+        </select>
+      } @else if (userProfile().style) {
+        <p class="profile-style-label">{{userProfile().style}}</p>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      @if (isEditing()) {
+        <button class="profile-btn profile-btn-primary" (click)="saveProfile()">Save</button>
+        <button class="profile-btn profile-btn-ghost" (click)="isEditing.set(false)">Cancel</button>
+      } @else {
+        <button class="profile-btn profile-btn-secondary" (click)="startEditing()">Edit Profile</button>
+      }
+      <button class="profile-btn-text" (click)="openChangePasswordModal()">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+        </svg>
+        Change Password
+      </button>
     </div>
   </div>
 
-  <!-- Color Palette Section -->
+  <!-- Stats row -->
+  <div class="profile-stats-row">
+    <div class="profile-stat-card">
+      <span class="profile-stat-label">Items</span>
+      <strong class="profile-stat-value">{{wardrobeService.items().length}}</strong>
+    </div>
+    <div class="profile-stat-card">
+      <span class="profile-stat-label">Undertone</span>
+      <strong class="profile-stat-value">{{userProfile().undertone || userProfile().season && (userProfile().season === 'Spring' || userProfile().season === 'Autumn' ? 'Warm' : 'Cool') || '—'}}</strong>
+    </div>
+    <div class="profile-stat-card">
+      <span class="profile-stat-label">Contrast</span>
+      <strong class="profile-stat-value">{{userProfile().contrast || '—'}}</strong>
+    </div>
+    <div class="profile-stat-card">
+      <span class="profile-stat-label">Best Metals</span>
+      <strong class="profile-stat-value">{{userProfile().bestMetals || (userProfile().season && (userProfile().season === 'Spring' || userProfile().season === 'Autumn') ? 'Gold' : userProfile().season ? 'Silver' : '—')}}</strong>
+    </div>
+  </div>
+
+  <!-- Palette section -->
   @if (userProfile().palette && userProfile().palette!.length > 0) {
-    <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100">
-      <h2 class="text-2xl font-serif font-bold mb-6">Your Color Palette</h2>
-      
-      <div class="flex flex-wrap gap-6">
-        @for (color of userProfile().palette; track color) {
-          <div class="flex flex-col items-center gap-2 group">
-            <div 
-              class="w-20 h-20 rounded-full shadow-lg ring-2 ring-gray-100 group-hover:ring-4 transition-all cursor-pointer transform group-hover:scale-110" 
-              [style.background-color]="color"
-              [style.box-shadow]="'0 4px 12px ' + color + '40'"></div>
-            <span class="text-xs text-gray-500 font-mono uppercase">{{color}}</span>
-          </div>
+    <div class="profile-card">
+      <div class="profile-card-header">
+        <div>
+          <p class="profile-section-label">Your Colors</p>
+          <h2 class="profile-section-title">Color Palette</h2>
+        </div>
+        @if (userProfile().season) {
+          <span class="profile-season-chip">{{userProfile().season}}</span>
         }
       </div>
 
-      <div class="mt-8 p-6 bg-gray-50 rounded-xl">
-        <div class="flex items-start gap-3">
-          <app-icon name="check" class="w-5 h-5 text-gray-900 mt-1"/>
-          <div>
-            <h3 class="font-bold text-gray-900 mb-1">Your Season Colors</h3>
-            <p class="text-sm text-gray-600">
-              These colors are personalized based on your Armochromia season analysis. 
-              Wear these shades to enhance your natural beauty and create harmonious outfits.
-            </p>
-          </div>
-        </div>
+      <div class="palette-ribbon">
+        @for (color of userProfile().palette; track color) {
+          <div class="palette-cell" [style.background]="color" [title]="color"></div>
+        }
+      </div>
+
+      <div class="palette-hex-row">
+        @for (color of userProfile().palette; track color) {
+          <span class="palette-hex">{{color}}</span>
+        }
+      </div>
+
+      <div class="profile-tip">
+        <app-icon name="check" class="w-4 h-4" />
+        <p>These colors are personalized based on your Armochromia season analysis. Wear these shades to enhance your natural beauty and create harmonious outfits.</p>
       </div>
     </div>
   } @else {
-    <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-gray-100 text-center">
-      <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
-        <app-icon name="camera" class="w-8 h-8 text-gray-600"/>
+    <div class="profile-card profile-card-empty">
+      <div class="profile-empty-icon">
+        <app-icon name="camera" class="w-7 h-7" />
       </div>
-      <h2 class="text-2xl font-serif font-bold mb-2">No Color Analysis Yet</h2>
-      <p class="text-gray-600 mb-6">
-        Complete a season analysis to discover your personalized color palette.
-      </p>
-      <a href="#/analysis" class="inline-block px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition">
-        Start Analysis
-      </a>
+      <h2 class="profile-section-title">No Color Analysis Yet</h2>
+      <p class="profile-empty-sub">Complete a season analysis to discover your personalized color palette.</p>
+      <a href="#/analysis" class="profile-btn profile-btn-primary" style="text-decoration:none;display:inline-flex;">Start Analysis</a>
     </div>
   }
-
-  <!-- Wardrobe Stats -->
-  <div class="grid md:grid-cols-3 gap-6">
-    <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-      <div class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Total Items</div>
-      <div class="text-3xl font-serif font-bold">{{wardrobeService.items().length}}</div>
-    </div>
-    
-    <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-      <div class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Season</div>
-      <div class="text-3xl font-serif font-bold">{{userProfile().season || '—'}}</div>
-    </div>
-    
-    <div class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
-      <div class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-2">Style</div>
-      <div class="text-3xl font-serif font-bold">{{userProfile().style || '—'}}</div>
-    </div>
-  </div>
 </div>
 
 <!-- Change Password Modal -->
 @if (showChangePasswordModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <!-- Backdrop -->
-    <div 
-      (click)="closeChangePasswordModal()"
-      class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-    
-    <!-- Modal -->
-    <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 animate-fade-in">
-      <!-- Close button -->
-      <button 
-        (click)="closeChangePasswordModal()"
-        class="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 transition">
-        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+  <div class="pw-modal-backdrop" (click)="closeChangePasswordModal()"></div>
+  <div class="pw-modal animate-fade-in">
+    <button class="pw-modal-close" (click)="closeChangePasswordModal()" aria-label="Close">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <div class="pw-modal-header">
+      <div class="pw-modal-icon">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
         </svg>
+      </div>
+      <h2 class="pw-modal-title">Change Password</h2>
+      <p class="pw-modal-sub">Enter your current password and choose a new one</p>
+    </div>
+
+    <div class="pw-fields">
+      <div class="pw-field-wrap">
+        <label class="pw-label">Current Password</label>
+        <div class="pw-input-wrap">
+          <input
+            [type]="showCurrentPassword() ? 'text' : 'password'"
+            [ngModel]="currentPassword()"
+            (ngModelChange)="currentPassword.set($event)"
+            placeholder="Enter current password"
+            class="pw-input"
+          />
+          <button type="button" class="pw-eye" (click)="showCurrentPassword.set(!showCurrentPassword())">
+            @if (showCurrentPassword()) {
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+            } @else {
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="pw-field-wrap">
+        <label class="pw-label">New Password</label>
+        <div class="pw-input-wrap">
+          <input
+            [type]="showNewPassword() ? 'text' : 'password'"
+            [ngModel]="newPassword()"
+            (ngModelChange)="newPassword.set($event)"
+            placeholder="Enter new password"
+            class="pw-input"
+          />
+          <button type="button" class="pw-eye" (click)="showNewPassword.set(!showNewPassword())">
+            @if (showNewPassword()) {
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+            } @else {
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+            }
+          </button>
+        </div>
+      </div>
+
+      <div class="pw-field-wrap">
+        <label class="pw-label">Confirm New Password</label>
+        <div class="pw-input-wrap">
+          <input
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            [ngModel]="confirmPassword()"
+            (ngModelChange)="confirmPassword.set($event)"
+            placeholder="Confirm new password"
+            class="pw-input"
+          />
+          <button type="button" class="pw-eye" (click)="showConfirmPassword.set(!showConfirmPassword())">
+            @if (showConfirmPassword()) {
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+            } @else {
+              <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pw-modal-actions">
+      <button class="profile-btn profile-btn-ghost pw-cancel" (click)="closeChangePasswordModal()">Cancel</button>
+      <button
+        class="profile-btn profile-btn-primary pw-submit"
+        (click)="changePassword()"
+        [disabled]="isChangingPassword()">
+        @if (isChangingPassword()) {
+          <span class="pw-submit-spinner"></span>
+          Changing…
+        } @else {
+          Change Password
+        }
       </button>
-      
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-          <svg class="w-8 h-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-          </svg>
-        </div>
-        <h2 class="text-2xl font-serif font-bold">Change Password</h2>
-        <p class="text-gray-500 text-sm mt-2">Enter your current password and choose a new one</p>
-      </div>
-      
-      <!-- Form -->
-      <div class="space-y-4">
-        <!-- Current Password -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-          <div class="relative">
-            <input 
-              [type]="showCurrentPassword() ? 'text' : 'password'"
-              [(ngModel)]="currentPassword"
-              placeholder="Enter current password"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent pr-12"
-            />
-            <button 
-              type="button"
-              (click)="showCurrentPassword.set(!showCurrentPassword())"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              @if (showCurrentPassword()) {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-              } @else {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-              }
-            </button>
-          </div>
-        </div>
-        
-        <!-- New Password -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-          <div class="relative">
-            <input 
-              [type]="showNewPassword() ? 'text' : 'password'"
-              [(ngModel)]="newPassword"
-              placeholder="Enter new password"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent pr-12"
-            />
-            <button 
-              type="button"
-              (click)="showNewPassword.set(!showNewPassword())"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              @if (showNewPassword()) {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-              } @else {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-              }
-            </button>
-          </div>
-        </div>
-        
-        <!-- Confirm Password -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-          <div class="relative">
-            <input 
-              [type]="showConfirmPassword() ? 'text' : 'password'"
-              [(ngModel)]="confirmPassword"
-              placeholder="Confirm new password"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent pr-12"
-            />
-            <button 
-              type="button"
-              (click)="showConfirmPassword.set(!showConfirmPassword())"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              @if (showConfirmPassword()) {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-                </svg>
-              } @else {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-              }
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Actions -->
-      <div class="flex gap-3 mt-8">
-        <button 
-          (click)="closeChangePasswordModal()"
-          class="flex-1 px-6 py-3 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition">
-          Cancel
-        </button>
-        <button 
-          (click)="changePassword()"
-          [disabled]="isChangingPassword()"
-          class="flex-1 px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-          @if (isChangingPassword()) {
-            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Changing...
-          } @else {
-            Change Password
-          }
-        </button>
-      </div>
     </div>
   </div>
 }

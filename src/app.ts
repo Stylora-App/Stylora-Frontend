@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
-import { AuthComponent } from './components/auth/auth';
+import { WelcomeComponent } from './components/welcome/welcome';
 import { IconComponent } from './components/ui/icons';
 import { NotificationComponent } from './components/ui/notification/notification';
 import { AuthService } from './services/auth.service';
@@ -13,7 +13,7 @@ type View = 'dashboard' | 'wardrobe' | 'analysis' | 'tryon' | 'profile' | 'explo
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, AuthComponent, IconComponent, NotificationComponent],
+  imports: [CommonModule, RouterOutlet, WelcomeComponent, IconComponent, NotificationComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -23,9 +23,15 @@ export class AppComponent implements OnInit {
   private router = inject(Router);
   
   currentView = signal<View>('dashboard');
-  
-  // Mobile menu state
   isMenuOpen = signal(false);
+
+  readonly sidebarNav: { id: View; label: string; icon: string }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'sparkles' },
+    { id: 'wardrobe', label: 'Wardrobe', icon: 'hanger' },
+    { id: 'tryon', label: 'Virtual Try-On', icon: 'camera' },
+    { id: 'analysis', label: 'Color Analysis', icon: 'palette' },
+    { id: 'explore', label: 'Explore', icon: 'shopping-bag' },
+  ];
 
   // User profile data for avatar - direct reference to service signal
   get userProfile() {

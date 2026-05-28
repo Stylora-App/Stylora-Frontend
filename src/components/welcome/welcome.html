@@ -1,0 +1,540 @@
+<div class="wlc-shell">
+
+  <!-- ════════════════ FLOATING NAV ════════════════ -->
+  <header class="wlc-nav" [class.wlc-nav-scrolled]="navScrolled()">
+    <a class="wlc-nav-brand" href="#top">
+      <span class="wlc-brand-dot"></span>
+      <span class="wlc-brand-name">Stylora<span class="wlc-brand-accent">.</span></span>
+    </a>
+    <nav class="wlc-nav-right">
+      <div class="wlc-nav-links">
+        <a href="#flow"     class="wlc-nav-link">How it works</a>
+        <a href="#analysis" class="wlc-nav-link">Color analysis</a>
+        <a href="#wardrobe" class="wlc-nav-link">Wardrobe</a>
+      </div>
+      <button class="wlc-cta-btn wlc-cta-sm" (click)="openDrawer('register')">
+        Get started
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wlc-cta-arrow"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ════════════════ HERO ════════════════ -->
+  <section id="top" class="wlc-hero" (mousemove)="onHeroMouseMove($event)">
+    <!-- Dynamic warm cursor glow -->
+    <div class="wlc-hero-glow-cursor" [style.background]="heroGlowBg()"></div>
+    <!-- Static ambient glow -->
+    <div class="wlc-hero-glow-ambient"></div>
+    <!-- Film grain -->
+    <div class="wlc-hero-grain"></div>
+
+    <div class="wlc-hero-content">
+      <!-- Eyebrow -->
+      <div class="wlc-eyebrow" [class.wlc-entered]="entered()">
+        <span class="wlc-eyebrow-line"></span>
+        <span class="wlc-eyebrow-text">FIND YOUR TRUE STYLE</span>
+      </div>
+
+      <!-- Headline — word-by-word stagger -->
+      <h1 class="wlc-hero-title">
+        @for (word of titleWords; track word; let i = $index) {
+          <span
+            class="wlc-title-word"
+            [style.opacity]="entered() ? '1' : '0'"
+            [style.transform]="entered() ? 'translateY(0)' : 'translateY(40px)'"
+            [style.transition]="'opacity 900ms ' + (120 + i * 90) + 'ms cubic-bezier(.22,1,.36,1), transform 900ms ' + (120 + i * 90) + 'ms cubic-bezier(.22,1,.36,1)'"
+          >{{ word }}</span>
+        }
+        <br>
+        <em
+          class="wlc-title-em"
+          [style.opacity]="entered() ? '1' : '0'"
+          [style.transform]="entered() ? 'translateY(0)' : 'translateY(40px)'"
+          style="transition: opacity 900ms 360ms cubic-bezier(.22,1,.36,1), transform 900ms 360ms cubic-bezier(.22,1,.36,1)"
+        >with you.</em>
+      </h1>
+
+      <!-- Subtitle -->
+      <p
+        class="wlc-hero-sub"
+        [style.opacity]="entered() ? '1' : '0'"
+        [style.transform]="entered() ? 'translateY(0)' : 'translateY(20px)'"
+        style="transition: opacity 900ms 540ms cubic-bezier(.22,1,.36,1), transform 900ms 540ms cubic-bezier(.22,1,.36,1)"
+      >
+        Stylora reads your undertone, organises your wardrobe, and helps you put together outfits
+        that actually look like you — from pieces you already own.
+      </p>
+
+      <!-- CTAs -->
+      <div
+        class="wlc-hero-ctas"
+        [style.opacity]="entered() ? '1' : '0'"
+        [style.transform]="entered() ? 'translateY(0)' : 'translateY(20px)'"
+        style="transition: opacity 900ms 720ms cubic-bezier(.22,1,.36,1), transform 900ms 720ms cubic-bezier(.22,1,.36,1)"
+      >
+        <button class="wlc-cta-btn wlc-cta-lg" (click)="openDrawer('register')">
+          Get started
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wlc-cta-arrow"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+        </button>
+        <a href="#flow" class="wlc-hero-how-link">
+          <span class="wlc-scroll-circle">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m0 0-6-6m6 6 6-6"/></svg>
+          </span>
+          See how it works
+        </a>
+      </div>
+
+      <!-- Palette swatch cascade -->
+      <div class="wlc-hero-palette">
+        @for (c of heroPaletteColors; track c; let i = $index) {
+          <span
+            class="wlc-hero-swatch"
+            [style.background]="c"
+            [style.opacity]="entered() ? '1' : '0'"
+            [style.transform]="entered() ? 'translateY(0) scale(1)' : 'translateY(-12px) scale(.6)'"
+            [style.transition]="'opacity 700ms ' + (900 + i * 90) + 'ms cubic-bezier(.22,1,.36,1), transform 700ms ' + (900 + i * 90) + 'ms cubic-bezier(.22,1,.36,1)'"
+          ></span>
+        }
+        <span class="wlc-palette-label">SAMPLE · SOFT AUTUMN</span>
+      </div>
+    </div>
+
+    <!-- Scroll cue -->
+    <div class="wlc-scroll-cue">
+      SCROLL
+      <span class="wlc-scroll-tick"></span>
+    </div>
+  </section>
+
+  <!-- ════════════════ HOW IT WORKS ════════════════ -->
+  <section id="flow" class="wlc-flow" #flowSection>
+    <div class="wlc-container">
+      <!-- Section header -->
+      <div class="wlc-section-eyebrow" [class.wlc-shown]="flowShown()">
+        <span class="wlc-divider-line"></span>
+        <span class="wlc-eyebrow-text wlc-eyebrow-warm">HOW IT WORKS</span>
+      </div>
+      <h2 class="wlc-section-h2" [class.wlc-shown]="flowShown()" style="transition-delay: 120ms">
+        Four steps. A wardrobe that finally
+        <em class="wlc-h2-em">fits you.</em>
+      </h2>
+
+      <!-- Step cards -->
+      <div class="wlc-flow-grid">
+        @for (step of flowSteps; track step.n; let i = $index) {
+          <article
+            class="wlc-flow-card"
+            [class.wlc-shown]="flowShown()"
+            [style.transition-delay]="(240 + i * 110) + 'ms'"
+          >
+            <span class="wlc-flow-card-bg-n" [style.color]="step.color">{{ step.n }}</span>
+            <div class="wlc-step-label" [style.color]="step.color">STEP {{ step.n }}</div>
+            <h3 class="wlc-step-title">{{ step.title }}</h3>
+            <p class="wlc-step-body">{{ step.body }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ COLOR ANALYSIS ════════════════ -->
+  <section id="analysis" class="wlc-analysis" #analysisSection>
+    <div class="wlc-container wlc-analysis-grid">
+
+      <!-- Copy side -->
+      <div class="wlc-analysis-copy">
+        <div class="wlc-section-eyebrow" [class.wlc-shown]="analysisShown()">
+          <span class="wlc-divider-line wlc-divider-warm"></span>
+          <span class="wlc-eyebrow-text wlc-eyebrow-warm">COLOR ANALYSIS</span>
+        </div>
+        <h2 class="wlc-section-h2 wlc-section-h2-dark" [class.wlc-shown]="analysisShown()" style="transition-delay: 120ms">
+          One selfie.
+          <em class="wlc-h2-em">Your whole palette.</em>
+        </h2>
+        <p class="wlc-analysis-sub" [class.wlc-shown]="analysisShown()" style="transition-delay: 220ms">
+          Our model reads hair, eye and skin tones, then places you in one of twelve seasonal
+          palettes. The result is a personal color profile to use in your next outfits.
+        </p>
+
+        <!-- Sample verdict card -->
+        <div class="wlc-verdict-card" [class.wlc-shown]="analysisShown()" style="transition-delay: 360ms">
+          <div class="wlc-verdict-label">SAMPLE VERDICT</div>
+          <div class="wlc-verdict-season">Soft <em>Autumn</em></div>
+          <div class="wlc-verdict-swatches">
+            @for (c of analysisPaletteColors; track c; let i = $index) {
+              <span
+                class="wlc-verdict-swatch"
+                [style.background]="c"
+                [style.opacity]="analysisShown() ? '1' : '0'"
+                [style.transform]="analysisShown() ? 'translateY(0)' : 'translateY(-10px)'"
+                [style.transition]="'opacity 600ms ' + (600 + i * 80) + 'ms cubic-bezier(.22,1,.36,1), transform 600ms ' + (600 + i * 80) + 'ms cubic-bezier(.22,1,.36,1)'"
+              ></span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual side -->
+      <div class="wlc-analysis-visual">
+        <!-- Central photo card -->
+        <div class="wlc-photo-card" [class.wlc-shown]="analysisShown()">
+          <svg viewBox="0 0 280 360" class="wlc-face-svg">
+            <defs>
+              <radialGradient id="lg-sky" cx="50%" cy="20%" r="80%">
+                <stop offset="0%"   stop-color="#f4e3cc"/>
+                <stop offset="100%" stop-color="#e1c8a4"/>
+              </radialGradient>
+              <radialGradient id="lg-skin" cx="50%" cy="50%" r="44%">
+                <stop offset="0%"   stop-color="#f3cfa4"/>
+                <stop offset="100%" stop-color="#d9a684"/>
+              </radialGradient>
+              <linearGradient id="lg-hair" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%"   stop-color="#7a4f2c"/>
+                <stop offset="100%" stop-color="#a87a45"/>
+              </linearGradient>
+              <linearGradient id="lg-shoulder" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%"   stop-color="#c89668"/>
+                <stop offset="100%" stop-color="#9c6f43"/>
+              </linearGradient>
+            </defs>
+            <rect width="280" height="360" fill="url(#lg-sky)"/>
+            <ellipse cx="140" cy="118" rx="92" ry="96" fill="url(#lg-hair)"/>
+            <path d="M 30 360 Q 50 250 140 235 Q 230 250 250 360 Z" fill="url(#lg-shoulder)"/>
+            <ellipse cx="140" cy="155" rx="68" ry="84" fill="url(#lg-skin)"/>
+            <path d="M 80 110 Q 140 60 200 115 Q 170 95 140 100 Q 105 95 80 110 Z" fill="url(#lg-hair)" opacity=".95"/>
+            <ellipse cx="122" cy="160" rx="7" ry="5" fill="#8a6c4a"/>
+            <ellipse cx="158" cy="160" rx="7" ry="5" fill="#8a6c4a"/>
+            <ellipse cx="122" cy="160" rx="2.8" ry="2.8" fill="#3d2c1a"/>
+            <ellipse cx="158" cy="160" rx="2.8" ry="2.8" fill="#3d2c1a"/>
+            <ellipse cx="140" cy="200" rx="14" ry="5" fill="#b76a55" opacity=".8"/>
+          </svg>
+          <div class="wlc-photo-badge">SELFIE · ANALYZED</div>
+        </div>
+
+        <!-- Floating annotation cards (transition-delay handled by CSS nth-child) -->
+        <article class="wlc-annotation wlc-annotation-left" style="top: 12%" [class.wlc-shown]="analysisShown()">
+          <div class="wlc-annotation-head">
+            <span class="wlc-annotation-dot" style="background: #a78054"></span>
+            <span class="wlc-annotation-label">HAIR</span>
+          </div>
+          <div class="wlc-annotation-title">Honey-warm brown</div>
+        </article>
+        <article class="wlc-annotation wlc-annotation-left" style="top: 44%" [class.wlc-shown]="analysisShown()">
+          <div class="wlc-annotation-head">
+            <span class="wlc-annotation-dot" style="background: #8a6c4a"></span>
+            <span class="wlc-annotation-label">EYES</span>
+          </div>
+          <div class="wlc-annotation-title">Soft hazel</div>
+        </article>
+        <article class="wlc-annotation wlc-annotation-right" style="top: 28%" [class.wlc-shown]="analysisShown()">
+          <div class="wlc-annotation-head">
+            <span class="wlc-annotation-dot" style="background: #d9a684"></span>
+            <span class="wlc-annotation-label">SKIN</span>
+          </div>
+          <div class="wlc-annotation-title">Warm undertone</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ WARDROBE FAN ════════════════ -->
+  <section id="wardrobe" class="wlc-wardrobe" #wardrobeSection>
+    <div class="wlc-container">
+      <div class="wlc-wardrobe-header">
+        <div class="wlc-section-eyebrow wlc-eyebrow-centered" [class.wlc-shown]="wardrobeShown()">
+          <span class="wlc-divider-line wlc-divider-warm"></span>
+          <span class="wlc-eyebrow-text wlc-eyebrow-warm">YOUR WARDROBE</span>
+          <span class="wlc-divider-line wlc-divider-warm"></span>
+        </div>
+        <h2 class="wlc-section-h2 wlc-section-h2-dark wlc-text-center" [class.wlc-shown]="wardrobeShown()" style="transition-delay: 120ms">
+          Every piece you own,
+          <em class="wlc-h2-em">ready to wear.</em>
+        </h2>
+        <p class="wlc-wardrobe-sub" [class.wlc-shown]="wardrobeShown()" style="transition-delay: 220ms">
+          Snap, tag, and let Stylora arrange. Your closet becomes a searchable, mixable, weather-aware
+          board — never another "I have nothing to wear" morning.
+        </p>
+      </div>
+
+      <!-- Fan board -->
+      <div class="wlc-fan-board">
+        @for (item of wardrobeItems; track item.label; let i = $index) {
+          <button
+            class="wlc-fan-card"
+            [class.wlc-fan-card-active]="i === wardrobeActive()"
+            [style]="getFanStyle(i)"
+            (click)="wardrobeActive.set(i)"
+          >
+            <div class="wlc-fan-img" [style.background]="'linear-gradient(160deg, ' + item.color + ', ' + item.color + 'cc)'">
+              <div class="wlc-fan-img-texture"></div>
+            </div>
+            <div class="wlc-fan-meta">
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.cat }}</span>
+            </div>
+          </button>
+        }
+
+        <!-- Dot indicators -->
+        <div class="wlc-fan-dots">
+          @for (item of wardrobeItems; track item.label; let i = $index) {
+            <button
+              class="wlc-fan-dot"
+              [class.wlc-fan-dot-active]="i === wardrobeActive()"
+              (click)="wardrobeActive.set(i)"
+            ></button>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ FINAL CTA ════════════════ -->
+  <section class="wlc-final-cta" #finalCtaSection>
+    <div class="wlc-final-glow"></div>
+    <div class="wlc-container wlc-final-inner">
+      <div class="wlc-section-eyebrow wlc-eyebrow-centered wlc-eyebrow-gold" [class.wlc-shown]="finalCtaShown()">
+        <span class="wlc-divider-line wlc-divider-gold"></span>
+        <span class="wlc-eyebrow-text">BEGIN TODAY</span>
+        <span class="wlc-divider-line wlc-divider-gold"></span>
+      </div>
+      <h2 class="wlc-final-h2" [class.wlc-shown]="finalCtaShown()" style="transition-delay: 120ms">
+        Your wardrobe is <em>waiting.</em>
+      </h2>
+      <p class="wlc-final-sub" [class.wlc-shown]="finalCtaShown()" style="transition-delay: 240ms">
+        Take a selfie, scan a few favourite pieces, and let Stylora guide your style journey.
+      </p>
+      <div class="wlc-final-btns" [class.wlc-shown]="finalCtaShown()" style="transition-delay: 380ms">
+        <button class="wlc-cta-btn wlc-cta-lg wlc-cta-gold" (click)="openDrawer('register')">
+          Get started
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="wlc-cta-arrow"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+        </button>
+        <button class="wlc-cta-ghost" (click)="openDrawer('login')">
+          Sign in
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <footer class="wlc-footer" [class.wlc-shown]="finalCtaShown()" style="transition-delay: 560ms">
+        <span class="wlc-footer-brand">Stylora<span class="wlc-brand-accent">.</span></span>
+        <span>© 2026 · Find your true style.</span>
+      </footer>
+    </div>
+  </section>
+
+</div><!-- end .wlc-shell -->
+
+<!-- ════════════════ DRAWER BACKDROP ════════════════ -->
+<div
+  class="wlc-backdrop"
+  [class.wlc-backdrop-open]="drawerOpen()"
+  (click)="closeDrawer()"
+  [attr.aria-hidden]="!drawerOpen()"
+></div>
+
+<!-- ════════════════ AUTH DRAWER ════════════════ -->
+<aside
+  class="wlc-drawer"
+  [class.wlc-drawer-open]="drawerOpen()"
+  role="dialog"
+  [attr.aria-modal]="drawerOpen()"
+  [attr.aria-label]="isLoginMode() ? 'Sign in' : 'Create account'"
+>
+  <!-- Close button -->
+  <button class="wlc-drawer-close" (click)="closeDrawer()" aria-label="Close">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <path d="M6 6l12 12M6 18 18 6"/>
+    </svg>
+  </button>
+
+  <div class="wlc-drawer-inner">
+    <!-- Brand mark -->
+    <div class="wlc-drawer-brand" [class.wlc-drawer-in]="drawerOpen()">
+      <span class="wlc-drawer-dot"></span>
+      <span class="wlc-drawer-brand-text">STYLORA</span>
+    </div>
+
+    <!-- Title -->
+    <h2 class="wlc-drawer-title" [class.wlc-drawer-in]="drawerOpen()" style="transition-delay: 60ms">
+      @if (isLoginMode()) {
+        Welcome <em>back.</em>
+      } @else {
+        Create your <em>account.</em>
+      }
+    </h2>
+    <p class="wlc-drawer-subtitle" [class.wlc-drawer-in]="drawerOpen()" style="transition-delay: 80ms">
+      @if (isLoginMode()) { Pick up where you left off. } @else { It takes about a minute. }
+    </p>
+
+    <!-- Tab switcher -->
+    <div class="wlc-tabs" [class.wlc-drawer-in]="drawerOpen()" style="transition-delay: 100ms">
+      <div class="wlc-tab-indicator" [class.wlc-tab-right]="!isLoginMode()"></div>
+      <button class="wlc-tab-btn" [class.wlc-tab-active]="isLoginMode()"  (click)="setAuthMode(true)"  type="button">Sign In</button>
+      <button class="wlc-tab-btn" [class.wlc-tab-active]="!isLoginMode()" (click)="setAuthMode(false)" type="button">Create Account</button>
+    </div>
+
+    <!-- Alerts -->
+    @if (errorMessage()) {
+      <div class="wlc-alert wlc-alert-error">
+        <svg class="wlc-alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+    @if (successMessage()) {
+      <div class="wlc-alert wlc-alert-success">
+        <svg class="wlc-alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>{{ successMessage() }}</span>
+      </div>
+    }
+
+    <!-- ── LOGIN FORM ── -->
+    @if (isLoginMode()) {
+      <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="wlc-fields" [class.wlc-drawer-in]="drawerOpen()" style="transition-delay: 120ms">
+
+        <div class="wlc-field">
+          <label class="wlc-field-label" [class.wlc-label-up]="loginEmail">Email</label>
+          <input
+            type="email"
+            [(ngModel)]="loginEmail"
+            name="loginEmail"
+            #loginEmailModel="ngModel"
+            required
+            autocomplete="email"
+            class="wlc-field-input"
+            [class.wlc-field-invalid]="isFieldInvalid(loginEmailModel)"
+          >
+          @if (isFieldInvalid(loginEmailModel)) {
+            <p class="wlc-field-err">Email is required.</p>
+          }
+        </div>
+
+        <div class="wlc-field">
+          <label class="wlc-field-label" [class.wlc-label-up]="loginPassword">Password</label>
+          <input
+            [type]="showLoginPassword() ? 'text' : 'password'"
+            [(ngModel)]="loginPassword"
+            name="loginPassword"
+            #loginPasswordModel="ngModel"
+            required
+            autocomplete="current-password"
+            class="wlc-field-input wlc-field-input-pr"
+            [class.wlc-field-invalid]="isFieldInvalid(loginPasswordModel)"
+          >
+          <button type="button" class="wlc-eye-btn" (click)="showLoginPassword.set(!showLoginPassword())" [attr.aria-label]="showLoginPassword() ? 'Hide password' : 'Show password'">
+            @if (showLoginPassword()) {
+              <svg class="wlc-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/><path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"/><path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"/></svg>
+            } @else {
+              <svg class="wlc-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+            }
+          </button>
+          @if (isFieldInvalid(loginPasswordModel)) {
+            <p class="wlc-field-err">Password is required.</p>
+          }
+        </div>
+
+        <div class="wlc-remember-row">
+          <label class="wlc-remember-label">
+            <span class="wlc-checkbox-box"></span>
+            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" class="sr-only">
+            Remember me
+          </label>
+        </div>
+
+        <button type="submit" [disabled]="isLoading()" class="wlc-submit-btn">
+          @if (isLoading()) {
+            <svg class="wlc-spinner" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <span>Signing in…</span>
+          } @else {
+            <span>Sign In</span>
+            <svg class="wlc-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+          }
+        </button>
+
+        <p class="wlc-switch-text">
+          New to Stylora?
+          <button type="button" class="wlc-switch-link" (click)="setAuthMode(false)">Create an account</button>
+        </p>
+      </form>
+    }
+
+    <!-- ── REGISTER FORM ── -->
+    @else {
+      <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)" class="wlc-fields" [class.wlc-drawer-in]="drawerOpen()" style="transition-delay: 120ms">
+
+        <div class="wlc-fields-row">
+          <div class="wlc-field">
+            <label class="wlc-field-label" [class.wlc-label-up]="firstName">First Name</label>
+            <input type="text" [(ngModel)]="firstName" name="firstName" #firstNameModel="ngModel" required autocomplete="given-name" class="wlc-field-input" [class.wlc-field-invalid]="isFieldInvalid(firstNameModel)">
+            @if (isFieldInvalid(firstNameModel)) { <p class="wlc-field-err">Required.</p> }
+          </div>
+          <div class="wlc-field">
+            <label class="wlc-field-label" [class.wlc-label-up]="lastName">Last Name</label>
+            <input type="text" [(ngModel)]="lastName" name="lastName" #lastNameModel="ngModel" required autocomplete="family-name" class="wlc-field-input" [class.wlc-field-invalid]="isFieldInvalid(lastNameModel)">
+            @if (isFieldInvalid(lastNameModel)) { <p class="wlc-field-err">Required.</p> }
+          </div>
+        </div>
+
+        <div class="wlc-field">
+          <label class="wlc-field-label" [class.wlc-label-up]="registerEmail">Email</label>
+          <input type="email" [(ngModel)]="registerEmail" name="registerEmail" #registerEmailModel="ngModel" required autocomplete="email" class="wlc-field-input" [class.wlc-field-invalid]="!!getRegisterEmailError(registerEmailModel)">
+          @if (getRegisterEmailError(registerEmailModel)) { <p class="wlc-field-err">{{ getRegisterEmailError(registerEmailModel) }}</p> }
+        </div>
+
+        <div class="wlc-field">
+          <label class="wlc-field-label" [class.wlc-label-up]="registerPassword">Password</label>
+          <input [type]="showRegisterPassword() ? 'text' : 'password'" [(ngModel)]="registerPassword" name="registerPassword" #registerPasswordModel="ngModel" required minlength="8" [pattern]="'^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$'" autocomplete="new-password" class="wlc-field-input wlc-field-input-pr" [class.wlc-field-invalid]="isRegisterPasswordFieldInvalid(registerPasswordModel)">
+          <button type="button" class="wlc-eye-btn" (click)="showRegisterPassword.set(!showRegisterPassword())">
+            @if (showRegisterPassword()) {
+              <svg class="wlc-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/><path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"/><path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"/></svg>
+            } @else {
+              <svg class="wlc-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+            }
+          </button>
+          <div class="wlc-pw-rules">
+            <div class="wlc-pw-rule" [class.wlc-pw-ok]="hasRegisterPasswordMinLength()" [class.wlc-pw-err]="registerPasswordModel.touched && !hasRegisterPasswordMinLength()">
+              <span class="wlc-pw-dot"></span>At least 8 characters
+            </div>
+            <div class="wlc-pw-rule" [class.wlc-pw-ok]="hasRegisterPasswordUppercase()" [class.wlc-pw-err]="registerPasswordModel.touched && !hasRegisterPasswordUppercase()">
+              <span class="wlc-pw-dot"></span>One uppercase letter
+            </div>
+            <div class="wlc-pw-rule" [class.wlc-pw-ok]="hasRegisterPasswordSpecialChar()" [class.wlc-pw-err]="registerPasswordModel.touched && !hasRegisterPasswordSpecialChar()">
+              <span class="wlc-pw-dot"></span>One special character
+            </div>
+          </div>
+        </div>
+
+        <div class="wlc-field">
+          <label class="wlc-field-label" [class.wlc-label-up]="confirmPassword">Confirm Password</label>
+          <input [type]="showConfirmPassword() ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" #confirmPasswordModel="ngModel" required autocomplete="new-password" class="wlc-field-input wlc-field-input-pr" [class.wlc-field-invalid]="isConfirmPasswordInvalid(confirmPasswordModel)">
+          <button type="button" class="wlc-eye-btn" (click)="showConfirmPassword.set(!showConfirmPassword())">
+            @if (showConfirmPassword()) {
+              <svg class="wlc-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/><path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"/><path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"/></svg>
+            } @else {
+              <svg class="wlc-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+            }
+          </button>
+          @if (getConfirmPasswordError(confirmPasswordModel)) {
+            <p class="wlc-field-err">{{ getConfirmPasswordError(confirmPasswordModel) }}</p>
+          } @else if (hasStartedConfirmPassword() && doPasswordsMatch()) {
+            <p class="wlc-field-ok">Passwords match.</p>
+          }
+        </div>
+
+        <button type="submit" [disabled]="isLoading()" class="wlc-submit-btn">
+          @if (isLoading()) {
+            <svg class="wlc-spinner" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <span>Creating account…</span>
+          } @else {
+            <span>Create Account</span>
+            <svg class="wlc-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+          }
+        </button>
+
+        <p class="wlc-switch-text">
+          Already have one?
+          <button type="button" class="wlc-switch-link" (click)="setAuthMode(true)">Sign in</button>
+        </p>
+      </form>
+    }
+  </div>
+</aside>

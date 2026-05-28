@@ -16,27 +16,27 @@
     <section class="chat-panel">
       <div class="chat-panel-header">
         <div>
-          <p class="chat-panel-label">Chatbot</p>
-          <h2>Stylora Assistant</h2>
+          <p class="chat-panel-label">Assistant</p>
+          <h2>Stylora</h2>
         </div>
-        <app-icon name="sparkles" class="w-6 h-6 text-stone-500"/>
+        <div class="chat-header-icon">
+          <app-icon name="sparkles" class="w-5 h-5" />
+        </div>
       </div>
-
-      @if (!hasUserStartedConversation()) {
-        <div class="quick-prompts">
-          @for (prompt of quickPrompts; track prompt) {
-            <button type="button" class="quick-prompt-chip" (click)="sendSuggestedReply(prompt)">
-              {{prompt}}
-            </button>
-          }
-        </div>
-      }
 
       <div class="chat-thread">
         @for (message of messages(); track $index) {
           <article class="chat-bubble" [class.chat-bubble-user]="message.role === 'user'">
             <span class="chat-role">{{message.role === 'user' ? 'You' : 'Stylora'}}</span>
             <p>{{message.content}}</p>
+          </article>
+        }
+        @if (isSending()) {
+          <article class="chat-bubble chat-typing-bubble">
+            <span class="chat-role">Stylora</span>
+            <div class="chat-typing-dots">
+              <span></span><span></span><span></span>
+            </div>
           </article>
         }
       </div>
@@ -60,18 +60,31 @@
       <div class="composer">
         <textarea
           class="composer-input"
-          rows="4"
+          rows="3"
           [ngModel]="draftMessage()"
           (ngModelChange)="draftMessage.set($event)"
           (keydown)="handleComposerKeydown($event)"
           placeholder="Example: Build me a rainy office outfit for tomorrow."></textarea>
-        <button type="button" class="composer-send" (click)="sendMessage()" [disabled]="isSending()">
-          @if (isSending()) {
-            Styling...
+        <div class="composer-bottom">
+          @if (!hasUserStartedConversation()) {
+            <div class="composer-pills">
+              @for (prompt of quickPrompts; track prompt) {
+                <button type="button" class="quick-prompt-chip" (click)="sendSuggestedReply(prompt)">
+                  {{prompt}}
+                </button>
+              }
+            </div>
           } @else {
-            Send
+            <span></span>
           }
-        </button>
+          <button type="button" class="composer-send-btn" (click)="sendMessage()" [disabled]="isSending()" aria-label="Send message">
+            @if (isSending()) {
+              <svg class="composer-send-spinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5" stroke-dasharray="32" stroke-linecap="round"/></svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+            }
+          </button>
+        </div>
       </div>
     </section>
 
@@ -102,15 +115,15 @@
       } @else if (latestResponse()?.status === 'success' && activeOutfit(); as outfit) {
         <div class="board-surface">
           <div class="board-meta">
-            <div>
+            <div class="board-meta-cell">
               <span class="dashboard-context-label">Occasion</span>
               <strong class="capitalize">{{outfit.occasion}}</strong>
             </div>
-            <div>
+            <div class="board-meta-cell">
               <span class="dashboard-context-label">Style</span>
               <strong class="capitalize">{{outfit.style}}</strong>
             </div>
-            <div>
+            <div class="board-meta-cell">
               <span class="dashboard-context-label">Weather</span>
               <strong class="capitalize">{{outfit.weatherSummary}}</strong>
             </div>

@@ -1,309 +1,214 @@
-<div class="auth-shell h-dvh min-h-screen flex items-start justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 sm:items-center sm:p-6">
-  <div class="auth-frame w-full max-w-sm">
-    <!-- Logo -->
-    <div class="auth-brand text-center mb-5 sm:mb-6">
-      <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">Stylora.</h1>
-      <p class="mt-2 text-gray-500">Find your true style</p>
+<div class="auth-shell">
+
+  <!-- HERO SIDE -->
+  <div class="auth-hero">
+    <div class="auth-hero-noise"></div>
+
+    <div class="auth-hero-top">
+      <span class="auth-hero-pulse" [class.auth-hero-pulse-play]="pulse()"></span>
+      <span class="auth-hero-tagline">FIND YOUR TRUE STYLE</span>
     </div>
 
-    <!-- Auth Card -->
-    <div class="auth-card bg-white rounded-2xl shadow-xl p-5 sm:p-6 border border-gray-100 overflow-hidden">
-      <!-- Tab Switcher -->
-      <div class="flex mb-5 sm:mb-6 bg-gray-100 rounded-xl p-1">
-        <button 
-          type="button"
-          (click)="setAuthMode(true)"
-          [class]="isLoginMode() ? 'flex-1 py-2.5 rounded-lg text-sm font-medium bg-white shadow-sm text-gray-900' : 'flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-700'">
-          Sign In
-        </button>
-        <button 
-          type="button"
-          (click)="setAuthMode(false)"
-          [class]="!isLoginMode() ? 'flex-1 py-2.5 rounded-lg text-sm font-medium bg-white shadow-sm text-gray-900' : 'flex-1 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-700'">
-          Create Account
-        </button>
-      </div>
-
-      <div class="mb-5 sm:mb-6">
-        @if (isLoginMode()) {
-          <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-gray-900">Welcome back</h2>
-        } @else {
-          <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-gray-900">Create your account</h2>
-        }
-      </div>
-
-      <div class="auth-card__body">
-        <!-- Error Message -->
-        @if (errorMessage()) {
-          <div class="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm flex items-center gap-2">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <span>{{ errorMessage() }}</span>
-          </div>
-        }
-
-        <!-- Success Message -->
-        @if (successMessage()) {
-          <div class="mb-6 p-4 bg-green-50 border border-green-100 text-green-600 rounded-xl text-sm flex items-center gap-2">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-            <span>{{ successMessage() }}</span>
-          </div>
-        }
-
-        <!-- Login Form -->
-        @if (isLoginMode()) {
-          <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="space-y-4 auth-form auth-form--login">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input 
-                type="email" 
-                [(ngModel)]="loginEmail" 
-                name="loginEmail"
-                #loginEmailModel="ngModel"
-                required
-                autocomplete="email"
-                inputmode="email"
-                [class.auth-input-invalid]="isFieldInvalid(loginEmailModel)"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-              @if (isFieldInvalid(loginEmailModel)) {
-                <p class="field-error">Email is required.</p>
-              }
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <div class="relative">
-                <input 
-                  [type]="showLoginPassword() ? 'text' : 'password'" 
-                  [(ngModel)]="loginPassword" 
-                  name="loginPassword"
-                  #loginPasswordModel="ngModel"
-                  required
-                  autocomplete="current-password"
-                  [class.auth-input-invalid]="isFieldInvalid(loginPasswordModel)"
-                  class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-                <button
-                  type="button"
-                  class="password-toggle"
-                  (click)="showLoginPassword.set(!showLoginPassword())"
-                  [attr.aria-label]="showLoginPassword() ? 'Hide password' : 'Show password'">
-                  @if (showLoginPassword()) {
-                    <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 3l18 18"></path>
-                      <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"></path>
-                      <path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"></path>
-                      <path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"></path>
-                    </svg>
-                  } @else {
-                    <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"></path>
-                      <circle cx="12" cy="12" r="2.7"></circle>
-                    </svg>
-                  }
-                </button>
-              </div>
-              @if (isFieldInvalid(loginPasswordModel)) {
-                <p class="field-error">Password is required.</p>
-              }
-            </div>
-            <div class="flex items-center justify-between">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  [(ngModel)]="rememberMe" 
-                  name="rememberMe"
-                  class="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
-                <span class="text-sm text-gray-600">Remember me</span>
-              </label>
-            </div>
-            <button 
-              type="submit" 
-              [disabled]="isLoading()"
-              class="w-full py-3 px-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-              @if (isLoading()) {
-                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Signing in...</span>
-              } @else {
-                <span>Sign In</span>
-              }
-            </button>
-          </form>
-        } @else {
-          <!-- Register Form -->
-          <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)" class="space-y-3.5 sm:space-y-4 auth-form auth-form--register">
-            <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                <input 
-                  type="text" 
-                  [(ngModel)]="firstName" 
-                  name="firstName"
-                  #firstNameModel="ngModel"
-                  required
-                  autocomplete="given-name"
-                  [class.auth-input-invalid]="isFieldInvalid(firstNameModel)"
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-                @if (isFieldInvalid(firstNameModel)) {
-                  <p class="field-error">{{ getRequiredFieldMessage('First name') }}</p>
-                }
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                <input 
-                  type="text" 
-                  [(ngModel)]="lastName" 
-                  name="lastName"
-                  #lastNameModel="ngModel"
-                  required
-                  autocomplete="family-name"
-                  [class.auth-input-invalid]="isFieldInvalid(lastNameModel)"
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-                @if (isFieldInvalid(lastNameModel)) {
-                  <p class="field-error">{{ getRequiredFieldMessage('Last name') }}</p>
-                }
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input 
-                type="email" 
-                [(ngModel)]="registerEmail" 
-                name="registerEmail"
-                #registerEmailModel="ngModel"
-                required
-                autocomplete="email"
-                inputmode="email"
-                [class.auth-input-invalid]="isFieldInvalid(registerEmailModel)"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-              @if (getRegisterEmailError(registerEmailModel)) {
-                <p class="field-error">{{ getRegisterEmailError(registerEmailModel) }}</p>
-              }
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-              <div class="relative">
-                <input 
-                  [type]="showRegisterPassword() ? 'text' : 'password'" 
-                  [(ngModel)]="registerPassword" 
-                  name="registerPassword"
-                  #registerPasswordModel="ngModel"
-                  required
-                  minlength="8"
-                  [pattern]="'^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$'"
-                  autocomplete="new-password"
-                  [class.auth-input-invalid]="isRegisterPasswordFieldInvalid(registerPasswordModel)"
-                  class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-                <button
-                  type="button"
-                  class="password-toggle"
-                  (click)="showRegisterPassword.set(!showRegisterPassword())"
-                  [attr.aria-label]="showRegisterPassword() ? 'Hide password' : 'Show password'">
-                  @if (showRegisterPassword()) {
-                    <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 3l18 18"></path>
-                      <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"></path>
-                      <path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"></path>
-                      <path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"></path>
-                    </svg>
-                  } @else {
-                    <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"></path>
-                      <circle cx="12" cy="12" r="2.7"></circle>
-                    </svg>
-                  }
-                </button>
-              </div>
-              <p class="mt-2 text-xs text-gray-500" [class.field-hint--error]="isRegisterPasswordFieldInvalid(registerPasswordModel)">
-                {{ passwordPolicyMessage }}
-              </p>
-              @if (getRegisterPasswordError(registerPasswordModel)) {
-                <p class="field-error">{{ getRegisterPasswordError(registerPasswordModel) }}</p>
-              }
-              <div class="mt-3 compact-password-rules">
-                <div
-                  class="password-rule"
-                  [class.password-rule--valid]="hasRegisterPasswordMinLength()"
-                  [class.password-rule--invalid]="registerPasswordModel.touched && !hasRegisterPasswordMinLength()">
-                  <span class="password-rule__dot"></span>
-                  <span>At least 8 characters</span>
-                </div>
-                <div
-                  class="password-rule"
-                  [class.password-rule--valid]="hasRegisterPasswordUppercase()"
-                  [class.password-rule--invalid]="registerPasswordModel.touched && !hasRegisterPasswordUppercase()">
-                  <span class="password-rule__dot"></span>
-                  <span>One uppercase letter</span>
-                </div>
-                <div
-                  class="password-rule"
-                  [class.password-rule--valid]="hasRegisterPasswordSpecialCharacter()"
-                  [class.password-rule--invalid]="registerPasswordModel.touched && !hasRegisterPasswordSpecialCharacter()">
-                  <span class="password-rule__dot"></span>
-                  <span>One special character</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-              <div class="relative">
-                <input 
-                  [type]="showConfirmPassword() ? 'text' : 'password'" 
-                  [(ngModel)]="confirmPassword" 
-                  name="confirmPassword"
-                  #confirmPasswordModel="ngModel"
-                  required
-                  autocomplete="new-password"
-                  [class.auth-input-invalid]="isRegisterConfirmPasswordInvalid(confirmPasswordModel)"
-                  class="w-full px-4 py-3 pr-16 rounded-xl border border-gray-200 bg-white focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 outline-none transition">
-                <button
-                  type="button"
-                  class="password-toggle"
-                  (click)="showConfirmPassword.set(!showConfirmPassword())"
-                  [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'">
-                  @if (showConfirmPassword()) {
-                    <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 3l18 18"></path>
-                      <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"></path>
-                      <path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"></path>
-                      <path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"></path>
-                    </svg>
-                  } @else {
-                    <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"></path>
-                      <circle cx="12" cy="12" r="2.7"></circle>
-                    </svg>
-                  }
-                </button>
-              </div>
-              @if (getConfirmPasswordError(confirmPasswordModel)) {
-                <p class="field-error">{{ getConfirmPasswordError(confirmPasswordModel) }}</p>
-              } @else if (hasStartedConfirmPassword()) {
-                <p class="mt-2 text-xs text-green-600">Passwords match.</p>
-              }
-            </div>
-            <button 
-              type="submit" 
-              [disabled]="isLoading()"
-              class="w-full py-3 px-4 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-              @if (isLoading()) {
-                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Creating account...</span>
-              } @else {
-                <span>Create Account</span>
-              }
-            </button>
-          </form>
-        }
-      </div>
+    <div class="auth-hero-center">
+      <h1 class="auth-hero-title">Style begins<br><em>with you.</em></h1>
+      <p class="auth-hero-sub">
+        Stylora reads your undertone, learns your wardrobe, and helps you assemble outfits that actually look like you.
+      </p>
     </div>
 
+    <div class="auth-hero-bottom">
+      @for (c of heroPaletteColors; track c; let i = $index) {
+        <span class="auth-hero-swatch" [style.background]="c" [class.auth-hero-swatch-entered]="entered()"></span>
+      }
+      <span class="auth-hero-swatch-label">SAMPLE · SOFT AUTUMN</span>
+    </div>
+  </div>
+
+  <!-- FORM SIDE -->
+  <div class="auth-form-side">
+    <div class="auth-form-inner">
+      <h2 class="auth-form-title">
+        @if (isLoginMode()) { Welcome back } @else { Create your account }
+      </h2>
+      <p class="auth-form-subtitle">
+        @if (isLoginMode()) { Pick up where you left off. } @else { It takes about a minute. }
+      </p>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs">
+        <div class="auth-tab-indicator" [class.auth-tab-indicator-right]="!isLoginMode()"></div>
+        <button class="auth-tab-btn" [class.auth-tab-btn-active]="isLoginMode()" (click)="setAuthMode(true)" type="button">Sign In</button>
+        <button class="auth-tab-btn" [class.auth-tab-btn-active]="!isLoginMode()" (click)="setAuthMode(false)" type="button">Create Account</button>
+      </div>
+
+      <!-- Error / Success -->
+      @if (errorMessage()) {
+        <div class="auth-alert auth-alert-error">
+          <svg class="auth-alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+      @if (successMessage()) {
+        <div class="auth-alert auth-alert-success">
+          <svg class="auth-alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          <span>{{ successMessage() }}</span>
+        </div>
+      }
+
+      <!-- Login Form -->
+      @if (isLoginMode()) {
+        <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="auth-fields">
+          <div class="auth-floating-field">
+            <label class="auth-floating-label" [class.auth-floating-label-up]="loginEmail">Email</label>
+            <input
+              type="email"
+              [(ngModel)]="loginEmail"
+              name="loginEmail"
+              #loginEmailModel="ngModel"
+              required
+              autocomplete="email"
+              [class.auth-field-invalid]="isFieldInvalid(loginEmailModel)"
+              class="auth-field-input">
+            @if (isFieldInvalid(loginEmailModel)) {
+              <p class="auth-field-error">Email is required.</p>
+            }
+          </div>
+
+          <div class="auth-floating-field">
+            <label class="auth-floating-label" [class.auth-floating-label-up]="loginPassword">Password</label>
+            <input
+              [type]="showLoginPassword() ? 'text' : 'password'"
+              [(ngModel)]="loginPassword"
+              name="loginPassword"
+              #loginPasswordModel="ngModel"
+              required
+              autocomplete="current-password"
+              [class.auth-field-invalid]="isFieldInvalid(loginPasswordModel)"
+              class="auth-field-input auth-field-input-padded">
+            <button type="button" class="auth-eye-btn" (click)="showLoginPassword.set(!showLoginPassword())" [attr.aria-label]="showLoginPassword() ? 'Hide password' : 'Show password'">
+              @if (showLoginPassword()) {
+                <svg class="auth-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/>
+                  <path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"/>
+                  <path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"/>
+                </svg>
+              } @else {
+                <svg class="auth-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/>
+                  <circle cx="12" cy="12" r="2.7"/>
+                </svg>
+              }
+            </button>
+            @if (isFieldInvalid(loginPasswordModel)) {
+              <p class="auth-field-error">Password is required.</p>
+            }
+          </div>
+
+          <div class="auth-remember-row">
+            <label class="auth-remember-label">
+              <span class="auth-checkbox-box"></span>
+              <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" class="sr-only">
+              Remember me
+            </label>
+          </div>
+
+          <button type="submit" [disabled]="isLoading()" class="auth-submit-btn">
+            @if (isLoading()) {
+              <svg class="auth-spinner" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              <span>Signing in…</span>
+            } @else {
+              <span>Sign In</span>
+              <svg class="auth-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+            }
+          </button>
+
+          <p class="auth-switch-text">
+            New to Stylora? <button type="button" class="auth-switch-link" (click)="setAuthMode(false)">Create an account</button>
+          </p>
+        </form>
+      } @else {
+        <!-- Register Form -->
+        <form #registerForm="ngForm" (ngSubmit)="onRegister(registerForm)" class="auth-fields">
+          <div class="auth-fields-row">
+            <div class="auth-floating-field">
+              <label class="auth-floating-label" [class.auth-floating-label-up]="firstName">First Name</label>
+              <input type="text" [(ngModel)]="firstName" name="firstName" #firstNameModel="ngModel" required autocomplete="given-name" [class.auth-field-invalid]="isFieldInvalid(firstNameModel)" class="auth-field-input">
+              @if (isFieldInvalid(firstNameModel)) {
+                <p class="auth-field-error">Required.</p>
+              }
+            </div>
+            <div class="auth-floating-field">
+              <label class="auth-floating-label" [class.auth-floating-label-up]="lastName">Last Name</label>
+              <input type="text" [(ngModel)]="lastName" name="lastName" #lastNameModel="ngModel" required autocomplete="family-name" [class.auth-field-invalid]="isFieldInvalid(lastNameModel)" class="auth-field-input">
+              @if (isFieldInvalid(lastNameModel)) {
+                <p class="auth-field-error">Required.</p>
+              }
+            </div>
+          </div>
+
+          <div class="auth-floating-field">
+            <label class="auth-floating-label" [class.auth-floating-label-up]="registerEmail">Email</label>
+            <input type="email" [(ngModel)]="registerEmail" name="registerEmail" #registerEmailModel="ngModel" required autocomplete="email" [class.auth-field-invalid]="!!getRegisterEmailError(registerEmailModel)" class="auth-field-input">
+            @if (getRegisterEmailError(registerEmailModel)) {
+              <p class="auth-field-error">{{ getRegisterEmailError(registerEmailModel) }}</p>
+            }
+          </div>
+
+          <div class="auth-floating-field">
+            <label class="auth-floating-label" [class.auth-floating-label-up]="registerPassword">Password</label>
+            <input [type]="showRegisterPassword() ? 'text' : 'password'" [(ngModel)]="registerPassword" name="registerPassword" #registerPasswordModel="ngModel" required minlength="8" [pattern]="'^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$'" autocomplete="new-password" [class.auth-field-invalid]="isRegisterPasswordFieldInvalid(registerPasswordModel)" class="auth-field-input auth-field-input-padded">
+            <button type="button" class="auth-eye-btn" (click)="showRegisterPassword.set(!showRegisterPassword())">
+              @if (showRegisterPassword()) {
+                <svg class="auth-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/><path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"/><path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"/></svg>
+              } @else {
+                <svg class="auth-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+              }
+            </button>
+            <div class="auth-pw-rules">
+              <div class="auth-pw-rule" [class.auth-pw-rule-ok]="hasRegisterPasswordMinLength()" [class.auth-pw-rule-err]="registerPasswordModel.touched && !hasRegisterPasswordMinLength()">
+                <span class="auth-pw-dot"></span>At least 8 characters
+              </div>
+              <div class="auth-pw-rule" [class.auth-pw-rule-ok]="hasRegisterPasswordUppercase()" [class.auth-pw-rule-err]="registerPasswordModel.touched && !hasRegisterPasswordUppercase()">
+                <span class="auth-pw-dot"></span>One uppercase letter
+              </div>
+              <div class="auth-pw-rule" [class.auth-pw-rule-ok]="hasRegisterPasswordSpecialCharacter()" [class.auth-pw-rule-err]="registerPasswordModel.touched && !hasRegisterPasswordSpecialCharacter()">
+                <span class="auth-pw-dot"></span>One special character
+              </div>
+            </div>
+          </div>
+
+          <div class="auth-floating-field">
+            <label class="auth-floating-label" [class.auth-floating-label-up]="confirmPassword">Confirm Password</label>
+            <input [type]="showConfirmPassword() ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" #confirmPasswordModel="ngModel" required autocomplete="new-password" [class.auth-field-invalid]="isRegisterConfirmPasswordInvalid(confirmPasswordModel)" class="auth-field-input auth-field-input-padded">
+            <button type="button" class="auth-eye-btn" (click)="showConfirmPassword.set(!showConfirmPassword())">
+              @if (showConfirmPassword()) {
+                <svg class="auth-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.58 10.58a2 2 0 0 0 2.83 2.83"/><path d="M9.88 5.09A9.77 9.77 0 0 1 12 4.8c5.4 0 9 7.2 9 7.2a17.48 17.48 0 0 1-4.13 4.77"/><path d="M6.61 6.61A17.33 17.33 0 0 0 3 12s3.6 7.2 9 7.2a9.6 9.6 0 0 0 5.13-1.47"/></svg>
+              } @else {
+                <svg class="auth-eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+              }
+            </button>
+            @if (getConfirmPasswordError(confirmPasswordModel)) {
+              <p class="auth-field-error">{{ getConfirmPasswordError(confirmPasswordModel) }}</p>
+            } @else if (hasStartedConfirmPassword()) {
+              <p class="auth-field-match">Passwords match.</p>
+            }
+          </div>
+
+          <button type="submit" [disabled]="isLoading()" class="auth-submit-btn">
+            @if (isLoading()) {
+              <svg class="auth-spinner" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              <span>Creating account…</span>
+            } @else {
+              <span>Create Account</span>
+              <svg class="auth-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>
+            }
+          </button>
+
+          <p class="auth-switch-text">
+            Already have one? <button type="button" class="auth-switch-link" (click)="setAuthMode(true)">Sign in</button>
+          </p>
+        </form>
+      }
+    </div>
   </div>
 </div>

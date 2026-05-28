@@ -1,1 +1,525 @@
-/* Try-on-specific styles */
+/* ── Shell ──────────────────────────────────────────────────────── */
+
+.tryon-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(236, 230, 220, 0.9);
+  box-shadow: 0 8px 32px rgba(120, 113, 108, 0.08);
+  overflow: hidden;
+}
+
+/* ── Back banner ─────────────────────────────────────────────────── */
+
+.tryon-back-banner {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1.25rem;
+  background: #faf7f2;
+  border-bottom: 1px solid rgba(236, 230, 220, 0.8);
+  flex-shrink: 0;
+}
+
+.tryon-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  transition: color 160ms ease;
+}
+
+.tryon-back-btn:hover { color: #1f2937; }
+
+/* ── Studio area ─────────────────────────────────────────────────── */
+
+.tryon-studio {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1.5rem 0.5rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tryon-studio-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, #fff 0%, #faf7f2 55%, #f4efe7 100%);
+  pointer-events: none;
+}
+
+.tryon-studio-floor {
+  position: absolute;
+  bottom: 0;
+  inset-x: 0;
+  height: 6rem;
+  background: linear-gradient(to top, rgba(236, 230, 220, 0.2), transparent);
+  pointer-events: none;
+}
+
+/* ── Mirror frame ────────────────────────────────────────────────── */
+
+.tryon-mirror {
+  position: relative;
+  z-index: 10;
+  height: 400px;
+  aspect-ratio: 3 / 4;
+  max-width: 100%;
+  background: #f4efe7;
+  border-radius: 1.25rem;
+  border: 7px solid #1f2937;
+  overflow: hidden;
+  box-shadow:
+    0 20px 50px -12px rgba(31, 41, 55, 0.3),
+    0 0 0 1px rgba(236, 230, 220, 0.4);
+  transition: box-shadow 400ms ease;
+}
+
+@media (min-height: 700px) {
+  .tryon-mirror { height: 460px; }
+}
+
+.tryon-mirror:hover {
+  box-shadow:
+    0 28px 60px -12px rgba(31, 41, 55, 0.36),
+    0 0 0 1px rgba(236, 230, 220, 0.4);
+}
+
+.tryon-mirror-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mirror controls (top-right overlay) */
+.tryon-mirror-controls {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  display: flex;
+  gap: 0.45rem;
+  z-index: 10;
+}
+
+.tryon-ctrl-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  text-decoration: none;
+}
+
+.tryon-ctrl-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+
+.tryon-ctrl-btn-dark {
+  background: #1f2937;
+  color: #fff;
+}
+
+/* Change photo overlay (shows on hover) */
+.tryon-mirror-change-overlay {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  z-index: 10;
+}
+
+.tryon-mirror:hover .tryon-mirror-change-overlay {
+  opacity: 1;
+}
+
+.tryon-change-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1f2937;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+  font-family: inherit;
+}
+
+/* Loading state */
+.tryon-mirror-loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f4efe7;
+  gap: 0.75rem;
+}
+
+.tryon-loading-ring {
+  width: 2rem;
+  height: 2rem;
+  border: 2.5px solid rgba(236, 230, 220, 0.8);
+  border-top-color: #b48a55;
+  border-radius: 999px;
+  animation: tryon-spin 0.9s linear infinite;
+}
+
+.tryon-loading-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* Empty state */
+.tryon-mirror-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f4efe7;
+  cursor: pointer;
+  gap: 0.35rem;
+  transition: background 200ms ease;
+}
+
+.tryon-mirror-empty:hover {
+  background: #ece6dc;
+}
+
+.tryon-empty-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 2px dashed rgba(180, 138, 85, 0.4);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b48a55;
+  margin-bottom: 0.25rem;
+}
+
+.tryon-empty-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.tryon-empty-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* Generating overlay */
+.tryon-generating-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  gap: 0.5rem;
+}
+
+.tryon-generating-ring {
+  width: 3rem;
+  height: 3rem;
+  border: 3.5px solid rgba(236, 230, 220, 0.7);
+  border-top-color: #b48a55;
+  border-radius: 999px;
+  animation: tryon-spin 0.9s linear infinite;
+  margin-bottom: 0.25rem;
+}
+
+.tryon-generating-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.tryon-generating-item {
+  font-size: 0.78rem;
+  color: #6b7280;
+  max-width: 12rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mirror shadow */
+.tryon-mirror-shadow {
+  width: 10rem;
+  height: 1rem;
+  background: rgba(0, 0, 0, 0.08);
+  filter: blur(10px);
+  border-radius: 999px;
+  margin-top: -0.25rem;
+  z-index: 0;
+}
+
+/* Generate button */
+.tryon-generate-wrap {
+  position: absolute;
+  bottom: 1.25rem;
+  z-index: 20;
+}
+
+.tryon-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #1f2937;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem 0.75rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(31, 41, 55, 0.3), 0 0 0 4px #fff;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.tryon-generate-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 16px 36px rgba(31, 41, 55, 0.36), 0 0 0 4px #fff;
+}
+
+.tryon-generate-btn app-icon {
+  color: #e6c79a;
+}
+
+/* ── Bottom carousel ─────────────────────────────────────────────── */
+
+.tryon-carousel-panel {
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 1px solid rgba(236, 230, 220, 0.8);
+  padding: 1.1rem 1.25rem 1.25rem;
+  box-shadow: 0 -6px 24px rgba(120, 113, 108, 0.04);
+  z-index: 10;
+}
+
+.tryon-carousel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  gap: 0.75rem;
+}
+
+.tryon-carousel-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.tryon-selected-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #faf7f2;
+  border: 1px solid rgba(236, 230, 220, 0.9);
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
+  max-width: 16rem;
+}
+
+.tryon-selected-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b48a55;
+  flex-shrink: 0;
+}
+
+.tryon-selected-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tryon-analyzing-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin: 0 0 0.6rem;
+}
+
+.tryon-scroll {
+  display: flex;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+}
+
+.tryon-scroll::-webkit-scrollbar { display: none; }
+
+/* Add new button */
+.tryon-add-wrap { flex-shrink: 0; }
+
+.tryon-add-btn {
+  position: relative;
+  width: 5rem;
+  height: 6.5rem;
+  border-radius: 0.85rem;
+  border: 2px dashed rgba(214, 211, 209, 0.9);
+  background: #faf7f2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease;
+  color: #9ca3af;
+}
+
+.tryon-add-btn:hover:not(.tryon-add-btn-disabled) {
+  border-color: #b48a55;
+  color: #b48a55;
+  background: #f6ede0;
+}
+
+.tryon-add-btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tryon-add-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.tryon-add-icon {
+  width: 1.8rem;
+  height: 1.8rem;
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tryon-add-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Wardrobe item buttons */
+.tryon-item-btn {
+  flex-shrink: 0;
+  width: 5rem;
+  height: 6.5rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid rgba(236, 230, 220, 0.9);
+  background: #fff;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(120, 113, 108, 0.08);
+  transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.tryon-item-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(120, 113, 108, 0.14);
+  border-color: rgba(180, 138, 85, 0.35);
+}
+
+.tryon-item-btn-active {
+  border-color: #b48a55;
+  box-shadow: 0 0 0 2px #b48a55, 0 8px 20px rgba(180, 138, 85, 0.2);
+}
+
+.tryon-item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tryon-item-new-badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  background: #b48a55;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 0.18rem 0.4rem;
+  border-radius: 999px;
+}
+
+.tryon-item-check {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 41, 55, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Animations ─────────────────────────────────────────────────── */
+
+@keyframes tryon-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in { animation: fadeIn 300ms ease both; }
+.animate-slide-up { animation: slideUp 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }

@@ -14,9 +14,9 @@
   </div>
 }
 
-<!-- Auth Page (not authenticated) -->
+<!-- Welcome / Landing page (not authenticated) -->
 @else if (!authService.isAuthenticated()) {
-  <app-auth (authenticated)="onAuthenticated()" />
+  <app-welcome (authenticated)="onAuthenticated()" />
 }
 
 <!-- Main App (authenticated) -->
@@ -24,52 +24,24 @@
 <div class="min-h-screen flex bg-[#FAFAFA] text-gray-900 font-sans">
   
   <!-- Sidebar (Desktop) -->
-  <aside class="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-screen sticky top-0 z-20">
-    <div class="p-8">
-      <h1 class="font-serif text-3xl font-bold tracking-tight">Stylora.</h1>
+  <aside class="hidden md:flex flex-col bg-white border-r border-gray-200 h-screen sticky top-0 z-20" style="width: 232px; flex-shrink: 0;">
+    <div style="padding: 28px 28px 12px;">
+      <h1 class="font-serif" style="font-size: 26px; font-weight: 700; color: #171717; margin: 0; letter-spacing: -0.02em;">Stylora<span style="color: #b48a55;">.</span></h1>
     </div>
 
-    <nav class="flex-1 px-4 space-y-2">
-      <button 
-        (click)="navigate('dashboard')"
-        [class.bg-gray-100]="currentView() === 'dashboard'"
-        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
-        <app-icon name="sparkles" class="w-5 h-5"/>
-        <span>Dashboard</span>
-      </button>
-
-      <button 
-        (click)="navigate('wardrobe')"
-        [class.bg-gray-100]="currentView() === 'wardrobe'"
-        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
-        <app-icon name="hanger" class="w-5 h-5"/>
-        <span>Wardrobe</span>
-      </button>
-
-      <button 
-        (click)="navigate('tryon')"
-        [class.bg-gray-100]="currentView() === 'tryon'"
-        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
-        <app-icon name="camera" class="w-5 h-5"/>
-        <span>Virtual Try-On</span>
-      </button>
-
-      <button 
-        (click)="navigate('analysis')"
-        [class.bg-gray-100]="currentView() === 'analysis'"
-        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
-        <app-icon name="palette" class="w-5 h-5"/>
-        <span>Color Analysis</span>
-      </button>
-
-      <button 
-        (click)="navigate('explore')"
-        [class.bg-gray-100]="currentView() === 'explore'"
-        class="flex items-center gap-3 w-full px-4 py-3 text-left rounded-xl transition hover:bg-gray-50 text-gray-700 font-medium">
-        <app-icon name="shopping-bag" class="w-5 h-5"/>
-        <span>Explore</span>
-      </button>
-
+    <nav class="flex-1" style="padding: 8px 12px; display: flex; flex-direction: column; gap: 4px;">
+      @for (item of sidebarNav; track item.id) {
+        <button
+          (click)="navigate(item.id)"
+          class="sidebar-nav-item"
+          [class.sidebar-nav-item-active]="currentView() === item.id">
+          @if (currentView() === item.id) {
+            <span class="sidebar-nav-indicator"></span>
+          }
+          <app-icon [name]="item.icon" class="w-5 h-5" style="flex-shrink: 0;"/>
+          <span>{{ item.label }}</span>
+        </button>
+      }
     </nav>
 
     <!-- User Profile & Logout -->

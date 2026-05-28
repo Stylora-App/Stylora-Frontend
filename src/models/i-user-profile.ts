@@ -6,6 +6,9 @@ export interface IUserProfile {
   season?: string;
   subSeason?: string;
   palette?: string[];
+  bestMetals?: string;
+  undertone?: string;
+  contrast?: string;
 }
 
 export interface IUpdateProfileRequest {
