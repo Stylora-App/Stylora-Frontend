@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "ng serve",
-    "start": "ng serve",
+    "dev": "ng-openapi-gen --config ng-openapi-gen.local.json && ng serve --proxy-config proxy.conf.local.json",
+    "start": "ng-openapi-gen --config ng-openapi-gen.local.json && ng serve --proxy-config proxy.conf.local.json",
     "build": "ng-openapi-gen --config ng-openapi-gen.json && ng build",
     "preview": "ng serve --configuration=production",
-    "generate:api": "ng-openapi-gen --config ng-openapi-gen.json"
+    "generate:api": "ng-openapi-gen --config ng-openapi-gen.json",
+    "generate:api:local": "ng-openapi-gen --config ng-openapi-gen.local.json"
   },
   "dependencies": {
     "@angular/build": "^21.1.0",

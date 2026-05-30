@@ -72,3 +72,6 @@ yarn.lock.backup
 src/environments/environment.ts
 
 *openapi_generated/
+
+# Local OpenAPI gen config
+ng-openapi-gen.local.json
