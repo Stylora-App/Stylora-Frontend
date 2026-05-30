@@ -7,7 +7,8 @@
     "dev": "ng serve",
     "start": "ng serve",
     "build": "ng build",
-    "preview": "ng serve --configuration=production"
+    "preview": "ng serve --configuration=production",
+    "generate:api": "ng-openapi-gen --config ng-openapi-gen.json"
   },
   "dependencies": {
     "@angular/build": "^21.1.0",
@@ -23,8 +24,10 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@apidevtools/swagger-cli": "^4.0.4",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.19",
+    "ng-openapi-gen": "^1.0.5",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "typescript": "~5.9.3"

@@ -9,7 +9,8 @@ import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { WardrobeService } from '../../services/wardrobe.service';
-import { ILoginRequest, IRegisterRequest } from '../../models';
+import type { LoginRequest } from '@/openapi_generated/models/login-request';
+import type { RegisterRequest } from '@/openapi_generated/models/register-request';
 import {
   PASSWORD_POLICY_MESSAGE,
   hasMinPasswordLength,
@@ -349,7 +350,7 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     this.isLoading.set(true);
-    const request: ILoginRequest = {
+    const request: LoginRequest = {
       email: this.loginEmail,
       password: this.loginPassword,
       rememberMe: this.rememberMe
@@ -388,7 +389,7 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     this.isLoading.set(true);
-    const request: IRegisterRequest = {
+    const request: RegisterRequest = {
       email: this.registerEmail,
       password: this.registerPassword,
       firstName: this.firstName.trim() || undefined,

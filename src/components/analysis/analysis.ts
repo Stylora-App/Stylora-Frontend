@@ -5,7 +5,7 @@ import { GeminiService } from '../../services/gemini.service';
 import { WardrobeService } from '../../services/wardrobe.service';
 import { NotificationService } from '../../services/notification.service';
 import { IconComponent } from '../ui/icons';
-import { ISeasonAnalysisResult } from '../../models';
+import type { SeasonAnalysisResponse } from '@/openapi_generated/models/season-analysis-response';
 
 @Component({
   selector: 'app-analysis',
@@ -22,7 +22,7 @@ export class AnalysisComponent {
 
   previewImage = signal<string | null>(null);
   isLoading = signal(false);
-  analysisResult = signal<ISeasonAnalysisResult | null>(null);
+  analysisResult = signal<SeasonAnalysisResponse | null>(null);
 
   onFileSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -41,9 +41,7 @@ export class AnalysisComponent {
       this.analysisResult.set(result);
     } catch (e: unknown) {
       console.error(e);
-      const errorMessage = e instanceof Error
-        ? e.message
-        : 'Analysis failed. Please try a different photo.';
+      const errorMessage = e instanceof Error ? e.message : 'Analysis failed. Please try a different photo.';
       this.notificationService.error(errorMessage);
     } finally {
       this.isLoading.set(false);

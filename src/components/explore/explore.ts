@@ -5,8 +5,8 @@ import { WardrobeService } from '../../services/wardrobe.service';
 import { ExploreService } from '../../services/explore.service';
 import { TryOnStateService } from '../../services/try-on-state.service';
 import { ExploreStateService } from '../../services/explore-state.service';
-import { IShoppingProduct } from '../../models';
 import { IconComponent } from '../ui/icons';
+import type { ShoppingProductDto } from '@/openapi_generated/models/shopping-product-dto';
 
 const WOMEN_CATEGORIES = [
   { id: 'tops',        label: 'Tops',        tagline: 'Blouses, shirts & more' },
@@ -37,35 +37,33 @@ type Step = 'gender' | 'category' | 'results';
   styleUrl: './explore.css',
 })
 export class ExploreComponent implements OnInit, OnDestroy {
-  private exploreService  = inject(ExploreService);
-  private wardrobeService = inject(WardrobeService);
-  private tryOnStateService = inject(TryOnStateService);
-  private exploreStateService = inject(ExploreStateService);
-  private router = inject(Router);
+  private exploreService       = inject(ExploreService);
+  private wardrobeService      = inject(WardrobeService);
+  private tryOnStateService    = inject(TryOnStateService);
+  private exploreStateService  = inject(ExploreStateService);
+  private router               = inject(Router);
 
   readonly skeletonItems = Array.from({ length: 10 }, (_, i) => i);
 
   step             = signal<Step>('gender');
   selectedGender   = signal<'women' | 'men' | null>(null);
   selectedCategory = signal<string | null>(null);
-
-  products  = signal<IShoppingProduct[]>([]);
-  isLoading = signal(false);
-  error     = signal<string | null>(null);
-  searchQuery = signal('');
-  hasMore   = signal(false);
-
-  selectedProduct = signal<IShoppingProduct | null>(null);
+  products         = signal<ShoppingProductDto[]>([]);
+  isLoading        = signal(false);
+  error            = signal<string | null>(null);
+  searchQuery      = signal('');
+  hasMore          = signal(false);
+  selectedProduct  = signal<ShoppingProductDto | null>(null);
 
   private currentPage = 1;
   private readonly PAGE_SIZE = 20;
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private requestVersion = 0;
 
-  get season()  { return this.wardrobeService.userProfile().subSeason || this.wardrobeService.userProfile().season; }
+  get season()     { return this.wardrobeService.userProfile().subSeason || this.wardrobeService.userProfile().season; }
   get baseSeason() { return this.wardrobeService.userProfile().season; }
-  get subSeason() { return this.wardrobeService.userProfile().subSeason; }
-  get palette() { return this.wardrobeService.userProfile().palette || []; }
+  get subSeason()  { return this.wardrobeService.userProfile().subSeason; }
+  get palette()    { return this.wardrobeService.userProfile().palette || []; }
   get hasPalette() { return this.palette.length > 0; }
 
   get visibleCategories() {
@@ -84,8 +82,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   tilePaletteColor(index: number): string {
     if (!this.palette.length) return TILE_FALLBACK_COLORS[index % TILE_FALLBACK_COLORS.length];
-    const hex = this.palette[index % this.palette.length];
-    return this.darkenHex(hex, 0.48);
+    return this.darkenHex(this.palette[index % this.palette.length], 0.48);
   }
 
   private darkenHex(hex: string, amount: number): string {
@@ -98,7 +95,6 @@ export class ExploreComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Restore persisted state from the service
     const state = this.exploreStateService;
     this.step.set(state.step());
     this.selectedGender.set(state.selectedGender());
@@ -112,8 +108,6 @@ export class ExploreComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.cacheCurrentResults(this.buildCacheKey(), this.products(), this.hasMore(), this.currentPage);
-
-    // Persist current state so we can restore on return
     const state = this.exploreStateService;
     state.step.set(this.step());
     state.selectedGender.set(this.selectedGender());
@@ -124,9 +118,7 @@ export class ExploreComponent implements OnInit, OnDestroy {
     state.currentPage = this.currentPage;
   }
 
-  goToAnalysis() {
-    this.router.navigate(['/analysis']);
-  }
+  goToAnalysis() { this.router.navigate(['/analysis']); }
 
   selectGender(g: 'women' | 'men') {
     this.selectedGender.set(g);
@@ -161,20 +153,14 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   onSearchInput(value: string) {
     this.searchQuery.set(value);
-    if (this.step() !== 'results') {
-      this.selectedCategory.set(null);
-      this.step.set('results');
-    }
+    if (this.step() !== 'results') { this.selectedCategory.set(null); this.step.set('results'); }
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
     this.debounceTimer = setTimeout(() => this.loadResultsForCurrentTab(), 400);
   }
 
   onSearchSubmit() {
     if (this.debounceTimer) clearTimeout(this.debounceTimer);
-    if (this.step() !== 'results') {
-      this.selectedCategory.set(null);
-      this.step.set('results');
-    }
+    if (this.step() !== 'results') { this.selectedCategory.set(null); this.step.set('results'); }
     this.loadResultsForCurrentTab();
   }
 
@@ -185,20 +171,15 @@ export class ExploreComponent implements OnInit, OnDestroy {
 
   loadMore() { this.fetchProducts(false); }
 
-  openProductModal(product: IShoppingProduct) {
-    this.selectedProduct.set(product);
-  }
+  openProductModal(product: ShoppingProductDto) { this.selectedProduct.set(product); }
+  closeModal() { this.selectedProduct.set(null); }
 
-  closeModal() {
-    this.selectedProduct.set(null);
-  }
-
-  goToWebsite(product: IShoppingProduct) {
+  goToWebsite(product: ShoppingProductDto) {
     window.open(product.url, '_blank', 'noopener,noreferrer');
     this.closeModal();
   }
 
-  tryOnProduct(product: IShoppingProduct) {
+  tryOnProduct(product: ShoppingProductDto) {
     this.tryOnStateService.pendingProduct.set(product);
     this.exploreStateService.cameFromExplore.set(true);
     this.closeModal();
@@ -218,7 +199,6 @@ export class ExploreComponent implements OnInit, OnDestroy {
         return;
       }
     }
-
     void this.fetchProducts(true, forceRefresh);
   }
 
@@ -232,63 +212,40 @@ export class ExploreComponent implements OnInit, OnDestroy {
     ].join('|');
   }
 
-  private cacheCurrentResults(cacheKey: string, products: IShoppingProduct[], hasMore: boolean, currentPage: number) {
-    this.exploreStateService.setCachedResults(cacheKey, {
-      products,
-      hasMore,
-      currentPage,
-    });
+  private cacheCurrentResults(cacheKey: string, products: ShoppingProductDto[], hasMore: boolean, currentPage: number) {
+    this.exploreStateService.setCachedResults(cacheKey, { products, hasMore, currentPage });
   }
 
   async fetchProducts(reset: boolean, forceRefresh = false) {
     const cacheKey = this.buildCacheKey();
     const requestVersion = ++this.requestVersion;
-
-    if (reset) {
-      this.currentPage = 1;
-      this.products.set([]);
-    }
+    if (reset) { this.currentPage = 1; this.products.set([]); }
     this.isLoading.set(true);
     this.error.set(null);
-
     try {
       const result = await this.exploreService.search({
-        q:        this.searchQuery() || undefined,
-        category: this.selectedCategory() ?? 'all',
-        gender:   this.selectedGender() ?? undefined,
-        season:   this.baseSeason,
-        subSeason: this.subSeason,
-        palette:  this.palette,
-        page:     this.currentPage,
-        pageSize: this.PAGE_SIZE,
+        q:         this.searchQuery() || undefined,
+        category:  this.selectedCategory() ?? 'all',
+        gender:    this.selectedGender() ?? undefined,
+        season:    this.baseSeason ?? undefined,
+        subSeason: this.subSeason ?? undefined,
+        palette:   this.palette,
+        page:      this.currentPage,
+        pageSize:  this.PAGE_SIZE,
       });
-
-      const previousProducts = reset || forceRefresh
-        ? []
-        : this.exploreStateService.getCachedResults(cacheKey)?.products ?? this.products();
-      const nextProducts = reset ? result.products : [...previousProducts, ...result.products];
+      const previousProducts = reset || forceRefresh ? [] : this.exploreStateService.getCachedResults(cacheKey)?.products ?? this.products();
+      const nextProducts = reset ? (result.products ?? []) : [...previousProducts, ...(result.products ?? [])];
       const nextPage = reset ? 2 : this.currentPage + 1;
-
-      this.cacheCurrentResults(cacheKey, nextProducts, result.hasMore, nextPage);
-
-      if (requestVersion !== this.requestVersion || cacheKey !== this.buildCacheKey()) {
-        return;
-      }
-
+      this.cacheCurrentResults(cacheKey, nextProducts, result.hasMore ?? false, nextPage);
+      if (requestVersion !== this.requestVersion || cacheKey !== this.buildCacheKey()) return;
       this.products.set(nextProducts);
-      this.hasMore.set(result.hasMore);
+      this.hasMore.set(result.hasMore ?? false);
       this.currentPage = nextPage;
     } catch (e: any) {
-      if (requestVersion !== this.requestVersion || cacheKey !== this.buildCacheKey()) {
-        return;
-      }
-
+      if (requestVersion !== this.requestVersion || cacheKey !== this.buildCacheKey()) return;
       this.error.set(e.message || 'Something went wrong. Please try again.');
     } finally {
-      if (requestVersion === this.requestVersion && cacheKey === this.buildCacheKey()) {
-        this.isLoading.set(false);
-      }
+      if (requestVersion === this.requestVersion && cacheKey === this.buildCacheKey()) this.isLoading.set(false);
     }
   }
 }
-

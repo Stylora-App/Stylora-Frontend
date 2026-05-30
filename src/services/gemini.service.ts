@@ -1,31 +1,29 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from './api.service';
-import { ISeasonAnalysisResult, ITryOnResponse, ILastTryOnPhoto } from '../models';
+import { Api } from '@/openapi_generated/api';
+import { analyzeSeason } from '@/openapi_generated/fn/analysis/analyze-season';
+import { generateTryOn } from '@/openapi_generated/fn/try-on/generate-try-on';
+import { getLastPhoto } from '@/openapi_generated/fn/try-on/get-last-photo';
+import type { SeasonAnalysisResponse } from '@/openapi_generated/models/season-analysis-response';
+import type { LastTryOnPhotoDto } from '@/openapi_generated/models/last-try-on-photo-dto';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class GeminiService {
-  private apiService = inject(ApiService);
+  private api = inject(Api);
 
-  async analyzeSeason(imageBase64: string): Promise<ISeasonAnalysisResult> {
-    return this.apiService.post<ISeasonAnalysisResult>('/analysis/season', {
-      imageBase64
-    });
+  analyzeSeason(imageBase64: string): Promise<SeasonAnalysisResponse> {
+    return this.api.invoke(analyzeSeason, { body: { imageBase64 } });
   }
 
   async generateTryOn(personImageBase64: string, clothingImageBase64: string, clothingImageUrl?: string): Promise<string> {
-    const result = await this.apiService.post<ITryOnResponse>('/tryon/generate', {
-      personImageBase64,
-      clothingImageBase64,
-      clothingImageUrl
+    const result = await this.api.invoke(generateTryOn, {
+      body: { personImageBase64, clothingImageBase64, clothingImageUrl }
     });
-    return result.generatedImage;
+    return result.generatedImage ?? '';
   }
 
-  async getLastTryOnPhoto(): Promise<ILastTryOnPhoto | null> {
+  async getLastTryOnPhoto(): Promise<LastTryOnPhotoDto | null> {
     try {
-      return await this.apiService.get<ILastTryOnPhoto>('/tryon/last-photo');
+      return await this.api.invoke(getLastPhoto);
     } catch {
       return null;
     }

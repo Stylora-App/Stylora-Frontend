@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from './api.service';
-import { IOutfitChatMessage, IOutfitChatResponse } from '../models';
+import { Api } from '@/openapi_generated/api';
+import { generateOutfit } from '@/openapi_generated/fn/chat/generate-outfit';
+import type { OutfitChatMessageDto } from '@/openapi_generated/models/outfit-chat-message-dto';
+import type { OutfitChatResponse } from '@/openapi_generated/models/outfit-chat-response';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class OutfitChatService {
-  private apiService = inject(ApiService);
+  private api = inject(Api);
 
-  send(messages: IOutfitChatMessage[]) {
-    return this.apiService.post<IOutfitChatResponse>('/chat/outfit', { messages });
+  send(messages: OutfitChatMessageDto[]): Promise<OutfitChatResponse> {
+    return this.api.invoke(generateOutfit, { body: { messages } });
   }
 }

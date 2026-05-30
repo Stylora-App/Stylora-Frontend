@@ -133,7 +133,7 @@
           class="tryon-item-btn"
           [class.tryon-item-btn-active]="selectedItem()?.id === item.id"
           (click)="selectItem(item)">
-          <img [src]="item.image" [alt]="item.name || item.category" class="tryon-item-img">
+          <img [src]="item.image" [alt]="item.articleTypeLabel || item.category" class="tryon-item-img">
           @if (selectedItem()?.id === item.id) {
             <div class="tryon-item-check">
               <app-icon name="check" class="w-5 h-5 text-white" />

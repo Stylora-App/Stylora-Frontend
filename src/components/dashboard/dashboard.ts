@@ -5,8 +5,9 @@ import { WardrobeService } from '../../services/wardrobe.service';
 import { AuthService } from '../../services/auth.service';
 import { OutfitChatService } from '../../services/outfit-chat.service';
 import { NotificationService } from '../../services/notification.service';
-import { IOutfitChatMessage, IOutfitChatResponse } from '../../models';
 import { IconComponent } from '../ui/icons';
+import type { OutfitChatMessageDto } from '@/openapi_generated/models/outfit-chat-message-dto';
+import type { OutfitChatResponse } from '@/openapi_generated/models/outfit-chat-response';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,13 +24,10 @@ export class DashboardComponent {
 
   draftMessage = signal('');
   isSending = signal(false);
-  latestResponse = signal<IOutfitChatResponse | null>(null);
+  latestResponse = signal<OutfitChatResponse | null>(null);
   selectedBoardItemIndex = signal(0);
-  messages = signal<IOutfitChatMessage[]>([
-    {
-      role: 'assistant',
-      content: 'Tell me where you are headed, and I will put together a look from your saved wardrobe.'
-    }
+  messages = signal<OutfitChatMessageDto[]>([
+    { role: 'assistant', content: 'Tell me where you are headed, and I will put together a look from your saved wardrobe.' }
   ]);
 
   readonly quickPrompts = [
@@ -47,27 +45,18 @@ export class DashboardComponent {
   );
   readonly outputTitle = computed(() => {
     const response = this.latestResponse();
-    if (!response) {
-      return 'Outfit board';
-    }
-
+    if (!response) return 'Outfit board';
     switch (response.status) {
-      case 'success':
-        return 'Outfit ready';
-      case 'follow_up':
-        return 'Need one more detail';
-      case 'not_enough_pieces':
-        return 'Wardrobe needs more pieces';
-      default:
-        return 'Stylora Assistant';
+      case 'success':           return 'Outfit ready';
+      case 'follow_up':         return 'Need one more detail';
+      case 'not_enough_pieces': return 'Wardrobe needs more pieces';
+      default:                  return 'Stylora Assistant';
     }
   });
 
   async sendMessage(messageOverride?: string) {
     const content = (messageOverride ?? this.draftMessage()).trim();
-    if (!content || this.isSending()) {
-      return;
-    }
+    if (!content || this.isSending()) return;
 
     const nextMessages = [...this.messages(), { role: 'user' as const, content }];
     this.messages.set(nextMessages);
@@ -80,7 +69,7 @@ export class DashboardComponent {
       this.selectedBoardItemIndex.set(0);
       this.messages.update(messages => [
         ...messages,
-        { role: 'assistant', content: response.assistantMessage }
+        { role: 'assistant', content: response.assistantMessage ?? '' }
       ]);
     } catch (error) {
       console.error(error);
@@ -90,31 +79,20 @@ export class DashboardComponent {
     }
   }
 
-  sendSuggestedReply(reply: string) {
-    this.sendMessage(reply);
-  }
+  sendSuggestedReply(reply: string) { this.sendMessage(reply); }
 
   shuffleOutfit() {
-    if (!this.canShuffle() || this.isSending()) {
-      return;
-    }
-
+    if (!this.canShuffle() || this.isSending()) return;
     this.sendMessage('Shuffle another option');
   }
 
   clearChat() {
-    if (this.isSending()) {
-      return;
-    }
-
+    if (this.isSending()) return;
     this.draftMessage.set('');
     this.latestResponse.set(null);
     this.selectedBoardItemIndex.set(0);
     this.messages.set([
-      {
-        role: 'assistant',
-        content: 'Tell me where you are headed, and I will put together a look from your saved wardrobe.'
-      }
+      { role: 'assistant', content: 'Tell me where you are headed, and I will put together a look from your saved wardrobe.' }
     ]);
   }
 
@@ -125,52 +103,27 @@ export class DashboardComponent {
     }
   }
 
-  selectBoardItem(index: number) {
-    this.selectedBoardItemIndex.set(index);
-  }
+  selectBoardItem(index: number) { this.selectedBoardItemIndex.set(index); }
 
   getBoardOffset(index: number) {
-    const total = this.activeOutfit()?.items.length ?? 0;
-    if (total <= 1) {
-      return 0;
-    }
-
+    const total = this.activeOutfit()?.items?.length ?? 0;
+    if (total <= 1) return 0;
     let offset = index - this.selectedBoardItemIndex();
     const half = total / 2;
-
-    if (offset > half) {
-      offset -= total;
-    } else if (offset < -half) {
-      offset += total;
-    }
-
-    if (total % 2 === 0 && Math.abs(offset) === half) {
-      offset = -half;
-    }
-
+    if (offset > half) offset -= total;
+    else if (offset < -half) offset += total;
+    if (total % 2 === 0 && Math.abs(offset) === half) offset = -half;
     return offset;
   }
 
-  getBoardDistance(index: number) {
-    return Math.abs(this.getBoardOffset(index));
-  }
-
-  getBoardZIndex(index: number) {
-    return 20 - this.getBoardDistance(index);
-  }
+  getBoardDistance(index: number) { return Math.abs(this.getBoardOffset(index)); }
+  getBoardZIndex(index: number) { return 20 - this.getBoardDistance(index); }
 
   getBoardTranslateX(index: number) {
     const offset = this.getBoardOffset(index);
     const distance = Math.abs(offset);
-
-    if (distance === 0) {
-      return 0;
-    }
-
-    if (distance === 1) {
-      return offset * 8.1;
-    }
-
+    if (distance === 0) return 0;
+    if (distance === 1) return offset * 8.1;
     return Math.sign(offset) * (0.9 + ((distance - 2) * 1.1));
   }
 
@@ -182,43 +135,22 @@ export class DashboardComponent {
   getBoardRotation(index: number) {
     const offset = this.getBoardOffset(index);
     const distance = Math.abs(offset);
-
-    if (distance === 0) {
-      return 0;
-    }
-
-    if (distance === 1) {
-      return offset * -5;
-    }
-
+    if (distance === 0) return 0;
+    if (distance === 1) return offset * -5;
     return offset * -2.2;
   }
 
   getBoardScale(index: number) {
     const distance = this.getBoardDistance(index);
-
-    if (distance === 0) {
-      return 1;
-    }
-
-    if (distance === 1) {
-      return 0.9;
-    }
-
+    if (distance === 0) return 1;
+    if (distance === 1) return 0.9;
     return Math.max(0.76, 0.84 - ((distance - 2) * 0.06));
   }
 
   getBoardOpacity(index: number) {
     const distance = this.getBoardDistance(index);
-
-    if (distance === 0) {
-      return 1;
-    }
-
-    if (distance === 1) {
-      return 0.8;
-    }
-
+    if (distance === 0) return 1;
+    if (distance === 1) return 0.8;
     return Math.max(0.34, 0.5 - ((distance - 2) * 0.08));
   }
 }
