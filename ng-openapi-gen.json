@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
+  "input": "https://raw.githubusercontent.com/Stylora-App/Stylora-Backend/main/docs/openapi.yaml",
+  "output": "src/openapi_generated",
+  "$rootUrl": "http://localhost:5275",
+  "removeStaleFiles": true,
+  "ignoreUnusedModels": false
+}

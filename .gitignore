@@ -70,3 +70,5 @@ yarn.lock.backup
 
 # Environment (contains API keys — copy environment.example.ts → environment.ts)
 src/environments/environment.ts
+
+*openapi_generated/
