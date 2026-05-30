@@ -5,30 +5,17 @@ import {
   Output, EventEmitter
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { WardrobeService } from '../../services/wardrobe.service';
-import type { LoginRequest } from '@/openapi_generated/models/login-request';
-import type { RegisterRequest } from '@/openapi_generated/models/register-request';
-import {
-  PASSWORD_POLICY_MESSAGE,
-  hasMinPasswordLength,
-  hasSpecialCharacter,
-  hasUppercaseLetter,
-  isPasswordPolicyValid
-} from '../../utils/password-policy';
+import { AuthFormsComponent } from '../auth-forms/auth-forms';
 
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, AuthFormsComponent],
   templateUrl: './welcome.html',
   styleUrl: './welcome.css'
 })
 export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
-  private authService = inject(AuthService);
-  private wardrobeService = inject(WardrobeService);
   private router = inject(Router);
 
   @Output() authenticated = new EventEmitter<void>();
@@ -96,27 +83,7 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ── Drawer ────────────────────────────────────────────────────────────────
   drawerOpen = signal(false);
-
-  // ── Auth forms ────────────────────────────────────────────────────────────
-  isLoginMode          = signal(true);
-  isLoading            = signal(false);
-  errorMessage         = signal('');
-  successMessage       = signal('');
-  showLoginPassword    = signal(false);
-  showRegisterPassword = signal(false);
-  showConfirmPassword  = signal(false);
-
-  readonly passwordPolicyMessage = PASSWORD_POLICY_MESSAGE;
-
-  loginEmail    = '';
-  loginPassword = '';
-  rememberMe    = false;
-
-  firstName       = '';
-  lastName        = '';
-  registerEmail   = '';
-  registerPassword = '';
-  confirmPassword = '';
+  drawerMode = signal<'login' | 'register'>('register');
 
   // ── Data ──────────────────────────────────────────────────────────────────
   readonly heroPaletteColors = ['#7a3a2f', '#a86438', '#cf9b5e', '#d9b483', '#6b7d7a', '#3e4a4a'];
@@ -285,9 +252,7 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ── Drawer ────────────────────────────────────────────────────────────────
   openDrawer(mode: 'login' | 'register' = 'register') {
-    this.isLoginMode.set(mode === 'login');
-    this.errorMessage.set('');
-    this.successMessage.set('');
+    this.drawerMode.set(mode);
     this.drawerOpen.set(true);
     document.body.style.overflow = 'hidden';
   }
@@ -297,116 +262,12 @@ export class WelcomeComponent implements OnInit, OnDestroy, AfterViewInit {
     document.body.style.overflow = '';
   }
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  setAuthMode(isLogin: boolean) {
-    this.isLoginMode.set(isLogin);
-    this.errorMessage.set('');
-    this.successMessage.set('');
-    this.showLoginPassword.set(false);
-    this.showRegisterPassword.set(false);
-    this.showConfirmPassword.set(false);
-  }
-
-  hasRegisterPasswordMinLength()     { return hasMinPasswordLength(this.registerPassword); }
-  hasRegisterPasswordUppercase()     { return hasUppercaseLetter(this.registerPassword); }
-  hasRegisterPasswordSpecialChar()   { return hasSpecialCharacter(this.registerPassword); }
-  isRegisterPasswordValid()          { return isPasswordPolicyValid(this.registerPassword); }
-  hasStartedRegisterPassword()       { return this.registerPassword.length > 0; }
-  hasStartedConfirmPassword()        { return this.confirmPassword.length > 0; }
-  doPasswordsMatch()                 { return this.registerPassword === this.confirmPassword; }
-
-  isFieldInvalid(f: NgModel | null | undefined): boolean {
-    return Boolean(f && f.touched && f.invalid);
-  }
-
-  isRegisterPasswordFieldInvalid(f: NgModel | null | undefined): boolean {
-    return Boolean(f && f.touched && (!f.value || !this.isRegisterPasswordValid()));
-  }
-
-  isConfirmPasswordInvalid(f: NgModel | null | undefined): boolean {
-    return Boolean(f && f.touched && (!f.value || !this.doPasswordsMatch()));
-  }
-
-  getRegisterEmailError(f: NgModel | null | undefined): string {
-    if (!f?.touched) return '';
-    if (f.errors?.['required']) return 'Email is required.';
-    if (f.errors?.['email'])    return 'Enter a valid email address.';
-    return '';
-  }
-
-  getConfirmPasswordError(f: NgModel | null | undefined): string {
-    if (!f?.touched) return '';
-    if (!f.value)               return 'Please confirm your password.';
-    if (!this.doPasswordsMatch()) return 'Passwords do not match.';
-    return '';
-  }
-
-  async onLogin(form?: NgForm) {
-    this.errorMessage.set('');
-    this.successMessage.set('');
-    if (!this.loginEmail || !this.loginPassword) {
-      form?.control.markAllAsTouched();
-      this.errorMessage.set('Please enter your email and password.');
-      return;
-    }
-    this.isLoading.set(true);
-    const request: LoginRequest = {
-      email: this.loginEmail,
-      password: this.loginPassword,
-      rememberMe: this.rememberMe
-    };
-    const response = await this.authService.login(request);
-    this.isLoading.set(false);
-    if (response.success) {
-      this.closeDrawer();
-      this.wardrobeService.initializeData();
-      if (this.authenticated.observed) {
-        this.authenticated.emit();
-      } else {
-        this.router.navigate(['/dashboard']);
-      }
+  onDrawerAuthenticated() {
+    this.closeDrawer();
+    if (this.authenticated.observed) {
+      this.authenticated.emit();
     } else {
-      this.errorMessage.set(response.message || 'Login failed. Please try again.');
-    }
-  }
-
-  async onRegister(form?: NgForm) {
-    this.errorMessage.set('');
-    this.successMessage.set('');
-    if (!this.firstName.trim() || !this.lastName.trim() || !this.registerEmail || !this.registerPassword) {
-      form?.control.markAllAsTouched();
-      this.errorMessage.set('Please complete all required fields.');
-      return;
-    }
-    if (!this.isRegisterPasswordValid()) {
-      form?.control.markAllAsTouched();
-      this.errorMessage.set(this.passwordPolicyMessage);
-      return;
-    }
-    if (this.registerPassword !== this.confirmPassword) {
-      form?.control.markAllAsTouched();
-      this.errorMessage.set('Passwords do not match.');
-      return;
-    }
-    this.isLoading.set(true);
-    const request: RegisterRequest = {
-      email: this.registerEmail,
-      password: this.registerPassword,
-      firstName: this.firstName.trim() || undefined,
-      lastName: this.lastName.trim() || undefined
-    };
-    const response = await this.authService.register(request);
-    this.isLoading.set(false);
-    if (response.success) {
-      this.closeDrawer();
-      this.wardrobeService.initializeData();
-      if (this.authenticated.observed) {
-        this.authenticated.emit();
-      } else {
-        this.router.navigate(['/dashboard']);
-      }
-    } else {
-      this.errorMessage.set(response.message || 'Registration failed. Please try again.');
+      this.router.navigate(['/dashboard']);
     }
   }
 }
