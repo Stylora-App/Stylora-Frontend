@@ -8,6 +8,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/stylora-frontend
+  IMAGE_NAME_LOWER: ${{ lower(github.repository_owner) }}/stylora-frontend
 
 jobs:
   build:
