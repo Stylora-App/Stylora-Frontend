@@ -44,6 +44,10 @@
 
 /* Base layer customizations */
 @layer base {
+  html {
+    background-color: #FAFAFA;
+  }
+
   body {
     @apply font-sans bg-background text-foreground;
   }
